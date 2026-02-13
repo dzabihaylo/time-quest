@@ -125,6 +125,10 @@ for (const sf of soundFiles) {
   resourcesBuildPhase += `\t\t\t\t${buildFileId} /* ${sf} in Resources */,\n`;
 }
 
+// Entitlements file reference (not compiled, just a file reference for CODE_SIGN_ENTITLEMENTS)
+const entitlementsFileRefId = id('fileRef_Entitlements');
+fileRefs += `\t\t${entitlementsFileRefId} /* TimeQuest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TimeQuest.entitlements; sourceTree = "<group>"; };\n`;
+
 // Assets.xcassets
 const assetsFileRefId = id('fileRef_Assets');
 const assetsBuildFileId = id('buildFile_Assets');
@@ -179,6 +183,7 @@ groupSections += `\t\t\t\t${id('group_Services')} /* Services */,\n`;
 groupSections += `\t\t\t\t${id('group_Features')} /* Features */,\n`;
 groupSections += `\t\t\t\t${id('group_Game')} /* Game */,\n`;
 groupSections += `\t\t\t\t${id('group_Resources')} /* Resources */,\n`;
+groupSections += `\t\t\t\t${entitlementsFileRefId} /* TimeQuest.entitlements */,\n`;
 groupSections += `\t\t\t\t${productsGroupId} /* Products */,\n`;
 groupSections += `\t\t\t);\n\t\t\tsourceTree = "<group>";\n\t\t};\n`;
 
@@ -412,6 +417,7 @@ ${sourcesBuildPhase}\t\t\t);
 \t\t\tbuildSettings = {
 \t\t\t\tASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 \t\t\t\tASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+\t\t\t\tCODE_SIGN_ENTITLEMENTS = TimeQuest.entitlements;
 \t\t\t\tCODE_SIGN_STYLE = Automatic;
 \t\t\t\tCURRENT_PROJECT_VERSION = 1;
 \t\t\t\tDEVELOPMENT_TEAM = "";
@@ -419,6 +425,7 @@ ${sourcesBuildPhase}\t\t\t);
 \t\t\t\tINFOPLIST_KEY_CFBundleDisplayName = TimeQuest;
 \t\t\t\tINFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 \t\t\t\tINFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+\t\t\t\tINFOPLIST_KEY_UIBackgroundModes = "remote-notification";
 \t\t\t\tINFOPLIST_KEY_UILaunchScreen_Generation = YES;
 \t\t\t\tINFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 \t\t\t\tLD_RUNPATH_SEARCH_PATHS = (
@@ -439,6 +446,7 @@ ${sourcesBuildPhase}\t\t\t);
 \t\t\tbuildSettings = {
 \t\t\t\tASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 \t\t\t\tASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+\t\t\t\tCODE_SIGN_ENTITLEMENTS = TimeQuest.entitlements;
 \t\t\t\tCODE_SIGN_STYLE = Automatic;
 \t\t\t\tCURRENT_PROJECT_VERSION = 1;
 \t\t\t\tDEVELOPMENT_TEAM = "";
@@ -446,6 +454,7 @@ ${sourcesBuildPhase}\t\t\t);
 \t\t\t\tINFOPLIST_KEY_CFBundleDisplayName = TimeQuest;
 \t\t\t\tINFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 \t\t\t\tINFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+\t\t\t\tINFOPLIST_KEY_UIBackgroundModes = "remote-notification";
 \t\t\t\tINFOPLIST_KEY_UILaunchScreen_Generation = YES;
 \t\t\t\tINFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 \t\t\t\tLD_RUNPATH_SEARCH_PATHS = (

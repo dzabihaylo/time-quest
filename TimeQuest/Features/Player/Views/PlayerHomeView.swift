@@ -88,6 +88,7 @@ struct PlayerHomeView: View {
                         NotificationSettingsView(
                             playerProfileRepository: dependencies.playerProfileRepository,
                             notificationManager: dependencies.notificationManager,
+                            syncMonitor: dependencies.syncMonitor,
                             routines: todayQuests
                         )
                     } label: {

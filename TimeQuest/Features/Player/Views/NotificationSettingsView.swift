@@ -3,6 +3,7 @@ import SwiftUI
 struct NotificationSettingsView: View {
     let playerProfileRepository: PlayerProfileRepositoryProtocol
     let notificationManager: NotificationManager
+    let syncMonitor: CloudKitSyncMonitor
     let routines: [Routine]
 
     @State private var notificationsEnabled = true
@@ -11,8 +12,35 @@ struct NotificationSettingsView: View {
     @State private var authorizationDenied = false
     @State private var loaded = false
 
+    private var statusColor: Color {
+        switch syncMonitor.status {
+        case .synced: return .green
+        case .syncing: return .blue
+        case .error: return .red
+        case .noAccount: return .orange
+        case .notStarted: return .gray
+        }
+    }
+
     var body: some View {
         Form {
+            Section("iCloud Backup") {
+                HStack {
+                    Image(systemName: syncMonitor.status.systemImage)
+                        .foregroundStyle(statusColor)
+                        .imageScale(.large)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("iCloud Backup")
+                            .font(.body)
+                        Text(syncMonitor.status.displayText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                }
+                .padding(.vertical, 4)
+            }
+
             Section("Notifications") {
                 Toggle("Quest Reminders", isOn: $notificationsEnabled)
                     .onChange(of: notificationsEnabled) { _, newValue in
