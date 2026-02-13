@@ -10,11 +10,11 @@ struct TimeQuestApp: App {
         // is unavailable (e.g., simulator without iCloud sign-in, no entitlements,
         // or CloudKit container not yet provisioned).
         if let cloudContainer = try? ModelContainer(
-            for: TimeQuestSchemaV2.Routine.self,
-                 TimeQuestSchemaV2.RoutineTask.self,
-                 TimeQuestSchemaV2.GameSession.self,
-                 TimeQuestSchemaV2.TaskEstimation.self,
-                 TimeQuestSchemaV2.PlayerProfile.self,
+            for: TimeQuestSchemaV3.Routine.self,
+                 TimeQuestSchemaV3.RoutineTask.self,
+                 TimeQuestSchemaV3.GameSession.self,
+                 TimeQuestSchemaV3.TaskEstimation.self,
+                 TimeQuestSchemaV3.PlayerProfile.self,
             migrationPlan: TimeQuestMigrationPlan.self,
             configurations: ModelConfiguration(cloudKitDatabase: .automatic)
         ) {
@@ -23,11 +23,11 @@ struct TimeQuestApp: App {
             // Fall back to local-only — migration still runs, just no CloudKit sync
             do {
                 container = try ModelContainer(
-                    for: TimeQuestSchemaV2.Routine.self,
-                         TimeQuestSchemaV2.RoutineTask.self,
-                         TimeQuestSchemaV2.GameSession.self,
-                         TimeQuestSchemaV2.TaskEstimation.self,
-                         TimeQuestSchemaV2.PlayerProfile.self,
+                    for: TimeQuestSchemaV3.Routine.self,
+                         TimeQuestSchemaV3.RoutineTask.self,
+                         TimeQuestSchemaV3.GameSession.self,
+                         TimeQuestSchemaV3.TaskEstimation.self,
+                         TimeQuestSchemaV3.PlayerProfile.self,
                     migrationPlan: TimeQuestMigrationPlan.self,
                     configurations: ModelConfiguration(cloudKitDatabase: .none)
                 )
