@@ -1,0 +1,139 @@
+# Requirements: v2.0 Advanced Training
+
+## Milestone Goal
+
+The player develops self-awareness about her estimation patterns and takes ownership of her time training through contextual insights, self-created routines, and weekly reflections -- plus production polish (real sounds, XP tuning, iCloud backup).
+
+---
+
+## Data Foundation & iCloud Backup
+
+- [ ] REQ-001: All SwiftData models have property-level defaults for CloudKit compatibility
+- [ ] REQ-002: Schema versioning with VersionedSchema (V1 retroactive, V2 for v2.0 changes)
+- [ ] REQ-003: SchemaMigrationPlan that preserves all v1.0 data during upgrade
+- [ ] REQ-004: Stable cloudID (String = UUID) on all models for cross-device deduplication
+- [ ] REQ-005: CloudKit sync enabled via ModelConfiguration(cloudKitDatabase: .automatic)
+- [ ] REQ-006: iCloud + CloudKit entitlements configured in project
+- [ ] REQ-007: PlayerProfile singleton deduplication across devices (sentinel ID pattern)
+- [ ] REQ-008: Repository queries use stable cloudID instead of persistentModelID
+- [ ] REQ-009: Backup status indicator in settings ("Synced" / last backup date)
+- [ ] REQ-010: All existing v1.0 features continue working after migration
+
+## Contextual Learning Insights
+
+- [ ] REQ-011: EstimationSnapshot shared value type decouples domain engines from SwiftData
+- [ ] REQ-012: InsightEngine detects per-task chronic over/underestimation bias
+- [ ] REQ-013: InsightEngine detects per-task accuracy trend (improving/stagnating/declining)
+- [ ] REQ-014: InsightEngine computes per-task consistency score
+- [ ] REQ-015: Minimum 5 non-calibration sessions required before generating task insights
+- [ ] REQ-016: Calibration sessions excluded from pattern analysis
+- [ ] REQ-017: Insight language uses curiosity framing ("Interesting -- you tend to...") not criticism
+- [ ] REQ-018: "My Patterns" dedicated screen showing all per-task insights by routine
+- [ ] REQ-019: In-gameplay contextual hint before estimation for tasks with known patterns
+- [ ] REQ-020: Contextual hints show reference data ("Last 5 times: ~12 min") not corrections
+- [ ] REQ-021: InsightCardView shared component for displaying insights
+- [ ] REQ-022: Navigation from PlayerHomeView to My Patterns screen
+
+## Self-Set Routines
+
+- [ ] REQ-023: Routine model has createdBy field distinguishing parent vs player routines
+- [ ] REQ-024: RoutineTemplateProvider with 3+ starter templates (Homework, Friend's House, Activity Prep)
+- [ ] REQ-025: Player-facing guided routine creation with templates as starting points
+- [ ] REQ-026: Player can customize template (rename, add/remove/reorder tasks, change days)
+- [ ] REQ-027: Player can create blank routine ("Custom Quest") without template
+- [ ] REQ-028: "Create Quest" entry point on PlayerHomeView
+- [ ] REQ-029: Visual distinction for player-created quests (badge/indicator) without labeling parent routines
+- [ ] REQ-030: Parent dashboard filtered to exclude player-created routines
+- [ ] REQ-031: Parent cannot edit or delete player-created routines
+- [ ] REQ-032: Validation guardrails: 1-10 tasks, non-empty names, at least one active day
+
+## Weekly Reflection Summaries
+
+- [ ] REQ-033: WeeklyReflectionEngine computes summary from past 7 days of sessions
+- [ ] REQ-034: Summary includes: quests completed, average accuracy, accuracy change vs prior week
+- [ ] REQ-035: Summary includes best estimate of the week and most improved task
+- [ ] REQ-036: Summary includes streak context framed positively ("5 of 7 days" not "missed 2")
+- [ ] REQ-037: Summary includes one pattern highlight from InsightEngine
+- [ ] REQ-038: Reflection computed lazily on app open (not background scheduler)
+- [ ] REQ-039: Dismissible card at top of PlayerHomeView on first open of new week
+- [ ] REQ-040: Reflection accessible from stats/history if dismissed or missed
+- [ ] REQ-041: Reflection target: absorbable in 15 seconds, one screen, no scrolling
+- [ ] REQ-042: Handle gaps: generate reflections for missed weeks from historical data
+
+## Production Polish
+
+- [ ] REQ-043: 5 real sound assets replacing placeholder .wav files (estimate lock, reveal, level up, personal best, session complete)
+- [ ] REQ-044: Sound assets sourced royalty-free (CC0 preferred) under 1MB total
+- [ ] REQ-045: AVAudioSession configured as .ambient (mix with background music, respect silent switch)
+- [ ] REQ-046: XP curve constants exposed as tunable values for post-playtesting adjustment
+
+## Anti-Requirements (Explicitly Out of Scope)
+
+- AI-generated coaching/motivational messages
+- Comparison to "normal" or parent-set reference durations
+- Parent insight reports or analytics dashboard
+- Achievement badges system
+- Streak multipliers or mechanical streak benefits
+- Home screen widget (defer to v3.0)
+- Multi-device real-time sync (backup/restore only)
+- Goal-setting in reflections
+- Mandatory/blocking reflection before play
+
+---
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| REQ-001 | Phase 3 | Pending |
+| REQ-002 | Phase 3 | Pending |
+| REQ-003 | Phase 3 | Pending |
+| REQ-004 | Phase 3 | Pending |
+| REQ-005 | Phase 3 | Pending |
+| REQ-006 | Phase 3 | Pending |
+| REQ-007 | Phase 3 | Pending |
+| REQ-008 | Phase 3 | Pending |
+| REQ-009 | Phase 3 | Pending |
+| REQ-010 | Phase 3 | Pending |
+| REQ-011 | Phase 4 | Pending |
+| REQ-012 | Phase 4 | Pending |
+| REQ-013 | Phase 4 | Pending |
+| REQ-014 | Phase 4 | Pending |
+| REQ-015 | Phase 4 | Pending |
+| REQ-016 | Phase 4 | Pending |
+| REQ-017 | Phase 4 | Pending |
+| REQ-018 | Phase 4 | Pending |
+| REQ-019 | Phase 4 | Pending |
+| REQ-020 | Phase 4 | Pending |
+| REQ-021 | Phase 4 | Pending |
+| REQ-022 | Phase 4 | Pending |
+| REQ-023 | Phase 5 | Pending |
+| REQ-024 | Phase 5 | Pending |
+| REQ-025 | Phase 5 | Pending |
+| REQ-026 | Phase 5 | Pending |
+| REQ-027 | Phase 5 | Pending |
+| REQ-028 | Phase 5 | Pending |
+| REQ-029 | Phase 5 | Pending |
+| REQ-030 | Phase 5 | Pending |
+| REQ-031 | Phase 5 | Pending |
+| REQ-032 | Phase 5 | Pending |
+| REQ-033 | Phase 6 | Pending |
+| REQ-034 | Phase 6 | Pending |
+| REQ-035 | Phase 6 | Pending |
+| REQ-036 | Phase 6 | Pending |
+| REQ-037 | Phase 6 | Pending |
+| REQ-038 | Phase 6 | Pending |
+| REQ-039 | Phase 6 | Pending |
+| REQ-040 | Phase 6 | Pending |
+| REQ-041 | Phase 6 | Pending |
+| REQ-042 | Phase 6 | Pending |
+| REQ-043 | Phase 5 | Pending |
+| REQ-044 | Phase 5 | Pending |
+| REQ-045 | Phase 5 | Pending |
+| REQ-046 | Phase 5 | Pending |
+
+---
+
+*46 requirements across 5 categories*
+*Scope confirmed: 2026-02-13*
+*Traceability added: 2026-02-13*
