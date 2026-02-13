@@ -58,21 +58,34 @@ struct PlayerHomeView: View {
                     questList
                 }
 
-                // Stats navigation
+                // Navigation links
                 if progressionVM != nil {
-                    NavigationLink {
-                        PlayerStatsView(viewModel: ProgressionViewModel(
-                            playerProfileRepository: SwiftDataPlayerProfileRepository(modelContext: modelContext),
-                            sessionRepository: SwiftDataSessionRepository(modelContext: modelContext),
-                            modelContext: modelContext
-                        ))
-                    } label: {
-                        HStack(spacing: 4) {
-                            Text("View Your Stats")
-                            Image(systemName: "chevron.right")
+                    VStack(spacing: 8) {
+                        NavigationLink {
+                            MyPatternsView()
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text("My Patterns")
+                                Image(systemName: "chevron.right")
+                            }
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                         }
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+
+                        NavigationLink {
+                            PlayerStatsView(viewModel: ProgressionViewModel(
+                                playerProfileRepository: SwiftDataPlayerProfileRepository(modelContext: modelContext),
+                                sessionRepository: SwiftDataSessionRepository(modelContext: modelContext),
+                                modelContext: modelContext
+                            ))
+                        } label: {
+                            HStack(spacing: 4) {
+                                Text("View Your Stats")
+                                Image(systemName: "chevron.right")
+                            }
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        }
                     }
                 }
 
