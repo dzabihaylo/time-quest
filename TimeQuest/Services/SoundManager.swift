@@ -17,7 +17,18 @@ final class SoundManager {
 
     init() {
         self.isMuted = UserDefaults.standard.bool(forKey: "soundMuted")
+        configureAudioSession()
         preloadAll()
+    }
+
+    private func configureAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.ambient, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            // Audio session config failed -- sounds will still play but may
+            // interrupt other audio or ignore silent switch
+        }
     }
 
     func preloadAll() {

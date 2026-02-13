@@ -635,6 +635,10 @@ function createSilentWav(filePath) {
 
 for (const sf of ['estimate_lock.wav', 'reveal.wav', 'level_up.wav', 'personal_best.wav', 'session_complete.wav']) {
   const filePath = path.join(soundsDir, sf);
-  createSilentWav(filePath);
-  console.log(`Generated placeholder: ${filePath}`);
+  if (!fs.existsSync(filePath)) {
+    createSilentWav(filePath);
+    console.log(`Generated placeholder: ${filePath}`);
+  } else {
+    console.log(`Sound exists, skipping: ${filePath}`);
+  }
 }
