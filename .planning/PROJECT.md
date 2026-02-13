@@ -2,7 +2,7 @@
 
 ## What This Is
 
-An iOS game that trains time perception in a 13-year-old with time blindness. Disguised as a game, it teaches the player to accurately estimate how long real-life tasks take, building an internal clock through repeated calibration. A parent sets up routines behind the scenes; the player experiences it as her own game.
+An iOS game that trains time perception in a 13-year-old with time blindness. Disguised as a quest game, it teaches the player to accurately estimate how long real-life tasks take, building an internal clock through repeated estimation-feedback cycles. A parent sets up routines behind the scenes; the player experiences it as her own game with XP, levels, streaks, and accuracy milestones.
 
 ## Core Value
 
@@ -12,16 +12,21 @@ The player develops an accurate internal sense of time — the ability to predic
 
 ### Validated
 
-(None yet — ship to validate)
+- ✓ Time estimation game mechanics that train duration perception — v1.0
+- ✓ Parent setup mode for configuring real routines (school mornings, activity prep) — v1.0
+- ✓ Player-facing game experience that feels like HER thing, not a parent's tool — v1.0
+- ✓ Progress tracking that shows time estimation accuracy improving over time — v1.0
+- ✓ Support for multiple routine types (school mornings, roller derby, art class) — v1.0
+- ✓ Game loop that makes time calibration engaging across weeks of use — v1.0
+- ✓ XP/leveling progression system based on estimation accuracy — v1.0
+- ✓ Graceful streak tracking that pauses on skipped days — v1.0
+- ✓ Haptic feedback, sound effects, and celebratory animations — v1.0
+- ✓ Game-framed notifications with player-controlled preferences — v1.0
+- ✓ Accuracy trend charts and personal bests per task — v1.0
 
 ### Active
 
-- [ ] Time estimation game mechanics that train duration perception
-- [ ] Parent setup mode for configuring real routines (school mornings, activity prep)
-- [ ] Player-facing game experience that feels like HER thing, not a parent's tool
-- [ ] Progress tracking that shows time estimation accuracy improving over time
-- [ ] Support for multiple routine types (school mornings, roller derby, art class)
-- [ ] Game loop that makes time calibration engaging across weeks of use
+(None — next milestone needs `/gsd:new-milestone` to define)
 
 ### Out of Scope
 
@@ -29,16 +34,24 @@ The player develops an accurate internal sense of time — the ability to predic
 - Social/multiplayer features — this is a personal skill-building tool
 - Parental surveillance dashboard — parent role is setup only, not monitoring
 - Android version — iOS only for v1
+- Visible countdown timer during tasks — externalizes the clock, opposite of training internal sense
+- Punishment for inaccuracy — time blindness is neurological, not laziness
+- AI-generated motivational messages — teens detect and despise inauthentic positivity
 
 ## Context
+
+Shipped v1.0 MVP with 3,575 LOC across 46 Swift files.
+Tech stack: SwiftUI + SwiftData + SpriteKit + Swift Charts, iOS 17.0+, Swift 6.0, Xcode 16.2.
+Build system: generate-xcodeproj.js (Node script) for pbxproj generation.
+Architecture: Feature-sliced MVVM, pure domain engines, @Observable ViewModels, value-type editing.
 
 - The player is a 13-year-old girl with deep time blindness (not selective — she can't calibrate time for anything, including things she enjoys)
 - She values independence and feeling grown up / in control
 - Current dynamic: parent nags → she feels less independent → resists more → conflict loop
-- Checklists and timers have failed because they don't address the root issue (perception, not motivation)
 - She has school mornings (5x/week) plus 2-3 activities (roller derby, art class) = 7-8 real training opportunities per week
 - Her phone is the one thing she always has and pays attention to
 - Success = mornings and activity prep stop being a conflict, not perfection
+- Sound effects use placeholder .wav files — real audio assets needed for production
 
 ## Constraints
 
@@ -52,10 +65,16 @@ The player develops an accurate internal sense of time — the ability to predic
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Game-first, not tool-first | Tools (timers, checklists) already failed; game mechanics create intrinsic motivation | — Pending |
-| Parent as invisible setup | Preserves her sense of independence and ownership | — Pending |
-| Time estimation as core mechanic | Root cause is perception, not motivation — train the actual skill | — Pending |
-| iOS native | Her phone is the delivery channel; native gives best UX | — Pending |
+| Game-first, not tool-first | Tools (timers, checklists) already failed; game mechanics create intrinsic motivation | ✓ Good |
+| Parent as invisible setup | Preserves her sense of independence and ownership | ✓ Good |
+| Time estimation as core mechanic | Root cause is perception, not motivation — train the actual skill | ✓ Good |
+| iOS native | Her phone is the delivery channel; native gives best UX | ✓ Good |
+| generate-xcodeproj.js for build | xcodegen unavailable, CLI project creation unreliable | ✓ Good — worked reliably across all 6 plans |
+| Value-type editing in ViewModels | Prevents SwiftData auto-save corruption | ✓ Good |
+| Pure domain engines | Testable, zero-dependency business logic | ✓ Good |
+| Concave XP curve (baseXP * level^1.5) | Fast early levels keep 13-year-old engaged | — Pending playtesting |
+| Graceful streak pause (never reset) | No guilt, no punishment aligns with ADHD-friendly design | ✓ Good |
+| Placeholder .wav sound files | Infrastructure works; real assets swappable later | ⚠️ Revisit — need real audio |
 
 ---
-*Last updated: 2026-02-12 after initialization*
+*Last updated: 2026-02-13 after v1.0 milestone*
