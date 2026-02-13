@@ -63,6 +63,9 @@ const sourceFiles = [
   { name: 'NotificationManager.swift', path: 'Services/NotificationManager.swift' },
   { name: 'CelebrationScene.swift', path: 'Game/CelebrationScene.swift' },
   { name: 'NotificationSettingsView.swift', path: 'Features/Player/Views/NotificationSettingsView.swift' },
+  { name: 'TimeQuestSchemaV1.swift', path: 'Models/Schemas/TimeQuestSchemaV1.swift' },
+  { name: 'TimeQuestSchemaV2.swift', path: 'Models/Schemas/TimeQuestSchemaV2.swift' },
+  { name: 'TimeQuestMigrationPlan.swift', path: 'Models/Migration/TimeQuestMigrationPlan.swift' },
 ];
 
 // Sound resource files
@@ -77,7 +80,9 @@ const soundFiles = [
 // Groups
 const groups = [
   { name: 'App', path: 'App', files: ['TimeQuestApp.swift', 'AppDependencies.swift', 'RoleRouter.swift'] },
-  { name: 'Models', path: 'Models', files: ['Routine.swift', 'RoutineTask.swift', 'GameSession.swift', 'TaskEstimation.swift', 'PlayerProfile.swift'] },
+  { name: 'Models', path: 'Models', files: ['Routine.swift', 'RoutineTask.swift', 'GameSession.swift', 'TaskEstimation.swift', 'PlayerProfile.swift'], subgroups: ['Schemas', 'Migration'] },
+  { name: 'Schemas', path: 'Schemas', files: ['TimeQuestSchemaV1.swift', 'TimeQuestSchemaV2.swift'] },
+  { name: 'Migration', path: 'Migration', files: ['TimeQuestMigrationPlan.swift'] },
   { name: 'Repositories', path: 'Repositories', files: ['RoutineRepository.swift', 'SessionRepository.swift', 'PlayerProfileRepository.swift'] },
   { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift'] },
   { name: 'Services', path: 'Services', files: ['SoundManager.swift', 'NotificationManager.swift'] },

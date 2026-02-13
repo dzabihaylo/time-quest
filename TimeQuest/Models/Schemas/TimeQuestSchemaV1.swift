@@ -1,8 +1,8 @@
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 enum TimeQuestSchemaV1: VersionedSchema {
-    static var versionIdentifier = Schema.Version(1, 0, 0)
+    nonisolated(unsafe) static var versionIdentifier = Schema.Version(1, 0, 0)
 
     static var models: [any PersistentModel.Type] {
         [Routine.self, RoutineTask.self, GameSession.self,
@@ -18,10 +18,10 @@ enum TimeQuestSchemaV1: VersionedSchema {
         var createdAt: Date
         var updatedAt: Date
 
-        @Relationship(deleteRule: .cascade, inverse: \RoutineTask.routine)
+        @Relationship(deleteRule: .cascade, inverse: \TimeQuestSchemaV1.RoutineTask.routine)
         var tasks: [RoutineTask] = []
 
-        @Relationship(deleteRule: .cascade, inverse: \GameSession.routine)
+        @Relationship(deleteRule: .cascade, inverse: \TimeQuestSchemaV1.GameSession.routine)
         var sessions: [GameSession] = []
 
         init(
@@ -70,7 +70,7 @@ enum TimeQuestSchemaV1: VersionedSchema {
         var isCalibration: Bool
         var xpEarned: Int = 0
 
-        @Relationship(deleteRule: .cascade, inverse: \TaskEstimation.session)
+        @Relationship(deleteRule: .cascade, inverse: \TimeQuestSchemaV1.TaskEstimation.session)
         var estimations: [TaskEstimation] = []
 
         init(

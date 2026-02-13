@@ -1,5 +1,5 @@
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 enum TimeQuestMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
