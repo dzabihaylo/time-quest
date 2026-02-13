@@ -22,7 +22,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 **Milestone Goal:** The player develops self-awareness about her estimation patterns and takes ownership of her time training through contextual insights, self-created routines, and weekly reflections -- plus production polish (real sounds, XP tuning, iCloud backup).
 
 - [x] **Phase 3: Data Foundation + CloudKit Backup** - All player data survives device replacement and all v1.0 features work after schema migration -- completed 2026-02-13
-- [ ] **Phase 4: Contextual Learning Insights** - Player can see which tasks she misjudges, in which direction, and whether she's improving
+- [x] **Phase 4: Contextual Learning Insights** - Player can see which tasks she misjudges, in which direction, and whether she's improving -- completed 2026-02-13
 - [ ] **Phase 5: Self-Set Routines + Production Audio** - Player can create her own quests and all sounds feel real
 - [ ] **Phase 6: Weekly Reflection Summaries** - Player absorbs a weekly snapshot of her progress and patterns
 
@@ -56,8 +56,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md -- EstimationSnapshot value type + InsightEngine TDD (bias, trend, consistency, contextual hints)
-- [ ] 04-02-PLAN.md -- InsightCardView shared component, MyPatternsView + ViewModel, contextual gameplay hints, PlayerHomeView navigation
+- [x] 04-01-PLAN.md -- EstimationSnapshot value type + InsightEngine TDD (bias, trend, consistency, contextual hints)
+- [x] 04-02-PLAN.md -- InsightCardView shared component, MyPatternsView + ViewModel, contextual gameplay hints, PlayerHomeView navigation
 
 ### Phase 5: Self-Set Routines + Production Audio
 **Goal**: Player creates her own quests (transferring ownership from "parent's tool" to "my tool") and all game sounds feel polished and real
@@ -100,7 +100,7 @@ Plans:
 | 1. Playable Foundation | v1.0 | 3/3 | Complete | 2026-02-13 |
 | 2. Engagement Layer | v1.0 | 3/3 | Complete | 2026-02-13 |
 | 3. Data Foundation + CloudKit Backup | v2.0 | 2/2 | Complete | 2026-02-13 |
-| 4. Contextual Learning Insights | v2.0 | 0/2 | Not started | - |
+| 4. Contextual Learning Insights | v2.0 | 2/2 | Complete | 2026-02-13 |
 | 5. Self-Set Routines + Production Audio | v2.0 | 0/2 | Not started | - |
 | 6. Weekly Reflection Summaries | v2.0 | 0/1 | Not started | - |
 
