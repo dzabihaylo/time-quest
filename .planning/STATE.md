@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
-**Current focus:** v2.0 Advanced Training -- Phase 3 ready to plan
+**Current focus:** v2.0 Advanced Training -- Phase 3 Plan 1 complete
 
 ## Current Position
 
 Milestone: v2.0 Advanced Training
 Phase: 3 of 6 (Data Foundation + CloudKit Backup)
-Plan: --
-Status: Ready to plan
-Last activity: 2026-02-13 -- v2.0 roadmap created (4 phases, 46 requirements mapped)
+Plan: 1 of 2 complete
+Status: Executing
+Last activity: 2026-02-13 -- Schema versioning (V1/V2) + lightweight migration + typealiases
 
-Progress: [##########....................] 46% (6/13 plans -- v1.0: 6/6, v2.0: 0/7)
+Progress: [###########...................] 54% (7/13 plans -- v1.0: 6/6, v2.0: 1/7)
 
 ## Performance Metrics
 
@@ -26,7 +26,11 @@ Progress: [##########....................] 46% (6/13 plans -- v1.0: 6/6, v2.0: 0
 
 **v2.0 Advanced Training:**
 - Phases: 4 (Phases 3-6), Plans: 7 (estimated)
-- Status: Not started
+- Status: In progress
+
+| Phase | Plan | Duration | Tasks | Files |
+|-------|------|----------|-------|-------|
+| 03-01 | Schema Versioning | 4min | 2 | 11 |
 
 ## Accumulated Context
 
@@ -40,11 +44,17 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 - Self-set routines + sound assets bundled: independent features, similar risk level
 - All new model properties require defaults (CloudKit + lightweight migration constraint)
 
+**Phase 3 decisions:**
+- Used nonisolated(unsafe) for VersionedSchema.versionIdentifier (Swift 6 strict concurrency)
+- Used @preconcurrency import SwiftData in schema/migration files
+- Fully qualified relationship inverse keypaths to prevent typealias cross-schema resolution
+
 ### Pending Todos
 
 - Create v2.0 roadmap -- DONE
-- Plan Phase 3 (Data Foundation + CloudKit Backup)
-- Begin phase execution
+- Plan Phase 3 (Data Foundation + CloudKit Backup) -- DONE
+- Execute Phase 3 Plan 1 (Schema Versioning) -- DONE
+- Execute Phase 3 Plan 2 (CloudKit Backup)
 
 ### Blockers/Concerns
 
@@ -55,5 +65,5 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: v2.0 roadmap created, Phase 3 ready to plan
+Stopped at: Completed 03-01-PLAN.md (Schema Versioning)
 Resume file: None
