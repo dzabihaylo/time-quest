@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-02-12)
 
 **Core value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
-**Current focus:** Phase 2 - Engagement Layer (in progress)
+**Current focus:** Phase 2 - Engagement Layer (checkpoint pending)
 
 ## Current Position
 
 Phase: 2 of 2 (Engagement Layer)
-Plan: 2 of 3 in current phase (02-02 complete)
-Status: Executing Phase 2
-Last activity: 2026-02-13 -- Plan 02-02 (Progression UI Layer) complete
+Plan: 3 of 3 in current phase (02-03 Tasks 1-2 complete, Task 3 checkpoint pending)
+Status: Awaiting human verification checkpoint
+Last activity: 2026-02-13 -- Plan 02-03 (Sensory Polish and Notifications) Tasks 1-2 complete
 
-Progress: [█████████░] 91% (5 of 6 plans complete)
+Progress: [█████████░] 95% (5.67 of 6 plans complete -- checkpoint pending)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
+- Total plans completed: 5 (02-03 in progress at checkpoint)
 - Total execution time: ~2 sessions
 
 **By Phase:**
@@ -27,10 +27,11 @@ Progress: [█████████░] 91% (5 of 6 plans complete)
 | Phase | Plans | Status |
 |-------|-------|--------|
 | 1. Playable Foundation | 3/3 | Code complete |
-| 2. Engagement Layer | 2/3 | In progress |
+| 2. Engagement Layer | 2.67/3 | Checkpoint pending |
 
 **Plan 02-01:** 5 min, 2 tasks, 12 files
 **Plan 02-02:** 3 min, 2 tasks, 9 files
+**Plan 02-03:** 7 min, 2/3 tasks, 20 files (checkpoint pending)
 
 ## Accumulated Context
 
@@ -48,10 +49,14 @@ Progress: [█████████░] 91% (5 of 6 plans complete)
 - [02-02]: ProgressionViewModel creates repos from ModelContext (no AppDependencies injection needed)
 - [02-02]: Accuracy chart uses 30-day rolling window with daily averages
 - [02-02]: PlayerStatsView gets its own ProgressionViewModel instance for independent refresh
+- [02-03]: AppDependencies injected via ContentView wrapper (modelContext needed at init)
+- [02-03]: Sound files are placeholder .wav; real assets swappable later
+- [02-03]: Personal best celebration takes priority over spot-on celebration
+- [02-03]: @preconcurrency import UserNotifications for Swift 6 concurrency
 
 ### Pending Todos
 
-- Phase 2 plan 02-03 remains
+- Plan 02-03 Task 3 (human-verify checkpoint) -- complete Phase 2 engagement layer verification
 - Human verification on iOS Simulator still pending from Phase 1
 
 ### Blockers/Concerns
@@ -61,5 +66,5 @@ Progress: [█████████░] 91% (5 of 6 plans complete)
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 02-02-PLAN.md (Progression UI Layer)
+Stopped at: Plan 02-03 Task 3 checkpoint (human-verify) -- awaiting user verification of complete Phase 2 engagement layer
 Resume file: None
