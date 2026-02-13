@@ -26,7 +26,17 @@ The player develops an accurate internal sense of time — the ability to predic
 
 ### Active
 
-(None — next milestone needs `/gsd:new-milestone` to define)
+## Current Milestone: v2.0 Advanced Training
+
+**Goal:** The player develops self-awareness about her estimation patterns and takes ownership of her time training through contextual insights, self-created routines, and weekly reflections — plus production polish.
+
+**Target features:**
+- Contextual learning insights (in-gameplay + dedicated "My Patterns" screen)
+- Self-set routines with guided creation (templates + customization)
+- Real sound assets replacing placeholders
+- XP curve tuning from playtesting
+- iCloud backup for progress data
+- Weekly reflection summaries
 
 ### Out of Scope
 
@@ -77,4 +87,4 @@ Architecture: Feature-sliced MVVM, pure domain engines, @Observable ViewModels, 
 | Placeholder .wav sound files | Infrastructure works; real assets swappable later | ⚠️ Revisit — need real audio |
 
 ---
-*Last updated: 2026-02-13 after v1.0 milestone*
+*Last updated: 2026-02-13 after v2.0 milestone start*
