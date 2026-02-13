@@ -6,12 +6,9 @@ struct PlayerHomeView: View {
     @Environment(\.modelContext) private var modelContext
 
     @State private var todayQuests: [Routine] = []
-    @State private var showOnboarding = false
+    @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "onboardingComplete")
     @State private var selectedQuest: Routine?
-
-    private var onboardingComplete: Bool {
-        UserDefaults.standard.bool(forKey: "onboardingComplete")
-    }
+    @State private var progressionVM: ProgressionViewModel?
 
     var body: some View {
         NavigationStack {
@@ -32,6 +29,25 @@ struct PlayerHomeView: View {
                     roleState.requestParentAccess()
                 }
 
+                // Progression header
+                if let vm = progressionVM {
+                    VStack(spacing: 12) {
+                        LevelBadgeView(level: vm.currentLevel)
+
+                        XPBarView(
+                            currentXP: vm.totalXP,
+                            xpForNextLevel: vm.xpForNextLevel,
+                            progress: vm.xpProgress
+                        )
+                        .padding(.horizontal, 24)
+
+                        StreakBadgeView(
+                            streak: vm.currentStreak,
+                            isActive: vm.isStreakActive
+                        )
+                    }
+                }
+
                 Spacer()
 
                 // Quest list
@@ -39,6 +55,24 @@ struct PlayerHomeView: View {
                     emptyState
                 } else {
                     questList
+                }
+
+                // Stats navigation
+                if progressionVM != nil {
+                    NavigationLink {
+                        PlayerStatsView(viewModel: ProgressionViewModel(
+                            playerProfileRepository: SwiftDataPlayerProfileRepository(modelContext: modelContext),
+                            sessionRepository: SwiftDataSessionRepository(modelContext: modelContext),
+                            modelContext: modelContext
+                        ))
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text("View Your Stats")
+                            Image(systemName: "chevron.right")
+                        }
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    }
                 }
 
                 Spacer()
@@ -50,9 +84,7 @@ struct PlayerHomeView: View {
         }
         .onAppear {
             loadTodayQuests()
-            if !onboardingComplete {
-                showOnboarding = true
-            }
+            loadProgression()
         }
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingView(onComplete: {
@@ -126,6 +158,16 @@ struct PlayerHomeView: View {
     private func loadTodayQuests() {
         let repo = SwiftDataRoutineRepository(modelContext: modelContext)
         todayQuests = repo.fetchActiveForToday()
+    }
+
+    private func loadProgression() {
+        let vm = ProgressionViewModel(
+            playerProfileRepository: SwiftDataPlayerProfileRepository(modelContext: modelContext),
+            sessionRepository: SwiftDataSessionRepository(modelContext: modelContext),
+            modelContext: modelContext
+        )
+        vm.refresh()
+        progressionVM = vm
     }
 
     private func isCalibrating(_ routine: Routine) -> Bool {

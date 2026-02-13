@@ -34,6 +34,26 @@ struct SessionSummaryView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
+                // XP earned this session
+                if viewModel.sessionXPEarned > 0 {
+                    VStack(spacing: 8) {
+                        Text("+\(viewModel.sessionXPEarned) XP")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.teal)
+
+                        if viewModel.didLevelUp {
+                            Text("Level Up!")
+                                .font(.headline)
+                                .foregroundStyle(.orange)
+                        }
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color(.systemGray6))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+
                 // Summary stats
                 if let session = viewModel.session {
                     summaryStats(session)

@@ -7,88 +7,100 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9858B87B4CECA11BDBB62666 /* TimeQuestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A2F60CD5AF3553AA21FA202 /* TimeQuestApp.swift */; };
-		0806E4945D75C3FB19423C61 /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37566198DAF151D6470A2B27 /* AppDependencies.swift */; };
-		93E7AAD5376683E829DB69C7 /* RoleRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3327E62A9745810095DC8BD7 /* RoleRouter.swift */; };
-		2A202D083BEACE5516EB720A /* Routine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E32872A0B6EDDD3BF77167A /* Routine.swift */; };
-		F21547D39EE1C81CF0F565C2 /* RoutineTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF0A8A1656121D15440367D /* RoutineTask.swift */; };
-		912FECD3005CB5209A0196FF /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE999074F0EA588139AB4F84 /* GameSession.swift */; };
-		1F417296B7E918EFB98F74CA /* TaskEstimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B649550B51D5D52E502B2F8F /* TaskEstimation.swift */; };
-		328A79DA0C4091C2E0EDF521 /* RoutineRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9C09AB3B449E2C49441BED /* RoutineRepository.swift */; };
-		6A3945E19332280044B86005 /* SessionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2A37C35982B0F0C8E851F37 /* SessionRepository.swift */; };
-		41DF4DE916149D4336042143 /* TimeEstimationScorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 865780F670B58AE35AAC0CEE /* TimeEstimationScorer.swift */; };
-		EC762F89CA196894E4DE0512 /* FeedbackGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE15A7AA74FD6BF4901191E4 /* FeedbackGenerator.swift */; };
-		3EC270EABC01B19CE6FC2613 /* CalibrationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24FF9A6AB57E691F90F54477 /* CalibrationTracker.swift */; };
-		FB9C7E08CBE805BC7A54060B /* TimeFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05126D9FB6EE0F60D61BBA1 /* TimeFormatting.swift */; };
-		820CE40855829B60E8DE1AC1 /* PINEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1113A2881C699FC35FBBA3E3 /* PINEntryView.swift */; };
-		E5827C36157C8D43FC04721B /* PlayerHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5606C2E5195F947A49DAAB36 /* PlayerHomeView.swift */; };
-		1776312C4EC32A607425EA16 /* ParentDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6080D7D4F0E98650D6DABA11 /* ParentDashboardView.swift */; };
-		3131092B8904836F8EFF70BF /* RoutineListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E07BC7984F8F698315BD69C0 /* RoutineListView.swift */; };
-		5E35668A015977021524A94F /* RoutineEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 868DBD4F83ED050DD7B63932 /* RoutineEditorView.swift */; };
-		D0847D4AED6EB692BDEF833C /* TaskEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B15B2DB53F2A82FA006E428 /* TaskEditorView.swift */; };
-		8F54748962189FE3236CB60B /* SchedulePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F75FAC52C6937CC7F004312 /* SchedulePickerView.swift */; };
-		C67E492BCE86B2CCE50BCFC2 /* RoutineEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD9160BFB542D9F873511E6B /* RoutineEditorViewModel.swift */; };
-		1BDB3D877EA50D58800E113C /* GameSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8AE0A1A9D356D713B486554 /* GameSessionViewModel.swift */; };
-		8AE0E06DAC2A1C5FF4D7C570 /* QuestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B78E0EFE90E59F9164782501 /* QuestView.swift */; };
-		B36C2864FD0898545723D668 /* EstimationInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0838E0477E598A3A25BBB1 /* EstimationInputView.swift */; };
-		962CC301652B8C54DEF16FDC /* TaskActiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CA840AD99B40C4E402FEE62 /* TaskActiveView.swift */; };
-		491B5FF5FE2AA0FD18FDF822 /* AccuracyRevealView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F37913E8D06A68CF00B14ED7 /* AccuracyRevealView.swift */; };
-		8AC2F9A2D07D5DA7D504D5E4 /* SessionSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26114C8CBCC7176D73253AB3 /* SessionSummaryView.swift */; };
-		F109EFBA925803A45EB8EA05 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2F373DFF8A0687017642CF3 /* OnboardingView.swift */; };
-		8B971C576BDC18F1B6E0E5FC /* AccuracyMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55A38092254271710DEC6E34 /* AccuracyMeter.swift */; };
-		02B48790B62B0A88CF0B5D3F /* AccuracyRevealScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09EDBC28B5ECAA2497CE3D6F /* AccuracyRevealScene.swift */; };
-		7E70A7D2B84EE5CE73BC6D30 /* PlayerProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = EBC96D7F4B1B8A79ECBC6B65 /* PlayerProfile.swift */; };
-		8175F3E3F5999CC1CB95350C /* XPEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C30A9F03B2F6145BCABD5EC /* XPEngine.swift */; };
-		92EA6DD39AAA3636D082CDE1 /* LevelCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 112FE55CB46BA3D32723965F /* LevelCalculator.swift */; };
-		79B7469A6547E97095450B3C /* StreakTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FBE396EA7F979EEFF1D884B /* StreakTracker.swift */; };
-		96AA3A8989EF146F64737062 /* PersonalBestTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC289F0712DB9E44E410D1F1 /* PersonalBestTracker.swift */; };
-		480C9400F68649EA56CAA8F2 /* PlayerProfileRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85DCC71D5A2940BBB83ACFC7 /* PlayerProfileRepository.swift */; };
-		2323A18FBF05C8CD1EADAA3D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 69E1D3A3503AD03420DEA434 /* Assets.xcassets */; };
+		1A3D6F12B19A8A85C2F1BD7C /* TimeQuestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C06276C3FCBBC8E42D8A79C /* TimeQuestApp.swift */; };
+		1B2D3F328420765F628466CD /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAF3E0235747FE860ACE9626 /* AppDependencies.swift */; };
+		46FB40B90C562D5258B8DDA9 /* RoleRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DB5DF25622F0CBF8D0FFD3 /* RoleRouter.swift */; };
+		417F5EDE292ACBFC68AEF2F5 /* Routine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47B6A19E4D69A4A3BDF99585 /* Routine.swift */; };
+		8B7E41997668520B95ABD463 /* RoutineTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9CFF13C265B33A3ED619EBB /* RoutineTask.swift */; };
+		01CAF053B324ACD62D5269D8 /* GameSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9677F34C743F2D804B00A1DA /* GameSession.swift */; };
+		5678AC094248D9654C21879F /* TaskEstimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8B3013A604EA0D1D5330DA1 /* TaskEstimation.swift */; };
+		F747A5DC66FA271FD94D308E /* RoutineRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 037398FBC551E3732C5A7D8A /* RoutineRepository.swift */; };
+		0D5E0E9076100ECE06611DBF /* SessionRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82A9FEA4F707686DE43BFA11 /* SessionRepository.swift */; };
+		3DB2AE91D0776113CB99731F /* TimeEstimationScorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9B30B936AFDBCF0BF3E7D23 /* TimeEstimationScorer.swift */; };
+		661F251108EC7B82CF99EC03 /* FeedbackGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FE8A436EB5297E811CB230E /* FeedbackGenerator.swift */; };
+		48DC01220D608C269E91EA55 /* CalibrationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C7FCF81BA268263E897012 /* CalibrationTracker.swift */; };
+		089AA5999013B36C2E9453A4 /* TimeFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5F71CECD8719B83930FDB19 /* TimeFormatting.swift */; };
+		4A2EEBA348B83E83A5BB2D07 /* PINEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 251733EAC906B50AD2CF5AEE /* PINEntryView.swift */; };
+		CEE058EF519465ED85D22FF2 /* PlayerHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A689F038502A848122306F59 /* PlayerHomeView.swift */; };
+		5FE2ED3ED12826638E8ABDE0 /* ParentDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE6299AB57B787B5F4CB9A8B /* ParentDashboardView.swift */; };
+		05BDE501C0F94107104C4EA7 /* RoutineListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A511AB30F32959002DC433E7 /* RoutineListView.swift */; };
+		58B02617DA0375D21D381CDF /* RoutineEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6B45DBB8F7285A27E3BB8D4 /* RoutineEditorView.swift */; };
+		F46B9B29C13894F740EA09EB /* TaskEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6314C2B681E95FD36874DFCB /* TaskEditorView.swift */; };
+		0FDFC985B49A7FC9993A1A2A /* SchedulePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F86BD4CB2371BC1FA001F43C /* SchedulePickerView.swift */; };
+		679FC9FAA7370B0F5DFFC06C /* RoutineEditorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B273AE7C940C69A12C73E5 /* RoutineEditorViewModel.swift */; };
+		E1E6BCED0CBDF7E2E12B4B8B /* GameSessionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D454DE2221784F30BF3A8600 /* GameSessionViewModel.swift */; };
+		F7A1610D0C423F9CF8CB1AF2 /* QuestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CF1028DA8A619E1D3D55C25 /* QuestView.swift */; };
+		E5114C2BF59352A791449942 /* EstimationInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC8D7F0E48E191DA524D8618 /* EstimationInputView.swift */; };
+		A1424B48FC34435751EBC067 /* TaskActiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13CC7ABCC3301839B9F019BF /* TaskActiveView.swift */; };
+		0FCFA28A3069E6EBD6A1202B /* AccuracyRevealView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A7FF9E3871F2BD50F866B2F /* AccuracyRevealView.swift */; };
+		150530119785FB3BF382F532 /* SessionSummaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B9A1266C12DF1960F6A0764 /* SessionSummaryView.swift */; };
+		D490251E3FCA6B46D7E5CA10 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CF74E8FA33DB8B00DE167A0 /* OnboardingView.swift */; };
+		671583311DB27921454F6E22 /* AccuracyMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7D6F5AF1E825598AC9AB98 /* AccuracyMeter.swift */; };
+		297FEDCDA7941F1C04A878A0 /* AccuracyRevealScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25491FDDC813C792CC3A0823 /* AccuracyRevealScene.swift */; };
+		BB36A3B749ED76699C142C95 /* PlayerProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 729EC8E278E07C2205261FFC /* PlayerProfile.swift */; };
+		02EC2959567594AB7ADD9A46 /* XPEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F44AB44A14BCE936FFB5E7B /* XPEngine.swift */; };
+		A1B440E473648115ECAC4CBE /* LevelCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB16AD32DED9FE3BDF54241 /* LevelCalculator.swift */; };
+		76A760B4008EEAAFEDDBE0E6 /* StreakTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A594174FF3816B45BF793F7 /* StreakTracker.swift */; };
+		6111455978EACA094057B950 /* PersonalBestTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CF10DAC81A50BAEAEEBD9 /* PersonalBestTracker.swift */; };
+		4D1B686315DFB5C8CA47FE54 /* PlayerProfileRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 664490D195C0A8C281CF72D6 /* PlayerProfileRepository.swift */; };
+		0E36E43B1FDDB5864DFC33C4 /* ProgressionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2911EDC4342B2B66C3EE4EF7 /* ProgressionViewModel.swift */; };
+		FCF0A7F2E49E53E765FEDC1D /* XPBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E052BD57F2102C4A415A2AE /* XPBarView.swift */; };
+		EA09A9DFF594D4A5504DE3AF /* StreakBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FB76530EA121A4852B5A57 /* StreakBadgeView.swift */; };
+		525099EC467524C57D55C362 /* LevelBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D5D6CB926F06C4AE894A0C1 /* LevelBadgeView.swift */; };
+		916A341B52C0246200688466 /* AccuracyTrendChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 052287B1C33B1B8CC4CCFA87 /* AccuracyTrendChartView.swift */; };
+		634DEB417FF558BAB97AB431 /* PlayerStatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3883B21C27C0E4CBD3536F9 /* PlayerStatsView.swift */; };
+		C8312D1C616DDB6760061015 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 44A5C066382EEBCAC162B79E /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		9A2F60CD5AF3553AA21FA202 /* TimeQuestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeQuestApp.swift; sourceTree = "<group>"; };
-		37566198DAF151D6470A2B27 /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
-		3327E62A9745810095DC8BD7 /* RoleRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleRouter.swift; sourceTree = "<group>"; };
-		4E32872A0B6EDDD3BF77167A /* Routine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Routine.swift; sourceTree = "<group>"; };
-		FAF0A8A1656121D15440367D /* RoutineTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineTask.swift; sourceTree = "<group>"; };
-		BE999074F0EA588139AB4F84 /* GameSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSession.swift; sourceTree = "<group>"; };
-		B649550B51D5D52E502B2F8F /* TaskEstimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskEstimation.swift; sourceTree = "<group>"; };
-		7A9C09AB3B449E2C49441BED /* RoutineRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineRepository.swift; sourceTree = "<group>"; };
-		D2A37C35982B0F0C8E851F37 /* SessionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRepository.swift; sourceTree = "<group>"; };
-		865780F670B58AE35AAC0CEE /* TimeEstimationScorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeEstimationScorer.swift; sourceTree = "<group>"; };
-		EE15A7AA74FD6BF4901191E4 /* FeedbackGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackGenerator.swift; sourceTree = "<group>"; };
-		24FF9A6AB57E691F90F54477 /* CalibrationTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalibrationTracker.swift; sourceTree = "<group>"; };
-		E05126D9FB6EE0F60D61BBA1 /* TimeFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormatting.swift; sourceTree = "<group>"; };
-		1113A2881C699FC35FBBA3E3 /* PINEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINEntryView.swift; sourceTree = "<group>"; };
-		5606C2E5195F947A49DAAB36 /* PlayerHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerHomeView.swift; sourceTree = "<group>"; };
-		6080D7D4F0E98650D6DABA11 /* ParentDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentDashboardView.swift; sourceTree = "<group>"; };
-		E07BC7984F8F698315BD69C0 /* RoutineListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineListView.swift; sourceTree = "<group>"; };
-		868DBD4F83ED050DD7B63932 /* RoutineEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineEditorView.swift; sourceTree = "<group>"; };
-		5B15B2DB53F2A82FA006E428 /* TaskEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskEditorView.swift; sourceTree = "<group>"; };
-		2F75FAC52C6937CC7F004312 /* SchedulePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulePickerView.swift; sourceTree = "<group>"; };
-		FD9160BFB542D9F873511E6B /* RoutineEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineEditorViewModel.swift; sourceTree = "<group>"; };
-		B8AE0A1A9D356D713B486554 /* GameSessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSessionViewModel.swift; sourceTree = "<group>"; };
-		B78E0EFE90E59F9164782501 /* QuestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestView.swift; sourceTree = "<group>"; };
-		BB0838E0477E598A3A25BBB1 /* EstimationInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EstimationInputView.swift; sourceTree = "<group>"; };
-		4CA840AD99B40C4E402FEE62 /* TaskActiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskActiveView.swift; sourceTree = "<group>"; };
-		F37913E8D06A68CF00B14ED7 /* AccuracyRevealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccuracyRevealView.swift; sourceTree = "<group>"; };
-		26114C8CBCC7176D73253AB3 /* SessionSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummaryView.swift; sourceTree = "<group>"; };
-		E2F373DFF8A0687017642CF3 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
-		55A38092254271710DEC6E34 /* AccuracyMeter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccuracyMeter.swift; sourceTree = "<group>"; };
-		09EDBC28B5ECAA2497CE3D6F /* AccuracyRevealScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccuracyRevealScene.swift; sourceTree = "<group>"; };
-		EBC96D7F4B1B8A79ECBC6B65 /* PlayerProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerProfile.swift; sourceTree = "<group>"; };
-		5C30A9F03B2F6145BCABD5EC /* XPEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPEngine.swift; sourceTree = "<group>"; };
-		112FE55CB46BA3D32723965F /* LevelCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelCalculator.swift; sourceTree = "<group>"; };
-		8FBE396EA7F979EEFF1D884B /* StreakTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakTracker.swift; sourceTree = "<group>"; };
-		FC289F0712DB9E44E410D1F1 /* PersonalBestTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalBestTracker.swift; sourceTree = "<group>"; };
-		85DCC71D5A2940BBB83ACFC7 /* PlayerProfileRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerProfileRepository.swift; sourceTree = "<group>"; };
-		69E1D3A3503AD03420DEA434 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		E3D7D226C11D0F6D3A7FD1DF /* TimeQuest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TimeQuest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6C06276C3FCBBC8E42D8A79C /* TimeQuestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeQuestApp.swift; sourceTree = "<group>"; };
+		BAF3E0235747FE860ACE9626 /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
+		79DB5DF25622F0CBF8D0FFD3 /* RoleRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleRouter.swift; sourceTree = "<group>"; };
+		47B6A19E4D69A4A3BDF99585 /* Routine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Routine.swift; sourceTree = "<group>"; };
+		C9CFF13C265B33A3ED619EBB /* RoutineTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineTask.swift; sourceTree = "<group>"; };
+		9677F34C743F2D804B00A1DA /* GameSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSession.swift; sourceTree = "<group>"; };
+		B8B3013A604EA0D1D5330DA1 /* TaskEstimation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskEstimation.swift; sourceTree = "<group>"; };
+		037398FBC551E3732C5A7D8A /* RoutineRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineRepository.swift; sourceTree = "<group>"; };
+		82A9FEA4F707686DE43BFA11 /* SessionRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionRepository.swift; sourceTree = "<group>"; };
+		E9B30B936AFDBCF0BF3E7D23 /* TimeEstimationScorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeEstimationScorer.swift; sourceTree = "<group>"; };
+		4FE8A436EB5297E811CB230E /* FeedbackGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackGenerator.swift; sourceTree = "<group>"; };
+		F9C7FCF81BA268263E897012 /* CalibrationTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalibrationTracker.swift; sourceTree = "<group>"; };
+		D5F71CECD8719B83930FDB19 /* TimeFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormatting.swift; sourceTree = "<group>"; };
+		251733EAC906B50AD2CF5AEE /* PINEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINEntryView.swift; sourceTree = "<group>"; };
+		A689F038502A848122306F59 /* PlayerHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerHomeView.swift; sourceTree = "<group>"; };
+		BE6299AB57B787B5F4CB9A8B /* ParentDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParentDashboardView.swift; sourceTree = "<group>"; };
+		A511AB30F32959002DC433E7 /* RoutineListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineListView.swift; sourceTree = "<group>"; };
+		D6B45DBB8F7285A27E3BB8D4 /* RoutineEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineEditorView.swift; sourceTree = "<group>"; };
+		6314C2B681E95FD36874DFCB /* TaskEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskEditorView.swift; sourceTree = "<group>"; };
+		F86BD4CB2371BC1FA001F43C /* SchedulePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulePickerView.swift; sourceTree = "<group>"; };
+		F0B273AE7C940C69A12C73E5 /* RoutineEditorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineEditorViewModel.swift; sourceTree = "<group>"; };
+		D454DE2221784F30BF3A8600 /* GameSessionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSessionViewModel.swift; sourceTree = "<group>"; };
+		5CF1028DA8A619E1D3D55C25 /* QuestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuestView.swift; sourceTree = "<group>"; };
+		FC8D7F0E48E191DA524D8618 /* EstimationInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EstimationInputView.swift; sourceTree = "<group>"; };
+		13CC7ABCC3301839B9F019BF /* TaskActiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskActiveView.swift; sourceTree = "<group>"; };
+		2A7FF9E3871F2BD50F866B2F /* AccuracyRevealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccuracyRevealView.swift; sourceTree = "<group>"; };
+		7B9A1266C12DF1960F6A0764 /* SessionSummaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummaryView.swift; sourceTree = "<group>"; };
+		5CF74E8FA33DB8B00DE167A0 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		4A7D6F5AF1E825598AC9AB98 /* AccuracyMeter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccuracyMeter.swift; sourceTree = "<group>"; };
+		25491FDDC813C792CC3A0823 /* AccuracyRevealScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccuracyRevealScene.swift; sourceTree = "<group>"; };
+		729EC8E278E07C2205261FFC /* PlayerProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerProfile.swift; sourceTree = "<group>"; };
+		5F44AB44A14BCE936FFB5E7B /* XPEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPEngine.swift; sourceTree = "<group>"; };
+		0DB16AD32DED9FE3BDF54241 /* LevelCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelCalculator.swift; sourceTree = "<group>"; };
+		0A594174FF3816B45BF793F7 /* StreakTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakTracker.swift; sourceTree = "<group>"; };
+		056CF10DAC81A50BAEAEEBD9 /* PersonalBestTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalBestTracker.swift; sourceTree = "<group>"; };
+		664490D195C0A8C281CF72D6 /* PlayerProfileRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerProfileRepository.swift; sourceTree = "<group>"; };
+		2911EDC4342B2B66C3EE4EF7 /* ProgressionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressionViewModel.swift; sourceTree = "<group>"; };
+		3E052BD57F2102C4A415A2AE /* XPBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XPBarView.swift; sourceTree = "<group>"; };
+		54FB76530EA121A4852B5A57 /* StreakBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakBadgeView.swift; sourceTree = "<group>"; };
+		0D5D6CB926F06C4AE894A0C1 /* LevelBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelBadgeView.swift; sourceTree = "<group>"; };
+		052287B1C33B1B8CC4CCFA87 /* AccuracyTrendChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccuracyTrendChartView.swift; sourceTree = "<group>"; };
+		C3883B21C27C0E4CBD3536F9 /* PlayerStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerStatsView.swift; sourceTree = "<group>"; };
+		44A5C066382EEBCAC162B79E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		494C6AD1B4F1D516E59C3168 /* TimeQuest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TimeQuest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		961882ECDFD7A91952E9F3F8 /* Frameworks */ = {
+		F160619387E74F8FBB5C2423 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -98,182 +110,188 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		ECB9772AD7C7CA6F266170AE /* App */ = {
+		3F5E655CD7F98AF0A2F5A395 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				9A2F60CD5AF3553AA21FA202 /* TimeQuestApp.swift */,
-				37566198DAF151D6470A2B27 /* AppDependencies.swift */,
-				3327E62A9745810095DC8BD7 /* RoleRouter.swift */,
+				6C06276C3FCBBC8E42D8A79C /* TimeQuestApp.swift */,
+				BAF3E0235747FE860ACE9626 /* AppDependencies.swift */,
+				79DB5DF25622F0CBF8D0FFD3 /* RoleRouter.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
 		};
-		238643D2CD6157E1AD8384C1 /* Models */ = {
+		3A5978D9C86B38A7837DAC79 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				4E32872A0B6EDDD3BF77167A /* Routine.swift */,
-				FAF0A8A1656121D15440367D /* RoutineTask.swift */,
-				BE999074F0EA588139AB4F84 /* GameSession.swift */,
-				B649550B51D5D52E502B2F8F /* TaskEstimation.swift */,
-				EBC96D7F4B1B8A79ECBC6B65 /* PlayerProfile.swift */,
+				47B6A19E4D69A4A3BDF99585 /* Routine.swift */,
+				C9CFF13C265B33A3ED619EBB /* RoutineTask.swift */,
+				9677F34C743F2D804B00A1DA /* GameSession.swift */,
+				B8B3013A604EA0D1D5330DA1 /* TaskEstimation.swift */,
+				729EC8E278E07C2205261FFC /* PlayerProfile.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
 		};
-		39DB2FC834C93A76F28CCD5A /* Repositories */ = {
+		C4A47BC93A86DA863ECD9949 /* Repositories */ = {
 			isa = PBXGroup;
 			children = (
-				7A9C09AB3B449E2C49441BED /* RoutineRepository.swift */,
-				D2A37C35982B0F0C8E851F37 /* SessionRepository.swift */,
-				85DCC71D5A2940BBB83ACFC7 /* PlayerProfileRepository.swift */,
+				037398FBC551E3732C5A7D8A /* RoutineRepository.swift */,
+				82A9FEA4F707686DE43BFA11 /* SessionRepository.swift */,
+				664490D195C0A8C281CF72D6 /* PlayerProfileRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
 		};
-		DA1D5652FEC7A96AEFD95370 /* Domain */ = {
+		2B69A2092CD62843E98B4505 /* Domain */ = {
 			isa = PBXGroup;
 			children = (
-				865780F670B58AE35AAC0CEE /* TimeEstimationScorer.swift */,
-				EE15A7AA74FD6BF4901191E4 /* FeedbackGenerator.swift */,
-				24FF9A6AB57E691F90F54477 /* CalibrationTracker.swift */,
-				5C30A9F03B2F6145BCABD5EC /* XPEngine.swift */,
-				112FE55CB46BA3D32723965F /* LevelCalculator.swift */,
-				8FBE396EA7F979EEFF1D884B /* StreakTracker.swift */,
-				FC289F0712DB9E44E410D1F1 /* PersonalBestTracker.swift */,
+				E9B30B936AFDBCF0BF3E7D23 /* TimeEstimationScorer.swift */,
+				4FE8A436EB5297E811CB230E /* FeedbackGenerator.swift */,
+				F9C7FCF81BA268263E897012 /* CalibrationTracker.swift */,
+				5F44AB44A14BCE936FFB5E7B /* XPEngine.swift */,
+				0DB16AD32DED9FE3BDF54241 /* LevelCalculator.swift */,
+				0A594174FF3816B45BF793F7 /* StreakTracker.swift */,
+				056CF10DAC81A50BAEAEEBD9 /* PersonalBestTracker.swift */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
 		};
-		277DDB9B8BDFFF2EA40B3B5B /* Shared */ = {
+		F25CEAEEFB995971CDC0C328 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				0D0A002F3E2100D652BD1DB7 /* Components */,
-				B43B6D7FE7B977EAB7FB2A9D /* SharedViews */,
+				DE27201508DA068C44A2A5D5 /* Components */,
+				E1D0F394C9916B9FCB061D42 /* SharedViews */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
 		};
-		0D0A002F3E2100D652BD1DB7 /* Components */ = {
+		DE27201508DA068C44A2A5D5 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				E05126D9FB6EE0F60D61BBA1 /* TimeFormatting.swift */,
-				55A38092254271710DEC6E34 /* AccuracyMeter.swift */,
+				D5F71CECD8719B83930FDB19 /* TimeFormatting.swift */,
+				4A7D6F5AF1E825598AC9AB98 /* AccuracyMeter.swift */,
+				3E052BD57F2102C4A415A2AE /* XPBarView.swift */,
+				54FB76530EA121A4852B5A57 /* StreakBadgeView.swift */,
+				0D5D6CB926F06C4AE894A0C1 /* LevelBadgeView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
 		};
-		B43B6D7FE7B977EAB7FB2A9D /* SharedViews */ = {
+		E1D0F394C9916B9FCB061D42 /* SharedViews */ = {
 			isa = PBXGroup;
 			children = (
-				1113A2881C699FC35FBBA3E3 /* PINEntryView.swift */,
+				251733EAC906B50AD2CF5AEE /* PINEntryView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
 		};
-		130B94DBECD2B1941B83A2BA /* Player */ = {
+		9094E8139AF6E5559733E94E /* Player */ = {
 			isa = PBXGroup;
 			children = (
-				8F700BB3F22C519A120727C0 /* PlayerViews */,
-				2CF45E788E1EAF5D3F3A141F /* PlayerViewModels */,
+				87B9AB5537B8E5AB14E0A548 /* PlayerViews */,
+				A3FA722DA3F57A49FF362196 /* PlayerViewModels */,
 			);
 			path = Player;
 			sourceTree = "<group>";
 		};
-		8F700BB3F22C519A120727C0 /* PlayerViews */ = {
+		87B9AB5537B8E5AB14E0A548 /* PlayerViews */ = {
 			isa = PBXGroup;
 			children = (
-				5606C2E5195F947A49DAAB36 /* PlayerHomeView.swift */,
-				B78E0EFE90E59F9164782501 /* QuestView.swift */,
-				BB0838E0477E598A3A25BBB1 /* EstimationInputView.swift */,
-				4CA840AD99B40C4E402FEE62 /* TaskActiveView.swift */,
-				F37913E8D06A68CF00B14ED7 /* AccuracyRevealView.swift */,
-				26114C8CBCC7176D73253AB3 /* SessionSummaryView.swift */,
-				E2F373DFF8A0687017642CF3 /* OnboardingView.swift */,
+				A689F038502A848122306F59 /* PlayerHomeView.swift */,
+				5CF1028DA8A619E1D3D55C25 /* QuestView.swift */,
+				FC8D7F0E48E191DA524D8618 /* EstimationInputView.swift */,
+				13CC7ABCC3301839B9F019BF /* TaskActiveView.swift */,
+				2A7FF9E3871F2BD50F866B2F /* AccuracyRevealView.swift */,
+				7B9A1266C12DF1960F6A0764 /* SessionSummaryView.swift */,
+				5CF74E8FA33DB8B00DE167A0 /* OnboardingView.swift */,
+				052287B1C33B1B8CC4CCFA87 /* AccuracyTrendChartView.swift */,
+				C3883B21C27C0E4CBD3536F9 /* PlayerStatsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
 		};
-		2CF45E788E1EAF5D3F3A141F /* PlayerViewModels */ = {
+		A3FA722DA3F57A49FF362196 /* PlayerViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				B8AE0A1A9D356D713B486554 /* GameSessionViewModel.swift */,
+				D454DE2221784F30BF3A8600 /* GameSessionViewModel.swift */,
+				2911EDC4342B2B66C3EE4EF7 /* ProgressionViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
-		85EBB2F040E84A7607B13478 /* Parent */ = {
+		591416C281D92F830185E240 /* Parent */ = {
 			isa = PBXGroup;
 			children = (
-				8745D1FBF62ADB8463235066 /* ParentViews */,
-				952EFC87427C70B4ED72E18F /* ParentViewModels */,
+				F7319766C663E720A1605568 /* ParentViews */,
+				172E7260BA4A90399428642B /* ParentViewModels */,
 			);
 			path = Parent;
 			sourceTree = "<group>";
 		};
-		8745D1FBF62ADB8463235066 /* ParentViews */ = {
+		F7319766C663E720A1605568 /* ParentViews */ = {
 			isa = PBXGroup;
 			children = (
-				6080D7D4F0E98650D6DABA11 /* ParentDashboardView.swift */,
-				E07BC7984F8F698315BD69C0 /* RoutineListView.swift */,
-				868DBD4F83ED050DD7B63932 /* RoutineEditorView.swift */,
-				5B15B2DB53F2A82FA006E428 /* TaskEditorView.swift */,
-				2F75FAC52C6937CC7F004312 /* SchedulePickerView.swift */,
+				BE6299AB57B787B5F4CB9A8B /* ParentDashboardView.swift */,
+				A511AB30F32959002DC433E7 /* RoutineListView.swift */,
+				D6B45DBB8F7285A27E3BB8D4 /* RoutineEditorView.swift */,
+				6314C2B681E95FD36874DFCB /* TaskEditorView.swift */,
+				F86BD4CB2371BC1FA001F43C /* SchedulePickerView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
 		};
-		952EFC87427C70B4ED72E18F /* ParentViewModels */ = {
+		172E7260BA4A90399428642B /* ParentViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				FD9160BFB542D9F873511E6B /* RoutineEditorViewModel.swift */,
+				F0B273AE7C940C69A12C73E5 /* RoutineEditorViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
-		3B683C831A76CD9DC3D0FA1B /* Features */ = {
+		C199FC7A03A01A0BE68A983A /* Features */ = {
 			isa = PBXGroup;
 			children = (
-				130B94DBECD2B1941B83A2BA /* Player */,
-				85EBB2F040E84A7607B13478 /* Parent */,
-				277DDB9B8BDFFF2EA40B3B5B /* Shared */,
+				9094E8139AF6E5559733E94E /* Player */,
+				591416C281D92F830185E240 /* Parent */,
+				F25CEAEEFB995971CDC0C328 /* Shared */,
 			);
 			path = Features;
 			sourceTree = "<group>";
 		};
-		5520772258586808E0F7816D /* Game */ = {
+		106BCF4C0DE5643ADD2FFD34 /* Game */ = {
 			isa = PBXGroup;
 			children = (
-				09EDBC28B5ECAA2497CE3D6F /* AccuracyRevealScene.swift */,
+				25491FDDC813C792CC3A0823 /* AccuracyRevealScene.swift */,
 			);
 			path = Game;
 			sourceTree = "<group>";
 		};
-		41318B6DA74404D22DC83477 /* Resources */ = {
+		375E06663DE5825E30D63173 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				69E1D3A3503AD03420DEA434 /* Assets.xcassets */,
+				44A5C066382EEBCAC162B79E /* Assets.xcassets */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		1FAE43FBAEA6F16C4A37BBC1 = {
+		4F4DBFEE8EF02AC3C68F8A58 = {
 			isa = PBXGroup;
 			children = (
-				ECB9772AD7C7CA6F266170AE /* App */,
-				238643D2CD6157E1AD8384C1 /* Models */,
-				39DB2FC834C93A76F28CCD5A /* Repositories */,
-				DA1D5652FEC7A96AEFD95370 /* Domain */,
-				3B683C831A76CD9DC3D0FA1B /* Features */,
-				5520772258586808E0F7816D /* Game */,
-				41318B6DA74404D22DC83477 /* Resources */,
-				4434D7C16008145C04A446D1 /* Products */,
+				3F5E655CD7F98AF0A2F5A395 /* App */,
+				3A5978D9C86B38A7837DAC79 /* Models */,
+				C4A47BC93A86DA863ECD9949 /* Repositories */,
+				2B69A2092CD62843E98B4505 /* Domain */,
+				C199FC7A03A01A0BE68A983A /* Features */,
+				106BCF4C0DE5643ADD2FFD34 /* Game */,
+				375E06663DE5825E30D63173 /* Resources */,
+				67E0E8FD9DF3B49ECFA67438 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		4434D7C16008145C04A446D1 /* Products */ = {
+		67E0E8FD9DF3B49ECFA67438 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E3D7D226C11D0F6D3A7FD1DF /* TimeQuest.app */,
+				494C6AD1B4F1D516E59C3168 /* TimeQuest.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -281,13 +299,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A7C591A6C03911CDE75D8392 /* TimeQuest */ = {
+		ABED7DE0A557CD3AE4478AF9 /* TimeQuest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 98619E474DE1244504708BB1 /* Build configuration list for PBXNativeTarget "TimeQuest" */;
+			buildConfigurationList = CAEE082B61C39FE06CC273CA /* Build configuration list for PBXNativeTarget "TimeQuest" */;
 			buildPhases = (
-				6470ABD498244792D0A7B9EA /* Sources */,
-				961882ECDFD7A91952E9F3F8 /* Frameworks */,
-				9F71EF74512B615EB04BAAEA /* Resources */,
+				FAAE10D03FD3D08E52CF7F1D /* Sources */,
+				F160619387E74F8FBB5C2423 /* Frameworks */,
+				2F8B4AEC199680D32E955DE0 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -295,20 +313,20 @@
 			);
 			name = TimeQuest;
 			productName = TimeQuest;
-			productReference = E3D7D226C11D0F6D3A7FD1DF /* TimeQuest.app */;
+			productReference = 494C6AD1B4F1D516E59C3168 /* TimeQuest.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		0C673778CA9A5C802103E656 /* Project object */ = {
+		82ACD33983DA6F24D8CBC460 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 			};
-			buildConfigurationList = A8B65EB860AAA9D94CE19C33 /* Build configuration list for PBXProject "TimeQuest" */;
+			buildConfigurationList = D979E364DB9869E46163CB40 /* Build configuration list for PBXProject "TimeQuest" */;
 			compatibilityVersion = "Xcode 15.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -316,75 +334,81 @@
 				en,
 				Base,
 			);
-			mainGroup = 1FAE43FBAEA6F16C4A37BBC1;
-			productRefGroup = 4434D7C16008145C04A446D1 /* Products */;
+			mainGroup = 4F4DBFEE8EF02AC3C68F8A58;
+			productRefGroup = 67E0E8FD9DF3B49ECFA67438 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A7C591A6C03911CDE75D8392 /* TimeQuest */,
+				ABED7DE0A557CD3AE4478AF9 /* TimeQuest */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		9F71EF74512B615EB04BAAEA /* Resources */ = {
+		2F8B4AEC199680D32E955DE0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2323A18FBF05C8CD1EADAA3D /* Assets.xcassets in Resources */,
+				C8312D1C616DDB6760061015 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		6470ABD498244792D0A7B9EA /* Sources */ = {
+		FAAE10D03FD3D08E52CF7F1D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9858B87B4CECA11BDBB62666 /* TimeQuestApp.swift in Sources */,
-				0806E4945D75C3FB19423C61 /* AppDependencies.swift in Sources */,
-				93E7AAD5376683E829DB69C7 /* RoleRouter.swift in Sources */,
-				2A202D083BEACE5516EB720A /* Routine.swift in Sources */,
-				F21547D39EE1C81CF0F565C2 /* RoutineTask.swift in Sources */,
-				912FECD3005CB5209A0196FF /* GameSession.swift in Sources */,
-				1F417296B7E918EFB98F74CA /* TaskEstimation.swift in Sources */,
-				328A79DA0C4091C2E0EDF521 /* RoutineRepository.swift in Sources */,
-				6A3945E19332280044B86005 /* SessionRepository.swift in Sources */,
-				41DF4DE916149D4336042143 /* TimeEstimationScorer.swift in Sources */,
-				EC762F89CA196894E4DE0512 /* FeedbackGenerator.swift in Sources */,
-				3EC270EABC01B19CE6FC2613 /* CalibrationTracker.swift in Sources */,
-				FB9C7E08CBE805BC7A54060B /* TimeFormatting.swift in Sources */,
-				820CE40855829B60E8DE1AC1 /* PINEntryView.swift in Sources */,
-				E5827C36157C8D43FC04721B /* PlayerHomeView.swift in Sources */,
-				1776312C4EC32A607425EA16 /* ParentDashboardView.swift in Sources */,
-				3131092B8904836F8EFF70BF /* RoutineListView.swift in Sources */,
-				5E35668A015977021524A94F /* RoutineEditorView.swift in Sources */,
-				D0847D4AED6EB692BDEF833C /* TaskEditorView.swift in Sources */,
-				8F54748962189FE3236CB60B /* SchedulePickerView.swift in Sources */,
-				C67E492BCE86B2CCE50BCFC2 /* RoutineEditorViewModel.swift in Sources */,
-				1BDB3D877EA50D58800E113C /* GameSessionViewModel.swift in Sources */,
-				8AE0E06DAC2A1C5FF4D7C570 /* QuestView.swift in Sources */,
-				B36C2864FD0898545723D668 /* EstimationInputView.swift in Sources */,
-				962CC301652B8C54DEF16FDC /* TaskActiveView.swift in Sources */,
-				491B5FF5FE2AA0FD18FDF822 /* AccuracyRevealView.swift in Sources */,
-				8AC2F9A2D07D5DA7D504D5E4 /* SessionSummaryView.swift in Sources */,
-				F109EFBA925803A45EB8EA05 /* OnboardingView.swift in Sources */,
-				8B971C576BDC18F1B6E0E5FC /* AccuracyMeter.swift in Sources */,
-				02B48790B62B0A88CF0B5D3F /* AccuracyRevealScene.swift in Sources */,
-				7E70A7D2B84EE5CE73BC6D30 /* PlayerProfile.swift in Sources */,
-				8175F3E3F5999CC1CB95350C /* XPEngine.swift in Sources */,
-				92EA6DD39AAA3636D082CDE1 /* LevelCalculator.swift in Sources */,
-				79B7469A6547E97095450B3C /* StreakTracker.swift in Sources */,
-				96AA3A8989EF146F64737062 /* PersonalBestTracker.swift in Sources */,
-				480C9400F68649EA56CAA8F2 /* PlayerProfileRepository.swift in Sources */,
+				1A3D6F12B19A8A85C2F1BD7C /* TimeQuestApp.swift in Sources */,
+				1B2D3F328420765F628466CD /* AppDependencies.swift in Sources */,
+				46FB40B90C562D5258B8DDA9 /* RoleRouter.swift in Sources */,
+				417F5EDE292ACBFC68AEF2F5 /* Routine.swift in Sources */,
+				8B7E41997668520B95ABD463 /* RoutineTask.swift in Sources */,
+				01CAF053B324ACD62D5269D8 /* GameSession.swift in Sources */,
+				5678AC094248D9654C21879F /* TaskEstimation.swift in Sources */,
+				F747A5DC66FA271FD94D308E /* RoutineRepository.swift in Sources */,
+				0D5E0E9076100ECE06611DBF /* SessionRepository.swift in Sources */,
+				3DB2AE91D0776113CB99731F /* TimeEstimationScorer.swift in Sources */,
+				661F251108EC7B82CF99EC03 /* FeedbackGenerator.swift in Sources */,
+				48DC01220D608C269E91EA55 /* CalibrationTracker.swift in Sources */,
+				089AA5999013B36C2E9453A4 /* TimeFormatting.swift in Sources */,
+				4A2EEBA348B83E83A5BB2D07 /* PINEntryView.swift in Sources */,
+				CEE058EF519465ED85D22FF2 /* PlayerHomeView.swift in Sources */,
+				5FE2ED3ED12826638E8ABDE0 /* ParentDashboardView.swift in Sources */,
+				05BDE501C0F94107104C4EA7 /* RoutineListView.swift in Sources */,
+				58B02617DA0375D21D381CDF /* RoutineEditorView.swift in Sources */,
+				F46B9B29C13894F740EA09EB /* TaskEditorView.swift in Sources */,
+				0FDFC985B49A7FC9993A1A2A /* SchedulePickerView.swift in Sources */,
+				679FC9FAA7370B0F5DFFC06C /* RoutineEditorViewModel.swift in Sources */,
+				E1E6BCED0CBDF7E2E12B4B8B /* GameSessionViewModel.swift in Sources */,
+				F7A1610D0C423F9CF8CB1AF2 /* QuestView.swift in Sources */,
+				E5114C2BF59352A791449942 /* EstimationInputView.swift in Sources */,
+				A1424B48FC34435751EBC067 /* TaskActiveView.swift in Sources */,
+				0FCFA28A3069E6EBD6A1202B /* AccuracyRevealView.swift in Sources */,
+				150530119785FB3BF382F532 /* SessionSummaryView.swift in Sources */,
+				D490251E3FCA6B46D7E5CA10 /* OnboardingView.swift in Sources */,
+				671583311DB27921454F6E22 /* AccuracyMeter.swift in Sources */,
+				297FEDCDA7941F1C04A878A0 /* AccuracyRevealScene.swift in Sources */,
+				BB36A3B749ED76699C142C95 /* PlayerProfile.swift in Sources */,
+				02EC2959567594AB7ADD9A46 /* XPEngine.swift in Sources */,
+				A1B440E473648115ECAC4CBE /* LevelCalculator.swift in Sources */,
+				76A760B4008EEAAFEDDBE0E6 /* StreakTracker.swift in Sources */,
+				6111455978EACA094057B950 /* PersonalBestTracker.swift in Sources */,
+				4D1B686315DFB5C8CA47FE54 /* PlayerProfileRepository.swift in Sources */,
+				0E36E43B1FDDB5864DFC33C4 /* ProgressionViewModel.swift in Sources */,
+				FCF0A7F2E49E53E765FEDC1D /* XPBarView.swift in Sources */,
+				EA09A9DFF594D4A5504DE3AF /* StreakBadgeView.swift in Sources */,
+				525099EC467524C57D55C362 /* LevelBadgeView.swift in Sources */,
+				916A341B52C0246200688466 /* AccuracyTrendChartView.swift in Sources */,
+				634DEB417FF558BAB97AB431 /* PlayerStatsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		2E22951FC9F3103780E4A101 /* Debug */ = {
+		EDCD74EFFC3B93609C160EFC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -446,7 +470,7 @@
 			};
 			name = Debug;
 		};
-		3A50C16F195BC8AE599E349E /* Release */ = {
+		EECD5A33A63DB37F80E58D5B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -500,7 +524,7 @@
 			};
 			name = Release;
 		};
-		C63C903D62B77B75F0FDF21E /* Debug */ = {
+		E372538E0E87D2BAE944637A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -527,7 +551,7 @@
 			};
 			name = Debug;
 		};
-		9D9C4FA69747A05FBBFBF16C /* Release */ = {
+		72CA5AD4F0157DFEBBD1AAE5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -557,20 +581,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A8B65EB860AAA9D94CE19C33 /* Build configuration list for PBXProject "TimeQuest" */ = {
+		D979E364DB9869E46163CB40 /* Build configuration list for PBXProject "TimeQuest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				2E22951FC9F3103780E4A101 /* Debug */,
-				3A50C16F195BC8AE599E349E /* Release */,
+				EDCD74EFFC3B93609C160EFC /* Debug */,
+				EECD5A33A63DB37F80E58D5B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		98619E474DE1244504708BB1 /* Build configuration list for PBXNativeTarget "TimeQuest" */ = {
+		CAEE082B61C39FE06CC273CA /* Build configuration list for PBXNativeTarget "TimeQuest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C63C903D62B77B75F0FDF21E /* Debug */,
-				9D9C4FA69747A05FBBFBF16C /* Release */,
+				E372538E0E87D2BAE944637A /* Debug */,
+				72CA5AD4F0157DFEBBD1AAE5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -578,5 +602,5 @@
 /* End XCConfigurationList section */
 
 	};
-	rootObject = 0C673778CA9A5C802103E656 /* Project object */;
+	rootObject = 82ACD33983DA6F24D8CBC460 /* Project object */;
 }

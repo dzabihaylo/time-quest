@@ -53,6 +53,12 @@ const sourceFiles = [
   { name: 'StreakTracker.swift', path: 'Domain/StreakTracker.swift' },
   { name: 'PersonalBestTracker.swift', path: 'Domain/PersonalBestTracker.swift' },
   { name: 'PlayerProfileRepository.swift', path: 'Repositories/PlayerProfileRepository.swift' },
+  { name: 'ProgressionViewModel.swift', path: 'Features/Player/ViewModels/ProgressionViewModel.swift' },
+  { name: 'XPBarView.swift', path: 'Features/Shared/Components/XPBarView.swift' },
+  { name: 'StreakBadgeView.swift', path: 'Features/Shared/Components/StreakBadgeView.swift' },
+  { name: 'LevelBadgeView.swift', path: 'Features/Shared/Components/LevelBadgeView.swift' },
+  { name: 'AccuracyTrendChartView.swift', path: 'Features/Player/Views/AccuracyTrendChartView.swift' },
+  { name: 'PlayerStatsView.swift', path: 'Features/Player/Views/PlayerStatsView.swift' },
 ];
 
 // Groups
@@ -62,11 +68,11 @@ const groups = [
   { name: 'Repositories', path: 'Repositories', files: ['RoutineRepository.swift', 'SessionRepository.swift', 'PlayerProfileRepository.swift'] },
   { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift'] },
   { name: 'Shared', path: 'Shared', subgroups: ['Components', 'SharedViews'] },
-  { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift'] },
+  { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift', 'XPBarView.swift', 'StreakBadgeView.swift', 'LevelBadgeView.swift'] },
   { name: 'SharedViews', path: 'Views', files: ['PINEntryView.swift'] },
   { name: 'Player', path: 'Player', subgroups: ['PlayerViews', 'PlayerViewModels'] },
-  { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift', 'QuestView.swift', 'EstimationInputView.swift', 'TaskActiveView.swift', 'AccuracyRevealView.swift', 'SessionSummaryView.swift', 'OnboardingView.swift'] },
-  { name: 'PlayerViewModels', path: 'ViewModels', files: ['GameSessionViewModel.swift'] },
+  { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift', 'QuestView.swift', 'EstimationInputView.swift', 'TaskActiveView.swift', 'AccuracyRevealView.swift', 'SessionSummaryView.swift', 'OnboardingView.swift', 'AccuracyTrendChartView.swift', 'PlayerStatsView.swift'] },
+  { name: 'PlayerViewModels', path: 'ViewModels', files: ['GameSessionViewModel.swift', 'ProgressionViewModel.swift'] },
   { name: 'Parent', path: 'Parent', subgroups: ['ParentViews', 'ParentViewModels'] },
   { name: 'ParentViews', path: 'Views', files: ['ParentDashboardView.swift', 'RoutineListView.swift', 'RoutineEditorView.swift', 'TaskEditorView.swift', 'SchedulePickerView.swift'] },
   { name: 'ParentViewModels', path: 'ViewModels', files: ['RoutineEditorViewModel.swift'] },
