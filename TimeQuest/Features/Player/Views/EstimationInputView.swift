@@ -23,6 +23,22 @@ struct EstimationInputView: View {
                 calibrationBanner
             }
 
+            // Contextual hint (only for tasks with known patterns)
+            if let hint = viewModel.currentTaskHint {
+                HStack(spacing: 6) {
+                    Image(systemName: "lightbulb")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                    Text(hint)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color(.systemGray6))
+                .clipShape(Capsule())
+            }
+
             // Task name
             Text(viewModel.currentTask?.displayName ?? "")
                 .font(.title)

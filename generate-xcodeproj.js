@@ -69,6 +69,9 @@ const sourceFiles = [
   { name: 'CloudKitSyncMonitor.swift', path: 'Services/CloudKitSyncMonitor.swift' },
   { name: 'EstimationSnapshot.swift', path: 'Models/EstimationSnapshot.swift' },
   { name: 'InsightEngine.swift', path: 'Domain/InsightEngine.swift' },
+  { name: 'InsightCardView.swift', path: 'Features/Shared/Components/InsightCardView.swift' },
+  { name: 'MyPatternsView.swift', path: 'Features/Player/Views/MyPatternsView.swift' },
+  { name: 'MyPatternsViewModel.swift', path: 'Features/Player/ViewModels/MyPatternsViewModel.swift' },
 ];
 
 // Sound resource files
@@ -90,11 +93,11 @@ const groups = [
   { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift', 'InsightEngine.swift'] },
   { name: 'Services', path: 'Services', files: ['SoundManager.swift', 'NotificationManager.swift', 'CloudKitSyncMonitor.swift'] },
   { name: 'Shared', path: 'Shared', subgroups: ['Components', 'SharedViews'] },
-  { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift', 'XPBarView.swift', 'StreakBadgeView.swift', 'LevelBadgeView.swift'] },
+  { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift', 'XPBarView.swift', 'StreakBadgeView.swift', 'LevelBadgeView.swift', 'InsightCardView.swift'] },
   { name: 'SharedViews', path: 'Views', files: ['PINEntryView.swift'] },
   { name: 'Player', path: 'Player', subgroups: ['PlayerViews', 'PlayerViewModels'] },
-  { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift', 'QuestView.swift', 'EstimationInputView.swift', 'TaskActiveView.swift', 'AccuracyRevealView.swift', 'SessionSummaryView.swift', 'OnboardingView.swift', 'AccuracyTrendChartView.swift', 'PlayerStatsView.swift', 'NotificationSettingsView.swift'] },
-  { name: 'PlayerViewModels', path: 'ViewModels', files: ['GameSessionViewModel.swift', 'ProgressionViewModel.swift'] },
+  { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift', 'QuestView.swift', 'EstimationInputView.swift', 'TaskActiveView.swift', 'AccuracyRevealView.swift', 'SessionSummaryView.swift', 'OnboardingView.swift', 'AccuracyTrendChartView.swift', 'PlayerStatsView.swift', 'NotificationSettingsView.swift', 'MyPatternsView.swift'] },
+  { name: 'PlayerViewModels', path: 'ViewModels', files: ['GameSessionViewModel.swift', 'ProgressionViewModel.swift', 'MyPatternsViewModel.swift'] },
   { name: 'Parent', path: 'Parent', subgroups: ['ParentViews', 'ParentViewModels'] },
   { name: 'ParentViews', path: 'Views', files: ['ParentDashboardView.swift', 'RoutineListView.swift', 'RoutineEditorView.swift', 'TaskEditorView.swift', 'SchedulePickerView.swift'] },
   { name: 'ParentViewModels', path: 'ViewModels', files: ['RoutineEditorViewModel.swift'] },

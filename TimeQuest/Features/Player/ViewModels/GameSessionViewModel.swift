@@ -28,6 +28,7 @@ final class GameSessionViewModel {
     private(set) var isNewPersonalBest: Bool = false
     private(set) var didLevelUp: Bool = false
     private(set) var previousLevel: Int = 0
+    private(set) var contextualHints: [String: String] = [:]
 
     private var taskStartedAt: Date?
     private let sessionRepository: SessionRepositoryProtocol
@@ -61,6 +62,11 @@ final class GameSessionViewModel {
         Double(estimatedMinutes * 60 + estimatedSeconds)
     }
 
+    var currentTaskHint: String? {
+        guard !isCalibration, let task = currentTask else { return nil }
+        return contextualHints[task.displayName]
+    }
+
     init(
         routine: Routine,
         sessionRepository: SessionRepositoryProtocol,
@@ -89,6 +95,21 @@ final class GameSessionViewModel {
 
         isCalibration = CalibrationTracker.isCalibrationSession(completedSessionCount: completedSessions)
         session = sessionRepository.createSession(for: routine, isCalibration: isCalibration)
+
+        // Preload contextual hints for all tasks (skip during calibration)
+        if !isCalibration {
+            let descriptor = FetchDescriptor<TaskEstimation>(
+                sortBy: [SortDescriptor(\.recordedAt)]
+            )
+            let allEstimations = (try? modelContext.fetch(descriptor)) ?? []
+            let snapshots = allEstimations.map { EstimationSnapshot(from: $0) }
+
+            for task in routine.orderedTasks {
+                if let hint = InsightEngine.contextualHint(taskName: task.displayName, snapshots: snapshots) {
+                    contextualHints[task.displayName] = hint
+                }
+            }
+        }
 
         phase = .estimating(taskIndex: 0)
     }
@@ -256,6 +277,7 @@ final class GameSessionViewModel {
         sessionXPEarned = 0
         isNewPersonalBest = false
         didLevelUp = false
+        contextualHints = [:]
         phase = .selecting
     }
 
