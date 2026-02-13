@@ -40,16 +40,16 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Progression system (XP engine, level calculation, streak tracking with graceful pause, personal bests)
-- [ ] 02-02: Sensory polish (haptic feedback, sound effects, celebratory animations/particles for milestones, accuracy trend charts)
-- [ ] 02-03: Notifications (game-framed reminders, player-controlled preferences, single notification per routine)
+- [ ] 02-01-PLAN.md -- Progression data layer (domain engines, PlayerProfile model, ViewModel integration)
+- [ ] 02-02-PLAN.md -- Progression UI (level/streak/XP components, accuracy trend chart, personal bests, stats view)
+- [ ] 02-03-PLAN.md -- Sensory polish and notifications (haptics, sounds, celebrations, game-framed reminders, player settings)
 
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
 | 1. Playable Foundation | 3/3 | Code complete (pending verification) | 2026-02-13 |
-| 2. Engagement Layer | 0/3 | Not started | - |
+| 2. Engagement Layer | 0/3 | Planned | - |
 
 ---
 *Roadmap created: 2026-02-12*
