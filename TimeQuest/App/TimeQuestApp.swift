@@ -3,17 +3,32 @@ import SwiftData
 
 @main
 struct TimeQuestApp: App {
+    let container: ModelContainer
+
+    init() {
+        do {
+            let config = ModelConfiguration(
+                cloudKitDatabase: .automatic
+            )
+            container = try ModelContainer(
+                for: TimeQuestSchemaV2.Routine.self,
+                     TimeQuestSchemaV2.RoutineTask.self,
+                     TimeQuestSchemaV2.GameSession.self,
+                     TimeQuestSchemaV2.TaskEstimation.self,
+                     TimeQuestSchemaV2.PlayerProfile.self,
+                migrationPlan: TimeQuestMigrationPlan.self,
+                configurations: config
+            )
+        } catch {
+            fatalError("Failed to initialize model container: \(error)")
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: [
-            Routine.self,
-            RoutineTask.self,
-            GameSession.self,
-            TaskEstimation.self,
-            PlayerProfile.self
-        ])
+        .modelContainer(container)
     }
 }
 

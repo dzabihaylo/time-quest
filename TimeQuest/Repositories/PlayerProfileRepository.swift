@@ -18,14 +18,37 @@ final class SwiftDataPlayerProfileRepository: PlayerProfileRepositoryProtocol {
     }
 
     func fetchOrCreate() -> PlayerProfile {
-        var descriptor = FetchDescriptor<PlayerProfile>()
-        descriptor.fetchLimit = 1
-        if let existing = try? modelContext.fetch(descriptor).first {
-            return existing
+        let descriptor = FetchDescriptor<PlayerProfile>(
+            sortBy: [SortDescriptor(\.createdAt)]
+        )
+        let allProfiles = (try? modelContext.fetch(descriptor)) ?? []
+
+        if allProfiles.isEmpty {
+            let profile = PlayerProfile()
+            profile.cloudID = "singleton-player-profile"
+            modelContext.insert(profile)
+            return profile
         }
-        let profile = PlayerProfile()
-        modelContext.insert(profile)
-        return profile
+
+        // Deduplication: keep first, merge extras (handles CloudKit sync creating duplicates)
+        let keeper = allProfiles[0]
+        if keeper.cloudID != "singleton-player-profile" {
+            keeper.cloudID = "singleton-player-profile"
+        }
+        for extra in allProfiles.dropFirst() {
+            keeper.totalXP = max(keeper.totalXP, extra.totalXP)
+            keeper.currentStreak = max(keeper.currentStreak, extra.currentStreak)
+            if let extraDate = extra.lastPlayedDate,
+               let keeperDate = keeper.lastPlayedDate,
+               extraDate > keeperDate {
+                keeper.lastPlayedDate = extraDate
+            } else if extra.lastPlayedDate != nil && keeper.lastPlayedDate == nil {
+                keeper.lastPlayedDate = extra.lastPlayedDate
+            }
+            modelContext.delete(extra)
+        }
+        try? modelContext.save()
+        return keeper
     }
 
     func addXP(_ amount: Int, to profile: PlayerProfile) {

@@ -25,9 +25,9 @@ final class SwiftDataSessionRepository: SessionRepositoryProtocol {
     }
 
     func fetchSessions(for routine: Routine) -> [GameSession] {
-        let routineID = routine.persistentModelID
+        let routineCloudID = routine.cloudID
         let descriptor = FetchDescriptor<GameSession>(
-            predicate: #Predicate { $0.routine?.persistentModelID == routineID },
+            predicate: #Predicate { $0.routine?.cloudID == routineCloudID },
             sortBy: [SortDescriptor(\.startedAt, order: .reverse)]
         )
         return (try? modelContext.fetch(descriptor)) ?? []

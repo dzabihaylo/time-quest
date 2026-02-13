@@ -66,6 +66,7 @@ const sourceFiles = [
   { name: 'TimeQuestSchemaV1.swift', path: 'Models/Schemas/TimeQuestSchemaV1.swift' },
   { name: 'TimeQuestSchemaV2.swift', path: 'Models/Schemas/TimeQuestSchemaV2.swift' },
   { name: 'TimeQuestMigrationPlan.swift', path: 'Models/Migration/TimeQuestMigrationPlan.swift' },
+  { name: 'CloudKitSyncMonitor.swift', path: 'Services/CloudKitSyncMonitor.swift' },
 ];
 
 // Sound resource files
@@ -85,7 +86,7 @@ const groups = [
   { name: 'Migration', path: 'Migration', files: ['TimeQuestMigrationPlan.swift'] },
   { name: 'Repositories', path: 'Repositories', files: ['RoutineRepository.swift', 'SessionRepository.swift', 'PlayerProfileRepository.swift'] },
   { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift'] },
-  { name: 'Services', path: 'Services', files: ['SoundManager.swift', 'NotificationManager.swift'] },
+  { name: 'Services', path: 'Services', files: ['SoundManager.swift', 'NotificationManager.swift', 'CloudKitSyncMonitor.swift'] },
   { name: 'Shared', path: 'Shared', subgroups: ['Components', 'SharedViews'] },
   { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift', 'XPBarView.swift', 'StreakBadgeView.swift', 'LevelBadgeView.swift'] },
   { name: 'SharedViews', path: 'Views', files: ['PINEntryView.swift'] },
