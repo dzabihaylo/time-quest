@@ -38,6 +38,15 @@ const sourceFiles = [
   { name: 'TaskEditorView.swift', path: 'Features/Parent/Views/TaskEditorView.swift' },
   { name: 'SchedulePickerView.swift', path: 'Features/Parent/Views/SchedulePickerView.swift' },
   { name: 'RoutineEditorViewModel.swift', path: 'Features/Parent/ViewModels/RoutineEditorViewModel.swift' },
+  { name: 'GameSessionViewModel.swift', path: 'Features/Player/ViewModels/GameSessionViewModel.swift' },
+  { name: 'QuestView.swift', path: 'Features/Player/Views/QuestView.swift' },
+  { name: 'EstimationInputView.swift', path: 'Features/Player/Views/EstimationInputView.swift' },
+  { name: 'TaskActiveView.swift', path: 'Features/Player/Views/TaskActiveView.swift' },
+  { name: 'AccuracyRevealView.swift', path: 'Features/Player/Views/AccuracyRevealView.swift' },
+  { name: 'SessionSummaryView.swift', path: 'Features/Player/Views/SessionSummaryView.swift' },
+  { name: 'OnboardingView.swift', path: 'Features/Player/Views/OnboardingView.swift' },
+  { name: 'AccuracyMeter.swift', path: 'Features/Shared/Components/AccuracyMeter.swift' },
+  { name: 'AccuracyRevealScene.swift', path: 'Game/AccuracyRevealScene.swift' },
 ];
 
 // Groups
@@ -47,14 +56,16 @@ const groups = [
   { name: 'Repositories', path: 'Repositories', files: ['RoutineRepository.swift', 'SessionRepository.swift'] },
   { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift'] },
   { name: 'Shared', path: 'Shared', subgroups: ['Components', 'SharedViews'] },
-  { name: 'Components', path: 'Components', files: ['TimeFormatting.swift'] },
+  { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift'] },
   { name: 'SharedViews', path: 'Views', files: ['PINEntryView.swift'] },
-  { name: 'Player', path: 'Player', subgroups: ['PlayerViews'] },
-  { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift'] },
+  { name: 'Player', path: 'Player', subgroups: ['PlayerViews', 'PlayerViewModels'] },
+  { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift', 'QuestView.swift', 'EstimationInputView.swift', 'TaskActiveView.swift', 'AccuracyRevealView.swift', 'SessionSummaryView.swift', 'OnboardingView.swift'] },
+  { name: 'PlayerViewModels', path: 'ViewModels', files: ['GameSessionViewModel.swift'] },
   { name: 'Parent', path: 'Parent', subgroups: ['ParentViews', 'ParentViewModels'] },
   { name: 'ParentViews', path: 'Views', files: ['ParentDashboardView.swift', 'RoutineListView.swift', 'RoutineEditorView.swift', 'TaskEditorView.swift', 'SchedulePickerView.swift'] },
   { name: 'ParentViewModels', path: 'ViewModels', files: ['RoutineEditorViewModel.swift'] },
   { name: 'Features', path: 'Features', subgroups: ['Player', 'Parent', 'Shared'] },
+  { name: 'Game', path: 'Game', files: ['AccuracyRevealScene.swift'] },
   { name: 'Resources', path: 'Resources', files: [] },
 ];
 
@@ -117,6 +128,7 @@ groupSections += `\t\t\t\t${id('group_Models')} /* Models */,\n`;
 groupSections += `\t\t\t\t${id('group_Repositories')} /* Repositories */,\n`;
 groupSections += `\t\t\t\t${id('group_Domain')} /* Domain */,\n`;
 groupSections += `\t\t\t\t${id('group_Features')} /* Features */,\n`;
+groupSections += `\t\t\t\t${id('group_Game')} /* Game */,\n`;
 groupSections += `\t\t\t\t${id('group_Resources')} /* Resources */,\n`;
 groupSections += `\t\t\t\t${productsGroupId} /* Products */,\n`;
 groupSections += `\t\t\t);\n\t\t\tsourceTree = "<group>";\n\t\t};\n`;

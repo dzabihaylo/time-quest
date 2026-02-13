@@ -24,6 +24,7 @@ targets:
       - path: Repositories
       - path: Domain
       - path: Features
+      - path: Game
     resources:
       - path: Resources
     settings:
