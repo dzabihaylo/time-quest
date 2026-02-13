@@ -37,11 +37,11 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
   2. Settings screen shows iCloud backup status ("Synced" or last backup date) confirming data is protected
   3. All existing v1.0 features (estimation game, stats, parent setup, notifications) work identically after migration
   4. Parent-created routines, player sessions, and profile data persist correctly through the schema upgrade
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: Schema versioning + model defaults + migration
-- [ ] 03-02: CloudKit enablement + sync + backup indicator
+- [ ] 03-01-PLAN.md -- Retroactive V1 schema, V2 schema with cloudID + defaults, lightweight migration plan, model typealiases
+- [ ] 03-02-PLAN.md -- CloudKit entitlements, sync monitor, ModelContainer init, cloudID queries, PlayerProfile deduplication, backup status UI
 
 ### Phase 4: Contextual Learning Insights
 **Goal**: Player understands WHICH specific tasks she misjudges, in WHICH direction, and whether her estimates are getting better or worse over time
@@ -99,7 +99,7 @@ Plans:
 |-------|-----------|---------------|--------|-----------|
 | 1. Playable Foundation | v1.0 | 3/3 | Complete | 2026-02-13 |
 | 2. Engagement Layer | v1.0 | 3/3 | Complete | 2026-02-13 |
-| 3. Data Foundation + CloudKit Backup | v2.0 | 0/2 | Not started | - |
+| 3. Data Foundation + CloudKit Backup | v2.0 | 0/2 | Planned | - |
 | 4. Contextual Learning Insights | v2.0 | 0/2 | Not started | - |
 | 5. Self-Set Routines + Production Audio | v2.0 | 0/2 | Not started | - |
 | 6. Weekly Reflection Summaries | v2.0 | 0/1 | Not started | - |
