@@ -5,6 +5,8 @@ import SwiftData
 protocol RoutineRepositoryProtocol {
     func fetchAll() -> [Routine]
     func fetchActiveForToday() -> [Routine]
+    func fetchParentRoutines() -> [Routine]
+    func fetchPlayerRoutines() -> [Routine]
     func save(_ routine: Routine) throws
     func delete(_ routine: Routine) throws
 }
@@ -34,6 +36,22 @@ final class SwiftDataRoutineRepository: RoutineRepositoryProtocol {
         let allActive = (try? modelContext.fetch(descriptor)) ?? []
         let todayWeekday = Calendar.current.component(.weekday, from: Date.now)
         return allActive.filter { $0.activeDays.contains(todayWeekday) }
+    }
+
+    func fetchParentRoutines() -> [Routine] {
+        let descriptor = FetchDescriptor<Routine>(
+            predicate: #Predicate { $0.createdBy == "parent" },
+            sortBy: [SortDescriptor(\.createdAt)]
+        )
+        return (try? modelContext.fetch(descriptor)) ?? []
+    }
+
+    func fetchPlayerRoutines() -> [Routine] {
+        let descriptor = FetchDescriptor<Routine>(
+            predicate: #Predicate { $0.createdBy == "player" },
+            sortBy: [SortDescriptor(\.createdAt)]
+        )
+        return (try? modelContext.fetch(descriptor)) ?? []
     }
 
     func save(_ routine: Routine) throws {
