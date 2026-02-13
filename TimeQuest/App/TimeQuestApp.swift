@@ -11,7 +11,8 @@ struct TimeQuestApp: App {
             Routine.self,
             RoutineTask.self,
             GameSession.self,
-            TaskEstimation.self
+            TaskEstimation.self,
+            PlayerProfile.self
         ])
     }
 }

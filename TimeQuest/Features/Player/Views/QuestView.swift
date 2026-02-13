@@ -43,10 +43,12 @@ struct QuestView: View {
             if viewModel == nil {
                 let repo = SwiftDataSessionRepository(modelContext: modelContext)
                 let routineRepo = SwiftDataRoutineRepository(modelContext: modelContext)
+                let profileRepo = SwiftDataPlayerProfileRepository(modelContext: modelContext)
                 let vm = GameSessionViewModel(
                     routine: routine,
                     sessionRepository: repo,
                     routineRepository: routineRepo,
+                    playerProfileRepository: profileRepo,
                     modelContext: modelContext
                 )
                 vm.startQuest()

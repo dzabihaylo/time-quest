@@ -7,6 +7,7 @@ final class GameSession {
     var startedAt: Date
     var completedAt: Date?
     var isCalibration: Bool
+    var xpEarned: Int = 0
 
     @Relationship(deleteRule: .cascade, inverse: \TaskEstimation.session)
     var estimations: [TaskEstimation] = []
@@ -19,10 +20,12 @@ final class GameSession {
     init(
         startedAt: Date = .now,
         completedAt: Date? = nil,
-        isCalibration: Bool = false
+        isCalibration: Bool = false,
+        xpEarned: Int = 0
     ) {
         self.startedAt = startedAt
         self.completedAt = completedAt
         self.isCalibration = isCalibration
+        self.xpEarned = xpEarned
     }
 }

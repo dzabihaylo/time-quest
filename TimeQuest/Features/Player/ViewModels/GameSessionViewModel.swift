@@ -24,10 +24,15 @@ final class GameSessionViewModel {
     var currentResult: EstimationResult?
     var currentFeedback: FeedbackMessage?
     var isCalibration: Bool = false
+    private(set) var sessionXPEarned: Int = 0
+    private(set) var isNewPersonalBest: Bool = false
+    private(set) var didLevelUp: Bool = false
+    private(set) var previousLevel: Int = 0
 
     private var taskStartedAt: Date?
     private let sessionRepository: SessionRepositoryProtocol
     private let routineRepository: RoutineRepositoryProtocol
+    private let playerProfileRepository: PlayerProfileRepositoryProtocol
     private let modelContext: ModelContext
 
     private let activeTaskKey = "activeTaskStartedAt"
@@ -60,11 +65,13 @@ final class GameSessionViewModel {
         routine: Routine,
         sessionRepository: SessionRepositoryProtocol,
         routineRepository: RoutineRepositoryProtocol,
+        playerProfileRepository: PlayerProfileRepositoryProtocol,
         modelContext: ModelContext
     ) {
         self.routine = routine
         self.sessionRepository = sessionRepository
         self.routineRepository = routineRepository
+        self.playerProfileRepository = playerProfileRepository
         self.modelContext = modelContext
 
         // Crash recovery: clear any interrupted session
@@ -190,6 +197,16 @@ final class GameSessionViewModel {
 
         try? modelContext.save()
 
+        // Check for personal best (compare against all previous estimations for this task)
+        let allSessions = sessionRepository.fetchAllSessions()
+        let previousEstimations = allSessions.flatMap { $0.orderedEstimations }
+            .filter { $0.taskDisplayName == task.displayName && $0.recordedAt != completedAt }
+        isNewPersonalBest = PersonalBestTracker.isNewPersonalBest(
+            taskDisplayName: task.displayName,
+            differenceSeconds: result.differenceSeconds,
+            existingEstimations: previousEstimations
+        )
+
         UserDefaults.standard.removeObject(forKey: activeTaskKey)
         self.taskStartedAt = nil
 
@@ -199,6 +216,7 @@ final class GameSessionViewModel {
     }
 
     func advanceToNextTask() {
+        isNewPersonalBest = false
         let nextIndex = currentTaskIndex + 1
 
         if nextIndex < totalTasks {
@@ -209,6 +227,20 @@ final class GameSessionViewModel {
         } else {
             // All tasks done
             session?.completedAt = .now
+
+            // Award XP
+            if let session {
+                let xp = XPEngine.xpForSession(estimations: session.orderedEstimations)
+                session.xpEarned = xp
+
+                let profile = playerProfileRepository.fetchOrCreate()
+                previousLevel = LevelCalculator.level(fromTotalXP: profile.totalXP)
+                playerProfileRepository.addXP(xp, to: profile)
+                didLevelUp = LevelCalculator.level(fromTotalXP: profile.totalXP) > previousLevel
+                playerProfileRepository.updateStreak(for: profile, on: .now)
+                sessionXPEarned = xp
+            }
+
             try? modelContext.save()
             phase = .summary
         }
@@ -221,6 +253,9 @@ final class GameSessionViewModel {
         currentFeedback = nil
         isCalibration = false
         pendingEstimatedSeconds = 0
+        sessionXPEarned = 0
+        isNewPersonalBest = false
+        didLevelUp = false
         phase = .selecting
     }
 
