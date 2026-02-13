@@ -67,6 +67,8 @@ const sourceFiles = [
   { name: 'TimeQuestSchemaV2.swift', path: 'Models/Schemas/TimeQuestSchemaV2.swift' },
   { name: 'TimeQuestMigrationPlan.swift', path: 'Models/Migration/TimeQuestMigrationPlan.swift' },
   { name: 'CloudKitSyncMonitor.swift', path: 'Services/CloudKitSyncMonitor.swift' },
+  { name: 'EstimationSnapshot.swift', path: 'Models/EstimationSnapshot.swift' },
+  { name: 'InsightEngine.swift', path: 'Domain/InsightEngine.swift' },
 ];
 
 // Sound resource files
@@ -81,11 +83,11 @@ const soundFiles = [
 // Groups
 const groups = [
   { name: 'App', path: 'App', files: ['TimeQuestApp.swift', 'AppDependencies.swift', 'RoleRouter.swift'] },
-  { name: 'Models', path: 'Models', files: ['Routine.swift', 'RoutineTask.swift', 'GameSession.swift', 'TaskEstimation.swift', 'PlayerProfile.swift'], subgroups: ['Schemas', 'Migration'] },
+  { name: 'Models', path: 'Models', files: ['Routine.swift', 'RoutineTask.swift', 'GameSession.swift', 'TaskEstimation.swift', 'PlayerProfile.swift', 'EstimationSnapshot.swift'], subgroups: ['Schemas', 'Migration'] },
   { name: 'Schemas', path: 'Schemas', files: ['TimeQuestSchemaV1.swift', 'TimeQuestSchemaV2.swift'] },
   { name: 'Migration', path: 'Migration', files: ['TimeQuestMigrationPlan.swift'] },
   { name: 'Repositories', path: 'Repositories', files: ['RoutineRepository.swift', 'SessionRepository.swift', 'PlayerProfileRepository.swift'] },
-  { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift'] },
+  { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift', 'InsightEngine.swift'] },
   { name: 'Services', path: 'Services', files: ['SoundManager.swift', 'NotificationManager.swift', 'CloudKitSyncMonitor.swift'] },
   { name: 'Shared', path: 'Shared', subgroups: ['Components', 'SharedViews'] },
   { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift', 'XPBarView.swift', 'StreakBadgeView.swift', 'LevelBadgeView.swift'] },
