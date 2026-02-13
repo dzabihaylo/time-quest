@@ -1,7 +1,7 @@
 # Requirements: TimeQuest
 
 **Defined:** 2026-02-12
-**Core Value:** The player develops an accurate internal sense of time — the ability to predict how long things take and act on those predictions without external prompting.
+**Core Value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
 
 ## v1 Requirements
 
@@ -17,7 +17,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Parent Setup
 
-- [ ] **PRNT-01**: Parent can create a routine with a name and player-facing display name (e.g., "School Morning" → "Morning Quest")
+- [ ] **PRNT-01**: Parent can create a routine with a name and player-facing display name (e.g., "School Morning" -> "Morning Quest")
 - [ ] **PRNT-02**: Parent can add ordered tasks to a routine with names and player-facing display names
 - [ ] **PRNT-03**: Parent can set optional reference duration per task (hidden from player, used for difficulty calibration)
 - [ ] **PRNT-04**: Parent can set which days of the week a routine is active
@@ -51,9 +51,9 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **FEEL-01**: Haptic feedback on key moments (submitting estimate, seeing result)
 - [ ] **FEEL-02**: Sound effects for game events (optional, can be muted)
 - [ ] **FEEL-03**: Celebratory animation/particle effects for accuracy milestones
-- [ ] **FEEL-04**: Visual design is age-appropriate for a 13-year-old (not childish, not clinical — modern, slightly aspirational)
+- [ ] **FEEL-04**: Visual design is age-appropriate for a 13-year-old (not childish, not clinical -- modern, slightly aspirational)
 - [ ] **FEEL-05**: Onboarding explains the game, not the problem (no lectures about time blindness)
-- [ ] **FEEL-06**: Progressive disclosure — first session teaches one routine, one estimate, one result; complexity reveals over first week
+- [ ] **FEEL-06**: Progressive disclosure -- first session teaches one routine, one estimate, one result; complexity reveals over first week
 
 ### Notifications
 
@@ -67,7 +67,7 @@ Deferred to future release. Tracked but not in current roadmap.
 
 ### Engagement Depth
 
-- **V2-01**: Estimation difficulty curve — graduate from single tasks to task sequences to full routine estimates
+- **V2-01**: Estimation difficulty curve -- graduate from single tasks to task sequences to full routine estimates
 - **V2-02**: Surprise accuracy bonus with special celebration when estimate is within tight margin (e.g., 30 seconds)
 - **V2-03**: Unlockable visual themes and customization earned through consistent play
 - **V2-04**: Quest/adventure narrative wrapper giving story meaning to daily routines
@@ -76,7 +76,7 @@ Deferred to future release. Tracked but not in current roadmap.
 
 - **V2-05**: Time anchoring mini-games ("Close your eyes. Open them when you think 2 minutes have passed.")
 - **V2-06**: Contextual learning insights per task ("You always underestimate packing by 4 minutes")
-- **V2-07**: Self-set routine creation — player creates her own routines alongside parent-configured ones
+- **V2-07**: Self-set routine creation -- player creates her own routines alongside parent-configured ones
 - **V2-08**: Weekly reflection summary ("This week: 6 quests, accuracy improved 8%")
 - **V2-09**: Subjective time distortion awareness challenges (boring vs fun time perception)
 - **V2-10**: Duration-range specific training (micro/short/medium/long categories tracked separately)
@@ -92,7 +92,7 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Feature | Reason |
 |---------|--------|
-| Visible countdown timer during tasks | Externalizes the clock — the opposite of building an internal one. She already ignores timers. |
+| Visible countdown timer during tasks | Externalizes the clock -- the opposite of building an internal one. She already ignores timers. |
 | Parent monitoring dashboard | If she discovers real-time monitoring, trust is broken. Parent role is setup only. |
 | Multiple/repeated notifications per routine | She already ignores nagging. One notification, then the game waits for her. |
 | Punishment for inaccuracy (lost points, lives, red screens) | Time blindness is neurological, not laziness. Punishment creates avoidance. |
@@ -109,48 +109,48 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUN-01 | TBD | Pending |
-| FOUN-02 | TBD | Pending |
-| FOUN-03 | TBD | Pending |
-| FOUN-04 | TBD | Pending |
-| FOUN-05 | TBD | Pending |
-| PRNT-01 | TBD | Pending |
-| PRNT-02 | TBD | Pending |
-| PRNT-03 | TBD | Pending |
-| PRNT-04 | TBD | Pending |
-| PRNT-05 | TBD | Pending |
-| PRNT-06 | TBD | Pending |
-| PRNT-07 | TBD | Pending |
-| GAME-01 | TBD | Pending |
-| GAME-02 | TBD | Pending |
-| GAME-03 | TBD | Pending |
-| GAME-04 | TBD | Pending |
-| GAME-05 | TBD | Pending |
-| GAME-06 | TBD | Pending |
-| GAME-07 | TBD | Pending |
-| GAME-08 | TBD | Pending |
-| PROG-01 | TBD | Pending |
-| PROG-02 | TBD | Pending |
-| PROG-03 | TBD | Pending |
-| PROG-04 | TBD | Pending |
-| PROG-05 | TBD | Pending |
-| PROG-06 | TBD | Pending |
-| PROG-07 | TBD | Pending |
-| FEEL-01 | TBD | Pending |
-| FEEL-02 | TBD | Pending |
-| FEEL-03 | TBD | Pending |
-| FEEL-04 | TBD | Pending |
-| FEEL-05 | TBD | Pending |
-| FEEL-06 | TBD | Pending |
-| NOTF-01 | TBD | Pending |
-| NOTF-02 | TBD | Pending |
-| NOTF-03 | TBD | Pending |
+| FOUN-01 | Phase 1 | Pending |
+| FOUN-02 | Phase 1 | Pending |
+| FOUN-03 | Phase 1 | Pending |
+| FOUN-04 | Phase 1 | Pending |
+| FOUN-05 | Phase 1 | Pending |
+| PRNT-01 | Phase 1 | Pending |
+| PRNT-02 | Phase 1 | Pending |
+| PRNT-03 | Phase 1 | Pending |
+| PRNT-04 | Phase 1 | Pending |
+| PRNT-05 | Phase 1 | Pending |
+| PRNT-06 | Phase 1 | Pending |
+| PRNT-07 | Phase 1 | Pending |
+| GAME-01 | Phase 1 | Pending |
+| GAME-02 | Phase 1 | Pending |
+| GAME-03 | Phase 1 | Pending |
+| GAME-04 | Phase 1 | Pending |
+| GAME-05 | Phase 1 | Pending |
+| GAME-06 | Phase 1 | Pending |
+| GAME-07 | Phase 1 | Pending |
+| GAME-08 | Phase 1 | Pending |
+| PROG-07 | Phase 1 | Pending |
+| FEEL-04 | Phase 1 | Pending |
+| FEEL-05 | Phase 1 | Pending |
+| FEEL-06 | Phase 1 | Pending |
+| PROG-01 | Phase 2 | Pending |
+| PROG-02 | Phase 2 | Pending |
+| PROG-03 | Phase 2 | Pending |
+| PROG-04 | Phase 2 | Pending |
+| PROG-05 | Phase 2 | Pending |
+| PROG-06 | Phase 2 | Pending |
+| FEEL-01 | Phase 2 | Pending |
+| FEEL-02 | Phase 2 | Pending |
+| FEEL-03 | Phase 2 | Pending |
+| NOTF-01 | Phase 2 | Pending |
+| NOTF-02 | Phase 2 | Pending |
+| NOTF-03 | Phase 2 | Pending |
 
 **Coverage:**
 - v1 requirements: 36 total
-- Mapped to phases: 0
-- Unmapped: 36 ⚠️ (will be mapped during roadmap creation)
+- Mapped to phases: 36
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-12*
-*Last updated: 2026-02-12 after initial definition*
+*Last updated: 2026-02-12 after roadmap creation*
