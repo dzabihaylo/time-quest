@@ -162,17 +162,17 @@ Each task was committed atomically:
 None - no external service configuration required.
 
 ## Checkpoint Status
-Task 3 (human-verify) is PENDING. The complete Phase 2 engagement layer needs manual verification on iOS Simulator.
+Task 3 (human-verify) APPROVED. User confirmed Phase 2 UI changes visible and working on iOS Simulator. Calibrating badge confirmed as expected behavior (< 3 sessions on routine).
 
 ## Next Phase Readiness
 - Complete Phase 2 engagement layer: XP/leveling, streaks, personal bests, accuracy charts, haptics, sounds, celebrations, notifications
 - All sensory features are optional and non-blocking (app works fine without real sound assets)
 - Notification infrastructure ready for parent-dashboard integration in future phases
 
-## Self-Check: PASSED (Tasks 1-2)
+## Self-Check: PASSED
 
-All 9 created files verified on disk. Both task commits (2c3b796, e827bf4) verified in git log. Build succeeds with zero errors. Task 3 checkpoint pending human verification.
+All 9 created files verified on disk. Both task commits (2c3b796, e827bf4) verified in git log. Build succeeds with zero errors. Task 3 checkpoint approved by user.
 
 ---
 *Phase: 02-engagement-layer*
-*Completed: 2026-02-13 (checkpoint pending)*
+*Completed: 2026-02-13*

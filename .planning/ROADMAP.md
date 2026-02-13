@@ -6,8 +6,8 @@ TimeQuest delivers time-perception training disguised as a game for a 13-year-ol
 
 ## Phases
 
-- [ ] **Phase 1: Playable Foundation** - Parent setup + core estimation loop + age-appropriate first experience
-- [ ] **Phase 2: Engagement Layer** - Progression system + sensory feedback + notifications to sustain play past week 3
+- [x] **Phase 1: Playable Foundation** - Parent setup + core estimation loop + age-appropriate first experience
+- [x] **Phase 2: Engagement Layer** - Progression system + sensory feedback + notifications to sustain play past week 3
 
 ## Phase Details
 
@@ -40,16 +40,16 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md -- Progression data layer (domain engines, PlayerProfile model, ViewModel integration)
-- [ ] 02-02-PLAN.md -- Progression UI (level/streak/XP components, accuracy trend chart, personal bests, stats view)
-- [ ] 02-03-PLAN.md -- Sensory polish and notifications (haptics, sounds, celebrations, game-framed reminders, player settings)
+- [x] 02-01: Progression data layer (domain engines, PlayerProfile model, ViewModel integration)
+- [x] 02-02: Progression UI (level/streak/XP components, accuracy trend chart, personal bests, stats view)
+- [x] 02-03: Sensory polish and notifications (haptics, sounds, celebrations, game-framed reminders, player settings)
 
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 1. Playable Foundation | 3/3 | Code complete (pending verification) | 2026-02-13 |
-| 2. Engagement Layer | 0/3 | Planned | - |
+| 1. Playable Foundation | 3/3 | ✓ Complete | 2026-02-13 |
+| 2. Engagement Layer | 3/3 | ✓ Verified | 2026-02-13 |
 
 ---
 *Roadmap created: 2026-02-12*
