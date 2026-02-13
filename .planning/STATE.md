@@ -5,29 +5,31 @@
 See: .planning/PROJECT.md (updated 2026-02-12)
 
 **Core value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
-**Current focus:** Phase 1 - Playable Foundation (code complete, pending human verification)
+**Current focus:** Phase 2 - Engagement Layer (in progress)
 
 ## Current Position
 
-Phase: 1 of 2 (Playable Foundation)
-Plan: 3 of 3 in current phase (all plans executed)
-Status: Awaiting human verification (Task 3 of Plan 01-03)
-Last activity: 2026-02-13 -- All 3 plans executed and building successfully
+Phase: 2 of 2 (Engagement Layer)
+Plan: 1 of 3 in current phase (02-01 complete)
+Status: Executing Phase 2
+Last activity: 2026-02-13 -- Plan 02-01 (Progression Data Layer) complete
 
-Progress: [████████░░] 80% (code complete, pending verification)
+Progress: [████████░░] 83% (4 of 6 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Total execution time: ~1 session
+- Total plans completed: 4
+- Total execution time: ~2 sessions
 
 **By Phase:**
 
 | Phase | Plans | Status |
 |-------|-------|--------|
 | 1. Playable Foundation | 3/3 | Code complete |
-| 2. Engagement Layer | 0/3 | Not started |
+| 2. Engagement Layer | 1/3 | In progress |
+
+**Plan 02-01:** 5 min, 2 tasks, 12 files
 
 ## Accumulated Context
 
@@ -38,19 +40,22 @@ Progress: [████████░░] 80% (code complete, pending verificat
 - [Build]: Using generate-xcodeproj.js (Node script) for pbxproj generation since xcodegen not available and CLI project creation unreliable
 - [Swift 6]: Repository protocols need @MainActor annotation to match SwiftData implementations (strict concurrency)
 - [Architecture]: Value-type editing (structs in ViewModels) prevents SwiftData auto-save corruption
+- [02-01]: XP values: spot_on=100, close=60, off=25, way_off=10 plus 20 completion bonus
+- [02-01]: Level curve: baseXP=100, exponent=1.5 (concave -- fast early levels)
+- [02-01]: Streaks pause on gaps (never reset, never punish)
+- [02-01]: PlayerProfile singleton via fetch-or-create pattern
 
 ### Pending Todos
 
-- Human verification on iOS Simulator (17-step checklist in Plan 01-03 Task 3)
-- Phase 2 planning and execution after Phase 1 verification passes
+- Phase 2 plans 02-02 and 02-03 remain
+- Human verification on iOS Simulator still pending from Phase 1
 
 ### Blockers/Concerns
 
 - Build target is iOS 17.0 with Swift 6.0, Xcode 16.2 -- verified working
-- Human checkpoint required before Phase 2 (Plan 01-03 Task 3)
 
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Phase 1 code complete, awaiting human verification on simulator
+Stopped at: Completed 02-01-PLAN.md (Progression Data Layer)
 Resume file: None
