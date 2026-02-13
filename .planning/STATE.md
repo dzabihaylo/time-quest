@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
-**Current focus:** v2.0 Advanced Training -- Phase 3 Plan 1 complete
+**Current focus:** v2.0 Advanced Training -- Phase 3 complete (pending verification)
 
 ## Current Position
 
 Milestone: v2.0 Advanced Training
 Phase: 3 of 6 (Data Foundation + CloudKit Backup)
-Plan: 1 of 2 complete
-Status: Executing
-Last activity: 2026-02-13 -- Schema versioning (V1/V2) + lightweight migration + typealiases
+Plan: 2 of 2 complete (checkpoint pending)
+Status: Checkpoint -- awaiting human verification
+Last activity: 2026-02-13 -- CloudKit backup integration + sync monitor + iCloud status UI
 
-Progress: [###########...................] 54% (7/13 plans -- v1.0: 6/6, v2.0: 1/7)
+Progress: [###############...............] 62% (8/13 plans -- v1.0: 6/6, v2.0: 2/7)
 
 ## Performance Metrics
 
@@ -31,6 +31,7 @@ Progress: [###########...................] 54% (7/13 plans -- v1.0: 6/6, v2.0: 1
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
 | 03-01 | Schema Versioning | 4min | 2 | 11 |
+| 03-02 | CloudKit Backup | 5min | 2 | 10 |
 
 ## Accumulated Context
 
@@ -48,13 +49,17 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 - Used nonisolated(unsafe) for VersionedSchema.versionIdentifier (Swift 6 strict concurrency)
 - Used @preconcurrency import SwiftData in schema/migration files
 - Fully qualified relationship inverse keypaths to prevent typealias cross-schema resolution
+- Used nonisolated(unsafe) for CloudKitSyncMonitor.observer (deinit access in Swift 6)
+- Used @preconcurrency import CoreData for NSPersistentCloudKitContainer.Event Sendable
+- Extract event data before Task boundary to avoid Sendable violation
+- CODE_SIGN_ENTITLEMENTS path relative to project dir, not repo root
 
 ### Pending Todos
 
 - Create v2.0 roadmap -- DONE
 - Plan Phase 3 (Data Foundation + CloudKit Backup) -- DONE
 - Execute Phase 3 Plan 1 (Schema Versioning) -- DONE
-- Execute Phase 3 Plan 2 (CloudKit Backup)
+- Execute Phase 3 Plan 2 (CloudKit Backup) -- DONE (checkpoint pending)
 
 ### Blockers/Concerns
 
@@ -65,5 +70,5 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 03-01-PLAN.md (Schema Versioning)
+Stopped at: 03-02-PLAN.md Task 3 checkpoint (human-verify) -- awaiting CloudKit container setup + UI verification
 Resume file: None
