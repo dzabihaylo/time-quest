@@ -1,8 +1,13 @@
 import SwiftUI
+import SpriteKit
 
 struct SessionSummaryView: View {
     let viewModel: GameSessionViewModel
+    let soundManager: SoundManager
     let onFinish: () -> Void
+
+    @State private var summaryAppearTrigger = false
+    @State private var showLevelUpCelebration = false
 
     var body: some View {
         ScrollView {
@@ -11,6 +16,18 @@ struct SessionSummaryView: View {
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .padding(.top, 20)
+
+                // Level-up celebration overlay
+                if viewModel.didLevelUp, showLevelUpCelebration {
+                    let scene: CelebrationScene = {
+                        let s = CelebrationScene()
+                        s.celebrationType = .levelUp
+                        return s
+                    }()
+                    SpriteView(scene: scene, options: [.allowsTransparency])
+                        .frame(width: 250, height: 250)
+                        .allowsHitTesting(false)
+                }
 
                 // Calibration message
                 if viewModel.isCalibration {
@@ -80,6 +97,20 @@ struct SessionSummaryView: View {
                 .padding(.bottom, 32)
             }
             .padding(.horizontal)
+            .sensoryFeedback(.success, trigger: summaryAppearTrigger)
+        }
+        .onAppear {
+            summaryAppearTrigger.toggle()
+
+            // Play sounds
+            if viewModel.didLevelUp {
+                soundManager.play("level_up")
+                withAnimation(.easeOut.delay(0.3)) {
+                    showLevelUpCelebration = true
+                }
+            } else {
+                soundManager.play("session_complete")
+            }
         }
     }
 

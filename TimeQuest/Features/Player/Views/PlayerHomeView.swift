@@ -4,6 +4,7 @@ import SwiftData
 struct PlayerHomeView: View {
     @Environment(RoleState.self) private var roleState
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppDependencies.self) private var dependencies
 
     @State private var todayQuests: [Routine] = []
     @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "onboardingComplete")
@@ -80,6 +81,21 @@ struct PlayerHomeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationDestination(item: $selectedQuest) { routine in
                 QuestView(routine: routine)
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    NavigationLink {
+                        NotificationSettingsView(
+                            playerProfileRepository: dependencies.playerProfileRepository,
+                            notificationManager: dependencies.notificationManager,
+                            routines: todayQuests
+                        )
+                    } label: {
+                        Image(systemName: "gearshape")
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
         }
         .onAppear {

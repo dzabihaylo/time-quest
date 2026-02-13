@@ -3,18 +3,31 @@ import SpriteKit
 
 struct AccuracyRevealView: View {
     let viewModel: GameSessionViewModel
+    let soundManager: SoundManager
 
     @State private var showActual = false
     @State private var showFeedback = false
     @State private var showCelebration = false
+    @State private var hapticTrigger = false
+    @State private var showPersonalBestCelebration = false
 
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
                 Spacer(minLength: 20)
 
-                // Celebration overlay for spot-on results
-                if let result = viewModel.currentResult, result.rating == .spot_on, showCelebration {
+                // Milestone celebration overlay (personal best takes priority over spot-on)
+                if viewModel.isNewPersonalBest, showPersonalBestCelebration {
+                    let scene: CelebrationScene = {
+                        let s = CelebrationScene()
+                        s.celebrationType = .personalBest
+                        return s
+                    }()
+                    SpriteView(scene: scene, options: [.allowsTransparency])
+                        .frame(width: 200, height: 200)
+                        .allowsHitTesting(false)
+                } else if let result = viewModel.currentResult, result.rating == .spot_on, showCelebration {
+                    // Spot-on celebration (only if not already showing personal best)
                     SpriteView(scene: AccuracyRevealScene(), options: [.allowsTransparency])
                         .frame(width: 200, height: 200)
                         .allowsHitTesting(false)
@@ -88,6 +101,7 @@ struct AccuracyRevealView: View {
                 .padding(.bottom, 32)
             }
             .padding()
+            .sensoryFeedback(.impact(weight: .medium, intensity: 0.8), trigger: hapticTrigger)
         }
         .onAppear {
             // Staggered reveal
@@ -97,9 +111,27 @@ struct AccuracyRevealView: View {
             withAnimation(.easeOut(duration: 0.4).delay(1.0)) {
                 showFeedback = true
             }
+
+            // Fire haptic and sound on reveal
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                hapticTrigger.toggle()
+                if viewModel.isNewPersonalBest {
+                    soundManager.play("personal_best")
+                } else {
+                    soundManager.play("reveal")
+                }
+            }
+
             if viewModel.currentResult?.rating == .spot_on {
                 withAnimation(.easeOut.delay(0.6)) {
                     showCelebration = true
+                }
+            }
+
+            // Personal best celebration (slightly delayed)
+            if viewModel.isNewPersonalBest {
+                withAnimation(.easeOut.delay(0.8)) {
+                    showPersonalBestCelebration = true
                 }
             }
         }

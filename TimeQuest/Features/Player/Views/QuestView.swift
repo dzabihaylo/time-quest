@@ -5,6 +5,7 @@ struct QuestView: View {
     let routine: Routine
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppDependencies.self) private var dependencies
 
     @State private var viewModel: GameSessionViewModel?
     @State private var showAbandonConfirm = false
@@ -64,16 +65,16 @@ struct QuestView: View {
             EmptyView()
 
         case .estimating:
-            EstimationInputView(viewModel: vm)
+            EstimationInputView(viewModel: vm, soundManager: dependencies.soundManager)
 
         case .active:
             TaskActiveView(viewModel: vm)
 
         case .revealing:
-            AccuracyRevealView(viewModel: vm)
+            AccuracyRevealView(viewModel: vm, soundManager: dependencies.soundManager)
 
         case .summary:
-            SessionSummaryView(viewModel: vm) {
+            SessionSummaryView(viewModel: vm, soundManager: dependencies.soundManager) {
                 vm.finishQuest()
                 dismiss()
             }

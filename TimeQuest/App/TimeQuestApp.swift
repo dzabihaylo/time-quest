@@ -5,7 +5,7 @@ import SwiftData
 struct TimeQuestApp: App {
     var body: some Scene {
         WindowGroup {
-            RoleRouter()
+            ContentView()
         }
         .modelContainer(for: [
             Routine.self,
@@ -14,5 +14,27 @@ struct TimeQuestApp: App {
             TaskEstimation.self,
             PlayerProfile.self
         ])
+    }
+}
+
+/// Intermediate view that has access to modelContext for creating AppDependencies.
+private struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
+    @State private var dependencies: AppDependencies?
+
+    var body: some View {
+        Group {
+            if let dependencies {
+                RoleRouter()
+                    .environment(dependencies)
+            } else {
+                ProgressView()
+            }
+        }
+        .onAppear {
+            if dependencies == nil {
+                dependencies = AppDependencies(modelContext: modelContext)
+            }
+        }
     }
 }

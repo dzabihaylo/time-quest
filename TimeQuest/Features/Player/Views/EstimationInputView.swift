@@ -2,9 +2,11 @@ import SwiftUI
 
 struct EstimationInputView: View {
     @Bindable var viewModel: GameSessionViewModel
+    let soundManager: SoundManager
 
     @State private var minutes: Int = 0
     @State private var seconds: Int = 0
+    @State private var lockInHapticTrigger = false
 
     var body: some View {
         VStack(spacing: 24) {
@@ -56,6 +58,8 @@ struct EstimationInputView: View {
 
             // Lock it in
             Button {
+                lockInHapticTrigger.toggle()
+                soundManager.play("estimate_lock")
                 viewModel.lockInEstimation(minutes: minutes, seconds: seconds)
                 minutes = 0
                 seconds = 0
@@ -70,6 +74,7 @@ struct EstimationInputView: View {
             .disabled(minutes == 0 && seconds == 0)
             .padding(.horizontal, 32)
             .padding(.bottom, 32)
+            .sensoryFeedback(.impact(weight: .medium, intensity: 0.6), trigger: lockInHapticTrigger)
         }
     }
 

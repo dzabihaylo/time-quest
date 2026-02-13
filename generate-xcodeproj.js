@@ -59,6 +59,19 @@ const sourceFiles = [
   { name: 'LevelBadgeView.swift', path: 'Features/Shared/Components/LevelBadgeView.swift' },
   { name: 'AccuracyTrendChartView.swift', path: 'Features/Player/Views/AccuracyTrendChartView.swift' },
   { name: 'PlayerStatsView.swift', path: 'Features/Player/Views/PlayerStatsView.swift' },
+  { name: 'SoundManager.swift', path: 'Services/SoundManager.swift' },
+  { name: 'NotificationManager.swift', path: 'Services/NotificationManager.swift' },
+  { name: 'CelebrationScene.swift', path: 'Game/CelebrationScene.swift' },
+  { name: 'NotificationSettingsView.swift', path: 'Features/Player/Views/NotificationSettingsView.swift' },
+];
+
+// Sound resource files
+const soundFiles = [
+  'estimate_lock.wav',
+  'reveal.wav',
+  'level_up.wav',
+  'personal_best.wav',
+  'session_complete.wav',
 ];
 
 // Groups
@@ -67,17 +80,19 @@ const groups = [
   { name: 'Models', path: 'Models', files: ['Routine.swift', 'RoutineTask.swift', 'GameSession.swift', 'TaskEstimation.swift', 'PlayerProfile.swift'] },
   { name: 'Repositories', path: 'Repositories', files: ['RoutineRepository.swift', 'SessionRepository.swift', 'PlayerProfileRepository.swift'] },
   { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift'] },
+  { name: 'Services', path: 'Services', files: ['SoundManager.swift', 'NotificationManager.swift'] },
   { name: 'Shared', path: 'Shared', subgroups: ['Components', 'SharedViews'] },
   { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift', 'XPBarView.swift', 'StreakBadgeView.swift', 'LevelBadgeView.swift'] },
   { name: 'SharedViews', path: 'Views', files: ['PINEntryView.swift'] },
   { name: 'Player', path: 'Player', subgroups: ['PlayerViews', 'PlayerViewModels'] },
-  { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift', 'QuestView.swift', 'EstimationInputView.swift', 'TaskActiveView.swift', 'AccuracyRevealView.swift', 'SessionSummaryView.swift', 'OnboardingView.swift', 'AccuracyTrendChartView.swift', 'PlayerStatsView.swift'] },
+  { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift', 'QuestView.swift', 'EstimationInputView.swift', 'TaskActiveView.swift', 'AccuracyRevealView.swift', 'SessionSummaryView.swift', 'OnboardingView.swift', 'AccuracyTrendChartView.swift', 'PlayerStatsView.swift', 'NotificationSettingsView.swift'] },
   { name: 'PlayerViewModels', path: 'ViewModels', files: ['GameSessionViewModel.swift', 'ProgressionViewModel.swift'] },
   { name: 'Parent', path: 'Parent', subgroups: ['ParentViews', 'ParentViewModels'] },
   { name: 'ParentViews', path: 'Views', files: ['ParentDashboardView.swift', 'RoutineListView.swift', 'RoutineEditorView.swift', 'TaskEditorView.swift', 'SchedulePickerView.swift'] },
   { name: 'ParentViewModels', path: 'ViewModels', files: ['RoutineEditorViewModel.swift'] },
   { name: 'Features', path: 'Features', subgroups: ['Player', 'Parent', 'Shared'] },
-  { name: 'Game', path: 'Game', files: ['AccuracyRevealScene.swift'] },
+  { name: 'Game', path: 'Game', files: ['AccuracyRevealScene.swift', 'CelebrationScene.swift'] },
+  { name: 'Sounds', path: 'Sounds', files: [] },
   { name: 'Resources', path: 'Resources', files: [] },
 ];
 
@@ -93,6 +108,15 @@ for (const f of sourceFiles) {
   fileRefs += `\t\t${fileRefId} /* ${f.name} */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ${f.name}; sourceTree = "<group>"; };\n`;
   buildFiles += `\t\t${buildFileId} /* ${f.name} in Sources */ = {isa = PBXBuildFile; fileRef = ${fileRefId} /* ${f.name} */; };\n`;
   sourcesBuildPhase += `\t\t\t\t${buildFileId} /* ${f.name} in Sources */,\n`;
+}
+
+// Sound file references and build files
+for (const sf of soundFiles) {
+  const fileRefId = id(`fileRef_${sf}`);
+  const buildFileId = id(`buildFile_${sf}`);
+  fileRefs += `\t\t${fileRefId} /* ${sf} */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = ${sf}; sourceTree = "<group>"; };\n`;
+  buildFiles += `\t\t${buildFileId} /* ${sf} in Resources */ = {isa = PBXBuildFile; fileRef = ${fileRefId} /* ${sf} */; };\n`;
+  resourcesBuildPhase += `\t\t\t\t${buildFileId} /* ${sf} in Resources */,\n`;
 }
 
 // Assets.xcassets
@@ -121,6 +145,12 @@ function groupChildren(g) {
   }
   if (g.name === 'Resources') {
     children += `\t\t\t\t${assetsFileRefId} /* Assets.xcassets */,\n`;
+    children += `\t\t\t\t${id('group_Sounds')} /* Sounds */,\n`;
+  }
+  if (g.name === 'Sounds') {
+    for (const sf of soundFiles) {
+      children += `\t\t\t\t${id(`fileRef_${sf}`)} /* ${sf} */,\n`;
+    }
   }
   return children;
 }
@@ -139,6 +169,7 @@ groupSections += `\t\t\t\t${id('group_App')} /* App */,\n`;
 groupSections += `\t\t\t\t${id('group_Models')} /* Models */,\n`;
 groupSections += `\t\t\t\t${id('group_Repositories')} /* Repositories */,\n`;
 groupSections += `\t\t\t\t${id('group_Domain')} /* Domain */,\n`;
+groupSections += `\t\t\t\t${id('group_Services')} /* Services */,\n`;
 groupSections += `\t\t\t\t${id('group_Features')} /* Features */,\n`;
 groupSections += `\t\t\t\t${id('group_Game')} /* Game */,\n`;
 groupSections += `\t\t\t\t${id('group_Resources')} /* Resources */,\n`;
@@ -542,3 +573,48 @@ const scheme = `<?xml version="1.0" encoding="UTF-8"?>
 
 fs.writeFileSync(path.join(schemesDir, 'TimeQuest.xcscheme'), scheme, 'utf8');
 console.log('Generated scheme file');
+
+// Generate placeholder sound files (minimal valid WAV: 44 bytes header + silence)
+const soundsDir = path.join(__dirname, 'TimeQuest', 'Resources', 'Sounds');
+fs.mkdirSync(soundsDir, { recursive: true });
+
+function createSilentWav(filePath) {
+  // Minimal WAV file: 44100Hz, 16-bit mono, 0.1 seconds of silence
+  const sampleRate = 44100;
+  const bitsPerSample = 16;
+  const numChannels = 1;
+  const numSamples = Math.floor(sampleRate * 0.1); // 0.1s
+  const dataSize = numSamples * numChannels * (bitsPerSample / 8);
+  const fileSize = 36 + dataSize;
+
+  const buf = Buffer.alloc(44 + dataSize);
+  let offset = 0;
+
+  // RIFF header
+  buf.write('RIFF', offset); offset += 4;
+  buf.writeUInt32LE(fileSize, offset); offset += 4;
+  buf.write('WAVE', offset); offset += 4;
+
+  // fmt chunk
+  buf.write('fmt ', offset); offset += 4;
+  buf.writeUInt32LE(16, offset); offset += 4;        // chunk size
+  buf.writeUInt16LE(1, offset); offset += 2;          // PCM format
+  buf.writeUInt16LE(numChannels, offset); offset += 2;
+  buf.writeUInt32LE(sampleRate, offset); offset += 4;
+  buf.writeUInt32LE(sampleRate * numChannels * (bitsPerSample / 8), offset); offset += 4;
+  buf.writeUInt16LE(numChannels * (bitsPerSample / 8), offset); offset += 2;
+  buf.writeUInt16LE(bitsPerSample, offset); offset += 2;
+
+  // data chunk
+  buf.write('data', offset); offset += 4;
+  buf.writeUInt32LE(dataSize, offset); offset += 4;
+  // Remaining bytes are zero (silence)
+
+  fs.writeFileSync(filePath, buf);
+}
+
+for (const sf of ['estimate_lock.wav', 'reveal.wav', 'level_up.wav', 'personal_best.wav', 'session_complete.wav']) {
+  const filePath = path.join(soundsDir, sf);
+  createSilentWav(filePath);
+  console.log(`Generated placeholder: ${filePath}`);
+}
