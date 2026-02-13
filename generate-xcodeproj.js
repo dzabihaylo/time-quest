@@ -33,6 +33,11 @@ const sourceFiles = [
   { name: 'PINEntryView.swift', path: 'Features/Shared/Views/PINEntryView.swift' },
   { name: 'PlayerHomeView.swift', path: 'Features/Player/Views/PlayerHomeView.swift' },
   { name: 'ParentDashboardView.swift', path: 'Features/Parent/Views/ParentDashboardView.swift' },
+  { name: 'RoutineListView.swift', path: 'Features/Parent/Views/RoutineListView.swift' },
+  { name: 'RoutineEditorView.swift', path: 'Features/Parent/Views/RoutineEditorView.swift' },
+  { name: 'TaskEditorView.swift', path: 'Features/Parent/Views/TaskEditorView.swift' },
+  { name: 'SchedulePickerView.swift', path: 'Features/Parent/Views/SchedulePickerView.swift' },
+  { name: 'RoutineEditorViewModel.swift', path: 'Features/Parent/ViewModels/RoutineEditorViewModel.swift' },
 ];
 
 // Groups
@@ -46,8 +51,9 @@ const groups = [
   { name: 'SharedViews', path: 'Views', files: ['PINEntryView.swift'] },
   { name: 'Player', path: 'Player', subgroups: ['PlayerViews'] },
   { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift'] },
-  { name: 'Parent', path: 'Parent', subgroups: ['ParentViews'] },
-  { name: 'ParentViews', path: 'Views', files: ['ParentDashboardView.swift'] },
+  { name: 'Parent', path: 'Parent', subgroups: ['ParentViews', 'ParentViewModels'] },
+  { name: 'ParentViews', path: 'Views', files: ['ParentDashboardView.swift', 'RoutineListView.swift', 'RoutineEditorView.swift', 'TaskEditorView.swift', 'SchedulePickerView.swift'] },
+  { name: 'ParentViewModels', path: 'ViewModels', files: ['RoutineEditorViewModel.swift'] },
   { name: 'Features', path: 'Features', subgroups: ['Player', 'Parent', 'Shared'] },
   { name: 'Resources', path: 'Resources', files: [] },
 ];

@@ -15,7 +15,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E77706A26ACBAC01CFE92C3B"
+               BlueprintIdentifier = "DAADD797950E4A9988EFA005"
                BuildableName = "TimeQuest.app"
                BlueprintName = "TimeQuest"
                ReferencedContainer = "container:TimeQuest.xcodeproj">
@@ -44,7 +44,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "E77706A26ACBAC01CFE92C3B"
+            BlueprintIdentifier = "DAADD797950E4A9988EFA005"
             BuildableName = "TimeQuest.app"
             BlueprintName = "TimeQuest"
             ReferencedContainer = "container:TimeQuest.xcodeproj">
@@ -61,7 +61,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "E77706A26ACBAC01CFE92C3B"
+            BlueprintIdentifier = "DAADD797950E4A9988EFA005"
             BuildableName = "TimeQuest.app"
             BlueprintName = "TimeQuest"
             ReferencedContainer = "container:TimeQuest.xcodeproj">
