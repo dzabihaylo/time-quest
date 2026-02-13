@@ -69,11 +69,11 @@ Plans:
   3. Parent dashboard does not show player-created routines, and parent cannot edit or delete them
   4. All 5 game sounds (estimate lock, reveal, level up, personal best, session complete) play real production audio that mixes with background music and respects the silent switch
   5. XP curve constants are exposed as tunable values ready for post-playtesting adjustment
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: Routine templates + player routine creation flow
-- [ ] 05-02: Sound assets + audio config + XP tuning exposure
+- [ ] 05-01-PLAN.md -- SchemaV3 with createdBy field, RoutineTemplateProvider, player guided creation flow, PlayerHomeView Create Quest button + star badge, RoutineListView parent filtering
+- [ ] 05-02-PLAN.md -- AVAudioSession ambient config, production sound effects generation, XPConfiguration tunable struct, XPEngine + LevelCalculator refactor, build system updates
 
 ### Phase 6: Weekly Reflection Summaries
 **Goal**: Player absorbs a brief weekly digest of her progress and patterns -- building a meta-awareness rhythm without it feeling like homework
