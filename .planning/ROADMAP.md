@@ -53,11 +53,11 @@ Plans:
   3. Insights use curiosity-framed language ("Interesting -- you tend to...") that feels exploratory, not judgmental
   4. No insights appear for tasks with fewer than 5 non-calibration sessions -- the player never sees a misleading pattern from thin data
   5. Insight cards render consistently across the patterns screen and in-gameplay context
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: EstimationSnapshot + InsightEngine (pure domain)
-- [ ] 04-02: My Patterns screen + in-gameplay hints + navigation
+- [ ] 04-01-PLAN.md -- EstimationSnapshot value type + InsightEngine TDD (bias, trend, consistency, contextual hints)
+- [ ] 04-02-PLAN.md -- InsightCardView shared component, MyPatternsView + ViewModel, contextual gameplay hints, PlayerHomeView navigation
 
 ### Phase 5: Self-Set Routines + Production Audio
 **Goal**: Player creates her own quests (transferring ownership from "parent's tool" to "my tool") and all game sounds feel polished and real
