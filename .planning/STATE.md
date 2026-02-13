@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-12)
 ## Current Position
 
 Phase: 2 of 2 (Engagement Layer)
-Plan: 1 of 3 in current phase (02-01 complete)
+Plan: 2 of 3 in current phase (02-02 complete)
 Status: Executing Phase 2
-Last activity: 2026-02-13 -- Plan 02-01 (Progression Data Layer) complete
+Last activity: 2026-02-13 -- Plan 02-02 (Progression UI Layer) complete
 
-Progress: [████████░░] 83% (4 of 6 plans complete)
+Progress: [█████████░] 91% (5 of 6 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
+- Total plans completed: 5
 - Total execution time: ~2 sessions
 
 **By Phase:**
@@ -27,9 +27,10 @@ Progress: [████████░░] 83% (4 of 6 plans complete)
 | Phase | Plans | Status |
 |-------|-------|--------|
 | 1. Playable Foundation | 3/3 | Code complete |
-| 2. Engagement Layer | 1/3 | In progress |
+| 2. Engagement Layer | 2/3 | In progress |
 
 **Plan 02-01:** 5 min, 2 tasks, 12 files
+**Plan 02-02:** 3 min, 2 tasks, 9 files
 
 ## Accumulated Context
 
@@ -44,10 +45,13 @@ Progress: [████████░░] 83% (4 of 6 plans complete)
 - [02-01]: Level curve: baseXP=100, exponent=1.5 (concave -- fast early levels)
 - [02-01]: Streaks pause on gaps (never reset, never punish)
 - [02-01]: PlayerProfile singleton via fetch-or-create pattern
+- [02-02]: ProgressionViewModel creates repos from ModelContext (no AppDependencies injection needed)
+- [02-02]: Accuracy chart uses 30-day rolling window with daily averages
+- [02-02]: PlayerStatsView gets its own ProgressionViewModel instance for independent refresh
 
 ### Pending Todos
 
-- Phase 2 plans 02-02 and 02-03 remain
+- Phase 2 plan 02-03 remains
 - Human verification on iOS Simulator still pending from Phase 1
 
 ### Blockers/Concerns
@@ -57,5 +61,5 @@ Progress: [████████░░] 83% (4 of 6 plans complete)
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 02-01-PLAN.md (Progression Data Layer)
+Stopped at: Completed 02-02-PLAN.md (Progression UI Layer)
 Resume file: None
