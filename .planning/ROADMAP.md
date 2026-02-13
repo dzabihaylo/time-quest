@@ -24,9 +24,9 @@ TimeQuest delivers time-perception training disguised as a game for a 13-year-ol
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Data layer and dual-mode shell (SwiftData models, repositories, RoleRouter with PIN gate, app entry point)
-- [ ] 01-02: Parent setup flow (routine CRUD, task editor, scheduling, display name mapping)
-- [ ] 01-03: Core gameplay loop (quest selection, estimation capture, silent timer, accuracy feedback, session completion, onboarding, visual design)
+- [x] 01-01: Data layer and dual-mode shell (SwiftData models, repositories, RoleRouter with PIN gate, app entry point)
+- [x] 01-02: Parent setup flow (routine CRUD, task editor, scheduling, display name mapping)
+- [x] 01-03: Core gameplay loop (quest selection, estimation capture, silent timer, accuracy feedback, session completion, onboarding, visual design)
 
 ### Phase 2: Engagement Layer
 **Goal**: The player has visible progression, sensory reinforcement, and gentle reminders that sustain daily engagement past the week-3 novelty cliff -- long enough for time perception skill to consolidate.
@@ -48,7 +48,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|---------------|--------|-----------|
-| 1. Playable Foundation | 0/3 | Not started | - |
+| 1. Playable Foundation | 3/3 | Code complete (pending verification) | 2026-02-13 |
 | 2. Engagement Layer | 0/3 | Not started | - |
 
 ---
