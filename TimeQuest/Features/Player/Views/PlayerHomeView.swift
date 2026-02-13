@@ -10,6 +10,7 @@ struct PlayerHomeView: View {
     @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "onboardingComplete")
     @State private var selectedQuest: Routine?
     @State private var progressionVM: ProgressionViewModel?
+    @State private var showingCreateQuest = false
 
     var body: some View {
         NavigationStack {
@@ -116,6 +117,9 @@ struct PlayerHomeView: View {
             loadTodayQuests()
             loadProgression()
         }
+        .sheet(isPresented: $showingCreateQuest, onDismiss: { loadTodayQuests() }) {
+            PlayerRoutineCreationView(modelContext: modelContext)
+        }
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingView(onComplete: {
                 showOnboarding = false
@@ -124,15 +128,20 @@ struct PlayerHomeView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 8) {
-            Text("No quests today")
-                .font(.title3)
-                .foregroundStyle(.secondary)
+        VStack(spacing: 16) {
+            VStack(spacing: 8) {
+                Text("No quests today")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
 
-            Text("Quests appear on their scheduled days")
-                .font(.subheadline)
-                .foregroundStyle(.tertiary)
+                Text("Quests appear on their scheduled days")
+                    .font(.subheadline)
+                    .foregroundStyle(.tertiary)
+            }
+
+            createQuestButton
         }
+        .padding(.horizontal, 24)
     }
 
     private var questList: some View {
@@ -140,6 +149,8 @@ struct PlayerHomeView: View {
             ForEach(todayQuests) { routine in
                 questCard(routine)
             }
+
+            createQuestButton
         }
         .padding(.horizontal, 24)
     }
@@ -154,6 +165,12 @@ struct PlayerHomeView: View {
                         Text(routine.displayName)
                             .font(.headline)
                             .foregroundStyle(.primary)
+
+                        if routine.createdBy == "player" {
+                            Image(systemName: "star.fill")
+                                .font(.caption2)
+                                .foregroundStyle(.orange)
+                        }
 
                         if isCalibrating(routine) {
                             Text("Calibrating")
@@ -177,6 +194,24 @@ struct PlayerHomeView: View {
                 Image(systemName: "chevron.right")
                     .font(.caption)
                     .foregroundStyle(.tertiary)
+            }
+            .padding(16)
+            .background(Color(.systemGray6))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var createQuestButton: some View {
+        Button { showingCreateQuest = true } label: {
+            HStack {
+                Image(systemName: "plus.circle.fill")
+                    .font(.title3)
+                    .foregroundStyle(.tint)
+                Text("Create Quest")
+                    .font(.headline)
+                    .foregroundStyle(.tint)
+                Spacer()
             }
             .padding(16)
             .background(Color(.systemGray6))

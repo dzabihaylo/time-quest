@@ -2,7 +2,8 @@ import SwiftUI
 import SwiftData
 
 struct RoutineListView: View {
-    @Query(sort: \Routine.createdAt) private var routines: [Routine]
+    @Query(filter: #Predicate<Routine> { $0.createdBy == "parent" }, sort: \Routine.createdAt)
+    private var routines: [Routine]
     @Environment(\.modelContext) private var modelContext
 
     var body: some View {
@@ -72,7 +73,9 @@ struct RoutineListView: View {
 
     private func deleteRoutines(at offsets: IndexSet) {
         for index in offsets {
-            modelContext.delete(routines[index])
+            let routine = routines[index]
+            guard routine.createdBy == "parent" else { continue }
+            modelContext.delete(routine)
         }
         try? modelContext.save()
     }
