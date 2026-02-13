@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
-**Current focus:** v2.0 Advanced Training -- Phase 4 in progress
+**Current focus:** v2.0 Advanced Training -- Phase 4 complete, ready for Phase 5
 
 ## Current Position
 
 Milestone: v2.0 Advanced Training
-Phase: 4 of 6 (Contextual Learning Insights)
-Plan: 1 of 2 complete
-Status: Phase 4 Plan 1 complete -- InsightEngine domain core built
-Last activity: 2026-02-13 -- Executed 04-01 (InsightEngine domain core)
+Phase: 4 of 6 (Contextual Learning Insights) -- COMPLETE
+Plan: 2 of 2 complete
+Status: Phase 4 complete -- InsightEngine + Insight UI shipped
+Last activity: 2026-02-13 -- Executed 04-02 (Insight UI: My Patterns + Contextual Hints)
 
-Progress: [################..............] 65% (9/14 plans -- v1.0: 6/6, v2.0: 3/8)
+Progress: [####################..........] 71% (10/14 plans -- v1.0: 6/6, v2.0: 4/8)
 
 ## Performance Metrics
 
@@ -26,14 +26,15 @@ Progress: [################..............] 65% (9/14 plans -- v1.0: 6/6, v2.0: 3
 
 **v2.0 Advanced Training:**
 - Phases: 4 (Phases 3-6), Plans: 7 (estimated)
-- Status: In progress -- Phase 4 Plan 1 complete
-- Codebase: 53 Swift files, ~4,200 LOC
+- Status: Phase 4 complete
+- Codebase: 56 Swift files, ~4,500 LOC
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
 | 03-01 | Schema Versioning | 4min | 2 | 11 |
 | 03-02 | CloudKit Backup | 10min | 3 | 10 |
 | 04-01 | InsightEngine Domain Core | 6min | 2 | 5 |
+| 04-02 | Insight UI: My Patterns + Hints | 12min | 3 | 8 |
 
 ## Accumulated Context
 
@@ -64,6 +65,9 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 - CV breakpoints 0.3/0.6 for consistency classification (standard statistical breakpoints)
 - Added Sendable conformance to all insight types for Swift 6 strict concurrency
 - EstimationSnapshot bridge pattern: pure struct + SwiftData extension in same file
+- Used InsightEngine.generateInsights() then grouped by routineName for My Patterns display
+- Contextual hints preloaded synchronously in startQuest() for zero-latency display
+- Hint capsule styled identically to calibration banner for visual consistency
 
 ### Pending Todos
 
@@ -73,7 +77,8 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 - Execute Phase 3 Plan 2 (CloudKit Backup) -- DONE (verified)
 - Plan Phase 4 (Contextual Learning Insights) -- DONE
 - Execute Phase 4 Plan 1 (InsightEngine Domain Core) -- DONE
-- Execute Phase 4 Plan 2 (Insight UI: My Patterns + Contextual Hints) -- NEXT
+- Execute Phase 4 Plan 2 (Insight UI: My Patterns + Contextual Hints) -- DONE
+- Plan Phase 5 -- NEXT
 
 ### Blockers/Concerns
 
@@ -85,5 +90,5 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: Completed 04-01-PLAN.md -- ready for 04-02 execution
+Stopped at: Completed 04-02-PLAN.md -- Phase 4 complete, ready for Phase 5 planning
 Resume file: None
