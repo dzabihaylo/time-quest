@@ -1,336 +1,438 @@
-# Technology Stack
+# Technology Stack: v2.0 Additions
 
-**Project:** TimeQuest -- iOS Time-Perception Training Game
-**Researched:** 2026-02-12
-**Overall Confidence:** MEDIUM (unable to verify versions via web/Context7 -- versions based on training data through mid-2025 plus reasonable extrapolation; flag all versions for validation before project init)
+**Project:** TimeQuest v2.0 -- Advanced Training Features
+**Researched:** 2026-02-13
+**Overall Confidence:** MEDIUM (WebSearch/WebFetch unavailable; recommendations based on training data through mid-2025 plus codebase analysis; flag CloudKit specifics for validation)
 
----
-
-## Recommended Stack
-
-### Platform Target
-
-| Parameter | Value | Rationale |
-|-----------|-------|-----------|
-| Deployment target | iOS 17.0+ | SwiftData requires iOS 17. Dropping iOS 16 is acceptable -- 13-year-olds overwhelmingly run recent iOS versions. By Feb 2026, iOS 17 adoption is near-universal. |
-| Xcode | 16.x (latest stable) | Ships with Swift 6.x and iOS 18 SDK. Use whatever is current when you create the project. |
-| Swift | 6.x | Strict concurrency checking, typed throws, better macros. If Swift 6 strict mode causes friction with SpriteKit callbacks, keep `swift-settings: [.enableUpcomingFeature("StrictConcurrency")]` but set module-level `@preconcurrency` on SpriteKit imports. |
-
-**Confidence:** MEDIUM -- Swift 6 was released mid-2024; Xcode 16 shipped fall 2024. By Feb 2026 there may be a Swift 6.1 or Xcode 16.3+. Verify exact latest stable versions before `xcode-select`.
+**Scope:** This document covers ONLY additions and changes needed for v2.0. The existing v1.0 stack (SwiftUI, SwiftData, SpriteKit, Swift Charts, AVFoundation, UserNotifications, iOS 17.0+, Swift 6.0) is validated and unchanged.
 
 ---
 
-### Core Framework: SwiftUI + SpriteKit Hybrid
+## Executive Assessment
 
-| Technology | Purpose | Why This |
-|------------|---------|----------|
-| **SwiftUI** | All non-game UI: menus, settings, parent dashboard, progress screens, onboarding | Declarative, fast iteration, native animations, accessibility built-in. Solo dev productivity multiplier. |
-| **SpriteKit** (via `SpriteView`) | Game scenes: timer challenges, visual feedback, animated rewards | Apple's first-party 2D engine. Zero dependency risk. `SpriteView` embeds SpriteKit scenes directly in SwiftUI with two lines of code. |
+v2.0 requires **zero new third-party dependencies**. Every new capability maps to an Apple first-party framework that already ships with the iOS 17 SDK. The only additions are:
 
-**Architecture pattern:** SwiftUI owns navigation and state; SpriteKit owns real-time rendering. Communication flows through `@Observable` view models that SpriteKit scenes read/write.
+1. **CloudKit framework** -- iCloud backup/sync (new framework addition)
+2. **New SwiftData model types** -- pattern analysis, reflection, self-set routines (schema evolution)
+3. **New pure domain engines** -- pattern analyzer, reflection generator (new code, no new dependencies)
+4. **Real audio assets** -- replacing placeholder .wav files (asset swap, no code change)
 
-**Why NOT alternatives:**
-
-| Rejected | Why |
-|----------|-----|
-| Unity | Massive overkill for 2D timer games. Adds 200MB+ to binary. C# foreign to Swift ecosystem. Destroys solo-dev velocity for this scope. |
-| Unreal | Even more overkill. Not suitable for casual 2D. |
-| Godot | Growing iOS support but still requires bridging, export quirks, and a separate editor. Not worth the friction for what is fundamentally a UI-heavy app with light game elements. |
-| Metal directly | Too low-level. SpriteKit abstracts Metal for you. |
-| SceneKit | 3D engine. This game is 2D. |
-| UIKit | SwiftUI is strictly better for new projects in 2025+. UIKit only if you need UICollectionView-level complexity, which this project does not. |
-| Cocos2d-x | Effectively dead. Last meaningful update years ago. |
-| RealityKit | AR/3D focused. Wrong tool. |
-
-**Confidence:** HIGH -- SpriteKit + SwiftUI via `SpriteView` is well-established since iOS 15. This is not a controversial choice.
+This is architecturally ideal. The v1.0 stack was designed to accommodate exactly these additions.
 
 ---
 
-### Data Persistence: SwiftData
+## New Framework Additions
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| **SwiftData** | Ships with iOS 17 SDK | Player progress, estimation history, routine definitions, calibration data, reward state | Apple's modern persistence layer built on Swift macros. `@Model` macro, `@Query` in SwiftUI, automatic CloudKit sync option. Replaces Core Data for new projects. |
+### 1. CloudKit (via SwiftData ModelConfiguration)
 
-**Why SwiftData over alternatives:**
+| Property | Value |
+|----------|-------|
+| **Framework** | CloudKit.framework (ships with iOS SDK) |
+| **Purpose** | iCloud backup and sync of all player data across devices |
+| **Integration point** | `ModelConfiguration(cloudKitDatabase: .automatic)` in `TimeQuestApp.swift` |
+| **Why** | SwiftData has built-in CloudKit sync. Enabling it is a configuration change, not an architecture change. This was explicitly anticipated in v1.0 research. |
 
-| Rejected | Why |
-|----------|-----|
-| Core Data | SwiftData is Apple's replacement. Core Data still works but requires more boilerplate (`NSManagedObject` subclasses, `.xcdatamodeld` files). For a new project, SwiftData is the right call. |
-| Realm | Third-party dependency. SwiftData covers this project's needs. Realm's future is uncertain after MongoDB's acquisition shifts. |
-| SQLite (raw / GRDB) | Too low-level for this use case. SwiftData handles schema, migrations, and SwiftUI integration automatically. |
-| UserDefaults | Only for tiny preferences (sound on/off). Not for structured game data. |
-| Firebase/Firestore | Cloud-first adds complexity, latency, and a Google dependency. This game works offline. If cloud sync is needed later, SwiftData's CloudKit integration handles it with zero code changes. |
+**What changes in existing code:**
 
-**Data model sketch:**
+```swift
+// BEFORE (v1.0 -- TimeQuestApp.swift)
+.modelContainer(for: [
+    Routine.self,
+    RoutineTask.self,
+    GameSession.self,
+    TaskEstimation.self,
+    PlayerProfile.self
+])
+
+// AFTER (v2.0)
+.modelContainer(for: [
+    Routine.self,
+    RoutineTask.self,
+    GameSession.self,
+    TaskEstimation.self,
+    PlayerProfile.self,
+    WeeklyReflection.self,  // new model
+    // other new models...
+], configurations: ModelConfiguration(
+    cloudKitDatabase: .automatic
+))
+```
+
+**Required project configuration:**
+1. Add CloudKit capability in Xcode Signing & Capabilities
+2. Add iCloud capability with CloudKit checkbox
+3. Add a CloudKit container identifier (e.g., `iCloud.com.timequest.app`)
+4. Enable Background Modes > Remote notifications (for CloudKit change notifications)
+5. Update `project.yml` to include `CloudKit.framework` SDK dependency
+
+**Confidence:** MEDIUM -- SwiftData + CloudKit integration was demonstrated at WWDC 2023 and improved at WWDC 2024. The `ModelConfiguration(cloudKitDatabase:)` API exists. However, exact behavior with relationships (especially cascade deletes) and optional properties needs validation. SwiftData CloudKit sync has had bugs in early iOS 17 releases; iOS 17.4+ is reportedly more stable.
+
+**Critical constraints for CloudKit-compatible SwiftData models:**
+- All properties must have default values (CloudKit records can arrive with missing fields during sync)
+- No unique constraints (CloudKit does not support them)
+- Relationships must be optional on at least one side
+- No custom `#Index` macros (CloudKit ignores them, but they do not break sync)
+- Existing models (Routine, RoutineTask, GameSession, TaskEstimation, PlayerProfile) already satisfy most of these -- they use optional relationships and have defaults. **Verify:** `Routine.activeDays: [Int]` may need a default value explicitly set for CloudKit compatibility.
+
+---
+
+### 2. No Other New Frameworks Required
+
+| Proposed Feature | Framework Needed | Already Available? |
+|------------------|-----------------|-------------------|
+| Contextual learning insights | SwiftData (queries) + pure Swift (analysis) | YES -- SwiftData already in project |
+| Pattern analysis engine | Pure Swift structs | YES -- follows existing `TimeEstimationScorer` pattern |
+| Self-set routines | SwiftUI (forms) + SwiftData (persistence) | YES -- existing `RoutineEditorViewModel` pattern |
+| Routine templates | Pure Swift structs (static data) | YES -- no framework needed |
+| Real sound assets | AVFoundation (`AVAudioPlayer`) | YES -- `SoundManager` already handles this |
+| Weekly reflections | SwiftData (model) + SwiftUI (views) + Swift Charts | YES -- all in project |
+| iCloud backup | CloudKit via SwiftData | Partially -- need to add CloudKit framework |
+
+---
+
+## New Domain Engines (Pure Swift, No Dependencies)
+
+These follow the established v1.0 pattern: pure structs with static methods, zero framework dependencies, fully testable.
+
+### PatternAnalyzer
+
+**Purpose:** Analyze per-task estimation history to surface contextual insights.
+**Follows pattern of:** `TimeEstimationScorer`, `PersonalBestTracker`
+
+```swift
+// Domain/PatternAnalyzer.swift -- new file
+struct PatternAnalyzer {
+    struct TaskPattern {
+        let taskDisplayName: String
+        let averageDifference: Double       // signed: positive = tends to overestimate
+        let consistencyScore: Double         // 0-100: how consistent estimates are
+        let recentTrend: Trend               // improving, declining, stable
+        let sampleCount: Int
+    }
+
+    enum Trend: String {
+        case improving, declining, stable
+    }
+
+    /// Pure function: analyze estimations for a single task
+    static func analyze(taskName: String, estimations: [TaskEstimation]) -> TaskPattern
+    /// Pure function: generate insight text from a pattern
+    static func insightText(for pattern: TaskPattern) -> String
+}
+```
+
+**Input:** `[TaskEstimation]` from existing SwiftData queries (already available via `SessionRepository`)
+**Output:** Value types consumed by ViewModels
+**No new framework needed.**
+
+**Confidence:** HIGH -- this is pure Swift business logic using data types that already exist.
+
+### ReflectionGenerator
+
+**Purpose:** Summarize a week of sessions into a reflection with highlights and growth areas.
+**Follows pattern of:** `FeedbackGenerator`
+
+```swift
+// Domain/ReflectionGenerator.swift -- new file
+struct WeeklyReflectionData {
+    let weekStartDate: Date
+    let sessionsCompleted: Int
+    let averageAccuracy: Double
+    let bestTask: String?
+    let growthArea: String?
+    let streakStatus: String
+    let xpEarned: Int
+    let headline: String
+    let bodyText: String
+}
+
+struct ReflectionGenerator {
+    /// Pure function: generate reflection from a week of sessions
+    static func generate(
+        sessions: [GameSession],
+        weekStart: Date,
+        playerProfile: PlayerProfile
+    ) -> WeeklyReflectionData
+}
+```
+
+**No new framework needed.**
+
+**Confidence:** HIGH -- pure Swift, straightforward aggregation logic.
+
+### RoutineTemplateProvider
+
+**Purpose:** Provide pre-built routine templates for the guided self-set routine creation flow.
+**Why a domain engine:** Templates are static data with validation logic. No persistence needed for templates themselves.
+
+```swift
+// Domain/RoutineTemplateProvider.swift -- new file
+struct RoutineTemplate {
+    let name: String
+    let displayName: String
+    let suggestedTasks: [TaskTemplate]
+    let suggestedDays: [Int]
+    let category: TemplateCategory
+}
+
+struct TaskTemplate {
+    let name: String
+    let displayName: String
+    let suggestedDurationSeconds: Int?
+}
+
+enum TemplateCategory: String, CaseIterable {
+    case morning, afterSchool, sports, creative, weekend
+}
+
+struct RoutineTemplateProvider {
+    static let templates: [RoutineTemplate] = [...]
+}
+```
+
+**No new framework needed.**
+
+**Confidence:** HIGH -- static data.
+
+---
+
+## New SwiftData Models (Schema Evolution)
+
+### WeeklyReflection
+
+**Purpose:** Persist generated weekly reflections so the player can review past weeks.
 
 ```swift
 @Model
-class Player {
-    var name: String
-    var createdAt: Date
-    var totalXP: Int
-    @Relationship(deleteRule: .cascade) var estimations: [Estimation]
-    @Relationship(deleteRule: .cascade) var routines: [Routine]
-}
+final class WeeklyReflection {
+    var weekStartDate: Date = Date.now
+    var sessionsCompleted: Int = 0
+    var averageAccuracy: Double = 0.0
+    var bestTaskName: String = ""
+    var growthAreaTaskName: String = ""
+    var headline: String = ""
+    var bodyText: String = ""
+    var xpEarned: Int = 0
+    var createdAt: Date = Date.now
 
-@Model
-class Estimation {
-    var taskDescription: String
-    var estimatedSeconds: Int
-    var actualSeconds: Int
-    var accuracy: Double  // computed: 1.0 - abs(estimated - actual) / actual
-    var completedAt: Date
-    var routine: Routine?
-}
-
-@Model
-class Routine {
-    var name: String
-    var steps: [RoutineStep]  // Codable struct array
-    var isActive: Bool
-    var createdBy: CreatorRole  // .parent or .player
+    init(/* ... */) { /* ... */ }
 }
 ```
 
-**Confidence:** MEDIUM -- SwiftData was introduced at WWDC 2023 (iOS 17), with significant improvements at WWDC 2024. It had early-adopter bugs in iOS 17.0-17.2. By iOS 17.4+ / iOS 18, it is stable. Verify current state of any `#Index` or compound predicate features if needed.
+**CloudKit compatibility:** All properties have defaults. No relationships (reflections are standalone summaries). No unique constraints. This is CloudKit-safe.
+
+### Model changes to existing types
+
+**Routine:** Add `createdByPlayer: Bool = false` to distinguish parent-created vs self-set routines. Default is `false` for backward compatibility with existing data.
+
+**PlayerProfile:** Add `lastReflectionDate: Date?` to track when the last weekly reflection was generated.
+
+**No migration needed** if using SwiftData's lightweight migration (adding properties with defaults is automatically handled).
+
+**Confidence:** MEDIUM -- SwiftData lightweight migration for adding optional/defaulted properties works in iOS 17+. Verify that adding `createdByPlayer` to `Routine` does not require explicit migration with existing CloudKit data.
 
 ---
 
-### State Management: Swift Observation Framework
+## Real Sound Assets
 
-| Technology | Purpose | Why |
-|------------|---------|-----|
-| **@Observable macro** (Observation framework) | View models, game state, app-wide state | Replaces `ObservableObject` / `@Published`. Less boilerplate, better performance (fine-grained observation), works with SwiftUI and SpriteKit scenes. |
-| **@Environment** | Dependency injection for shared services (audio manager, haptics, notification scheduler) | SwiftUI-native DI. No third-party container needed. |
+### Current State
 
-**Pattern:**
+5 placeholder .wav files in `Resources/Sounds/`, each 8,864 bytes (identical size = clearly generated placeholders, likely silence or a basic tone):
+
+| File | Game Event |
+|------|------------|
+| `estimate_lock.wav` | Player locks in their time estimate |
+| `reveal.wav` | Accuracy reveal moment |
+| `level_up.wav` | Player levels up |
+| `personal_best.wav` | New personal best achieved |
+| `session_complete.wav` | All tasks in a quest finished |
+
+### What to Replace With
+
+**Format:** Keep `.wav` (uncompressed) for short SFX. `AVAudioPlayer` handles .wav with zero latency. Do NOT switch to .mp3 or .aac for game SFX -- compression adds decode latency.
+
+**Alternative:** `.caf` (Core Audio Format) is Apple's preferred format and supports both compressed and uncompressed. For short SFX (<2 seconds), the difference is negligible. Stick with `.wav` since the existing `SoundManager` is already configured for it.
+
+**Recommended sound characteristics for a 13-year-old's game:**
+
+| Sound | Character | Duration | Notes |
+|-------|-----------|----------|-------|
+| `estimate_lock.wav` | Crisp confirmation click/tap | 0.2-0.5s | Satisfying, not mechanical |
+| `reveal.wav` | Whoosh or unveil flourish | 0.5-1.0s | Build anticipation |
+| `level_up.wav` | Ascending chime/fanfare | 1.0-2.0s | Celebratory, not childish |
+| `personal_best.wav` | Achievement sparkle/ding | 0.5-1.0s | Distinct from level_up |
+| `session_complete.wav` | Warm completion tone | 1.0-1.5s | Satisfying closure |
+
+**Sourcing options (royalty-free, commercial use):**
+
+| Source | License | Cost | Best For |
+|--------|---------|------|----------|
+| **freesound.org** | Creative Commons (CC0, CC-BY) | Free | Individual SFX, large catalog |
+| **Pixabay** (audio section) | Pixabay License (free commercial use) | Free | Curated game SFX packs |
+| **Mixkit** | Mixkit License (free commercial use) | Free | Game sound effects category |
+| **Zapsplat** | Standard License (free with attribution OR paid without) | Free/Paid | Broad catalog, good quality |
+| **Apple GarageBand** sound library | Royalty-free for any project | Free (ships with macOS) | Can create custom short SFX |
+
+**Recommendation:** Use **freesound.org** with CC0 (public domain) filter. This avoids any attribution requirements in the app. If CC0 options are insufficient, use CC-BY (attribution in app settings or about screen).
+
+**No code changes needed.** The `SoundManager` loads files by name from the bundle. Replace the 5 .wav files with real ones keeping the same filenames. Zero code changes.
+
+**Potential new sounds for v2.0 features:**
+
+| Sound | Event | Priority |
+|-------|-------|----------|
+| `routine_created.wav` | Player creates their own routine | Medium |
+| `reflection_ready.wav` | Weekly reflection available | Low |
+| `insight_appear.wav` | Pattern insight surfaces during gameplay | Low |
+
+These are optional -- v2.0 can ship with just the 5 core sounds replaced. Add additional sounds only if the UX calls for them during implementation.
+
+**Confidence:** HIGH -- This is an asset swap, not a technical change.
+
+---
+
+## What NOT to Add
+
+| Temptation | Why Not |
+|------------|---------|
+| **Third-party analytics (Firebase, Amplitude)** | Surveillance tool feel for a 13-year-old's game. Analytics happen through the pattern analyzer and weekly reflections, surfaced to the PLAYER, not extracted to a backend. |
+| **Core ML / CreateML** | Overkill for pattern analysis. The estimation data is simple numeric time series. Standard deviation, moving averages, and linear trend detection are 20 lines of Swift. ML frameworks add binary size and complexity for no benefit at this data scale. |
+| **SwiftUI Charts alternatives (DGCharts, etc.)** | Swift Charts already handles everything needed. Weekly reflection charts are the same accuracy-over-time pattern already built in v1.0. |
+| **WidgetKit** | Tempting for showing streaks on home screen but out of scope for v2.0. Would require a separate widget extension target, shared App Group container, and adds build complexity. Defer to v3.0 if the player wants it. |
+| **BackgroundTasks framework** | Not needed. Weekly reflections can be generated on-demand when the app opens and a week has passed. Background processing adds entitlement complexity for minimal benefit. |
+| **StoreKit** | No in-app purchases. This is a personal tool, not a monetized product. |
+| **App Intents / Shortcuts** | Cool but out of scope. Defer to v3.0. |
+| **Combine** | The app uses @Observable pattern. Combine is not needed for any v2.0 feature. Timer-based functionality (if any) can use Swift concurrency (`Task.sleep`). |
+| **Third-party CloudKit wrapper (CloudKitCodable, etc.)** | SwiftData's built-in CloudKit support handles everything. Adding a wrapper adds a dependency for no benefit. |
+
+---
+
+## Stack Changes Summary
+
+### Added to project.yml
+
+```yaml
+dependencies:
+  - sdk: SwiftUI.framework
+  - sdk: SwiftData.framework
+  - sdk: SpriteKit.framework
+  - sdk: CryptoKit.framework
+  - sdk: CloudKit.framework          # NEW for v2.0
+```
+
+### Added to modelContainer
 
 ```swift
-@Observable
-class GameViewModel {
-    var currentChallenge: TimerChallenge?
-    var isTimerRunning = false
-    var elapsedSeconds: Int = 0
-    var playerEstimate: Int = 0
-
-    // SpriteKit scene reads this; SwiftUI views observe it
-}
+// New model types registered
+.modelContainer(for: [
+    Routine.self,
+    RoutineTask.self,
+    GameSession.self,
+    TaskEstimation.self,
+    PlayerProfile.self,
+    WeeklyReflection.self,           // NEW for v2.0
+])
 ```
 
-**Why NOT:**
+### New files (code, not libraries)
 
-| Rejected | Why |
-|----------|-----|
-| Combine | Observation framework replaces Combine for SwiftUI state. Combine is still fine for async streams (e.g., timer ticks), but do not use `@Published` + `ObservableObject` for view models. |
-| TCA (The Composable Architecture) | Excellent architecture but heavy learning curve and overkill for a solo-dev game. Adds friction to rapid prototyping. Consider only if the app grows to 30+ screens with complex shared state. |
-| Redux-style (ReSwift, etc.) | Same argument as TCA. Overhead exceeds benefit at this scale. |
+| File | Layer | Purpose |
+|------|-------|---------|
+| `Domain/PatternAnalyzer.swift` | Domain | Per-task estimation pattern analysis |
+| `Domain/ReflectionGenerator.swift` | Domain | Weekly reflection summary generation |
+| `Domain/RoutineTemplateProvider.swift` | Domain | Static routine templates for guided creation |
+| `Models/WeeklyReflection.swift` | Model | Persisted weekly reflection |
+| `Features/Player/Views/MyPatternsView.swift` | UI | "My Patterns" screen |
+| `Features/Player/Views/WeeklyReflectionView.swift` | UI | Weekly reflection display |
+| `Features/Player/Views/RoutineCreatorView.swift` | UI | Player-facing guided routine creation |
+| `Features/Player/ViewModels/PatternViewModel.swift` | ViewModel | Mediates pattern analysis to UI |
+| `Features/Player/ViewModels/ReflectionViewModel.swift` | ViewModel | Mediates reflection data to UI |
+| `Features/Player/ViewModels/RoutineCreatorViewModel.swift` | ViewModel | Guided routine creation flow |
 
-**Confidence:** HIGH -- `@Observable` is the clear direction from Apple since WWDC 2023. Well-documented, stable.
+### Modified files
 
----
+| File | Change |
+|------|--------|
+| `TimeQuestApp.swift` | Add CloudKit ModelConfiguration, register new model types |
+| `project.yml` | Add CloudKit.framework dependency, add iCloud/CloudKit entitlements |
+| `Models/Routine.swift` | Add `createdByPlayer: Bool = false` property |
+| `Models/PlayerProfile.swift` | Add `lastReflectionDate: Date?` property |
+| `AppDependencies.swift` | No change needed -- new ViewModels are created at the view level per existing pattern |
+| `PlayerHomeView.swift` | Add navigation to My Patterns and Weekly Reflection |
+| `Resources/Sounds/*.wav` | Replace 5 placeholder files with real audio |
 
-### Audio: AVFoundation + SKAction
+### Unchanged
 
-| Technology | Purpose | Why |
-|------------|---------|-----|
-| **AVFoundation** (`AVAudioPlayer`) | Background music, ambient sounds | Fine-grained control over volume, looping, fade. |
-| **SKAction.playSoundFileNamed** | In-game SFX tied to SpriteKit actions | Zero-overhead sound effects within SpriteKit scenes. |
-
-**Keep it simple.** Do NOT add a third-party audio engine. `AVAudioPlayer` handles everything this game needs. Create a small `AudioManager` singleton (or `@Observable` service) that SwiftUI and SpriteKit both reference.
-
-**Confidence:** HIGH -- AVFoundation is bedrock iOS API. Unchanged in relevant ways for years.
-
----
-
-### Haptics: Core Haptics
-
-| Technology | Purpose | Why |
-|------------|---------|-----|
-| **UIImpactFeedbackGenerator** | Simple taps, button presses | One-line haptic feedback. |
-| **Core Haptics** (`CHHapticEngine`) | Custom haptic patterns for timer beats, success/failure feedback | Lets you create rhythmic "tick" haptics that reinforce time perception. This is a **critical feature** -- haptic rhythm is a direct training mechanism for internal clock calibration. |
-
-**Confidence:** HIGH -- Core Haptics has been stable since iOS 13.
+Everything else. The architecture, dependency injection, repository pattern, domain engine pattern, and build system remain identical.
 
 ---
 
-### Notifications: UserNotifications
+## Entitlements Required (New for v2.0)
 
-| Technology | Purpose | Why |
-|------------|---------|-----|
-| **UNUserNotificationCenter** | Routine reminders, "time to practice" nudges, streak maintenance | First-party. No server needed. Supports scheduled, repeating, and location-triggered notifications. |
-
-**Key consideration:** For a 13-year-old, notifications must be thoughtful and non-spammy. Implement parent-controlled notification frequency in the parent dashboard.
-
-**Confidence:** HIGH -- Stable API since iOS 10.
-
----
-
-### Animation: SwiftUI Animations + SpriteKit
-
-| Technology | Purpose | Why |
-|------------|---------|-----|
-| **SwiftUI `.animation()` / `withAnimation`** | UI transitions, progress bars, XP counters | Declarative, interruptible, spring-based. |
-| **SpriteKit `SKAction`** | In-game sprite animations, particle effects for rewards | SpriteKit's native action system. Sequencing, grouping, easing built-in. |
-| **SpriteKit `SKEmitterNode`** | Celebration particles (level up, streak milestones) | Xcode's built-in particle editor. Visual reward without code complexity. |
-
-**Why NOT Lottie:** Adds a dependency for something SwiftUI animations and SpriteKit particles handle natively. Only consider Lottie if a designer provides After Effects animations. For a solo dev, native tools are faster.
-
-**Confidence:** HIGH
-
----
-
-### Charts: Swift Charts
-
-| Technology | Purpose | Why |
-|------------|---------|-----|
-| **Swift Charts** (Charts framework) | Progress visualization: estimation accuracy over time, calibration curves, streaks | First-party, SwiftUI-native, declarative. Shows the player (and parent) whether time perception is improving. |
-
-**Confidence:** HIGH -- Swift Charts shipped with iOS 16, mature by iOS 17+.
-
----
-
-### Networking: None (initially)
-
-This game is **offline-first by design**. No backend, no accounts, no server.
-
-If multi-device sync is needed later, enable **SwiftData + CloudKit** (requires an Apple Developer account and iCloud entitlement). This is a configuration change, not an architecture change.
-
-If parent-child device pairing is needed later, consider **MultipeerConnectivity** (local Bluetooth/WiFi) or a lightweight CloudKit shared database.
-
-**Do NOT pre-build networking infrastructure.** YAGNI. Add it when there is a validated need.
-
-**Confidence:** HIGH -- architectural decision, not technology uncertainty.
-
----
-
-### Testing
-
-| Technology | Purpose | Why |
-|------------|---------|-----|
-| **XCTest** | Unit tests for estimation logic, scoring algorithms, data model | First-party. Ships with Xcode. |
-| **Swift Testing** (`@Test`, `#expect`) | Modern test syntax for new test files | Apple's new testing framework (WWDC 2024). Cleaner syntax than XCTest. Use for new tests; no need to migrate existing XCTest suites. |
-| **XCUITest** | UI automation for critical flows (onboarding, parent setup) | First-party UI testing. |
-| **Xcode Previews** | Rapid visual iteration on SwiftUI views | Not a "test" but critical for solo-dev velocity. Use `#Preview` macro liberally. |
-
-**Why NOT third-party test frameworks:** Quick/Nimble added value when XCTest was verbose. Swift Testing makes them redundant.
-
-**Confidence:** MEDIUM -- Swift Testing was introduced at WWDC 2024. By Feb 2026 it should be stable, but verify that `@Test` works reliably with async tests and SwiftData `ModelContainer` in-memory configurations.
-
----
-
-### Accessibility
-
-| Technology | Purpose | Why |
-|------------|---------|-----|
-| **SwiftUI Accessibility modifiers** | VoiceOver, Dynamic Type, reduce motion | Built into SwiftUI. Use `.accessibilityLabel()`, `.accessibilityHint()`, `.dynamicTypeSize()`. |
-| **`AccessibilityNotification`** | Announce timer state changes to VoiceOver users | Critical for a time-based game to be accessible. |
-
-**This is not optional.** A time-perception game must handle:
-- VoiceOver users who cannot see visual timers
-- Users with vestibular disorders (respect `accessibilityReduceMotion`)
-- Dynamic Type for readability
-
-**Confidence:** HIGH
-
----
-
-### Package Management: Swift Package Manager
-
-| Technology | Purpose | Why |
-|------------|---------|-----|
-| **Swift Package Manager** (built into Xcode) | Dependency management | First-party. Integrated into Xcode. CocoaPods is legacy; Carthage is effectively dead. SPM is the only modern choice. |
-
-**Confidence:** HIGH
-
----
-
-## Supporting Libraries (Third-Party)
-
-The philosophy is **minimize dependencies**. Apple's first-party frameworks cover 95% of this project's needs. Only add third-party libraries when the alternative is writing 500+ lines of non-differentiating code.
-
-| Library | Purpose | When to Add | Confidence |
-|---------|---------|-------------|------------|
-| **None initially** | -- | -- | -- |
-
-**Libraries to consider adding ONLY if needed:**
-
-| Library | Purpose | When to Add | Why Not Now |
-|---------|---------|-------------|------------|
-| Lottie (airbnb/lottie-ios) | Complex designer-provided animations | If you hire a designer who delivers After Effects files | SpriteKit particles + SwiftUI animations cover solo-dev needs |
-| KeychainAccess or SwiftKeychainWrapper | Secure storage for parent PIN | If parent auth moves beyond simple passcode | A 4-digit parent PIN stored in UserDefaults (or basic Keychain API) is fine for v1 |
-| SwiftLint | Code style enforcement | From day one (dev dependency only) | Actually, DO add this. See below. |
-
-### SwiftLint: Add This
-
-```bash
-brew install swiftlint
+```xml
+<!-- TimeQuest.entitlements -->
+<key>com.apple.developer.icloud-container-identifiers</key>
+<array>
+    <string>iCloud.com.timequest.app</string>
+</array>
+<key>com.apple.developer.icloud-services</key>
+<array>
+    <string>CloudDocuments</string>
+    <string>CloudKit</string>
+</array>
 ```
 
-Add a `.swiftlint.yml` to the project root. SwiftLint is not a library dependency (not in your SPM manifest) -- it is a build tool. Run it as a build phase script. It catches bugs solo devs miss without code review.
+**Note:** This requires an Apple Developer Program membership ($99/year) to provision CloudKit containers. The app can be developed and tested with Xcode's CloudKit console and simulator, but real device testing requires a signed provisioning profile with iCloud capability.
 
-**Confidence:** HIGH -- SwiftLint is the de facto Swift linter. Stable for years.
+**Confidence:** MEDIUM -- entitlement format is standard, but the exact keys for SwiftData-managed CloudKit (vs. manual CloudKit) should be verified. SwiftData may only require the `CloudKit` service, not `CloudDocuments`.
 
 ---
 
-## Full Dependency List
+## Integration Points with Existing Architecture
+
+### How new engines integrate
 
 ```
-# Package.swift / Xcode SPM dependencies
-# (none -- all first-party frameworks)
+Existing:                          New:
+SessionRepository                  PatternAnalyzer
+  .fetchAllSessions()        -->     .analyze(taskName:, estimations:)
+  .fetchSessions(for:)              ReflectionGenerator
+                                       .generate(sessions:, weekStart:, profile:)
 
-# Build tools (installed via Homebrew, not SPM)
-brew install swiftlint
+RoutineEditorViewModel             RoutineCreatorViewModel
+  (parent-facing)                    (player-facing, uses RoutineTemplateProvider)
+  |                                  |
+  v                                  v
+RoutineRepository.save()           RoutineRepository.save()
+  (both go through same repo -- createdByPlayer flag distinguishes them)
 ```
 
-**Frameworks used (all ship with iOS SDK, no dependency management needed):**
-- SwiftUI
-- SpriteKit
-- SwiftData
-- Observation
-- AVFoundation
-- CoreHaptics
-- UserNotifications
-- Charts
-- XCTest / Swift Testing
-- Accessibility
+### Data flow for pattern insights (in-gameplay)
 
----
+```
+Player completes a task estimation
+  -> GameSessionViewModel.completeActiveTask() [existing]
+    -> Saves TaskEstimation [existing]
+    -> PatternAnalyzer.analyze() [NEW -- called after save]
+      -> Returns TaskPattern with insight
+    -> GameSessionViewModel exposes currentInsight: String? [NEW property]
+  -> AccuracyRevealView shows insight below feedback [NEW UI element]
+```
 
-## Version Pinning Strategy
+### Data flow for weekly reflection
 
-Since this project uses zero third-party SPM packages, version pinning is a non-issue. All frameworks are tied to the iOS SDK version, which is tied to the Xcode version.
-
-**Rule:** Target the second-latest major iOS version (iOS 17) to balance reach vs. API availability. When iOS 19 ships (likely fall 2026), consider bumping to iOS 18 minimum.
-
----
-
-## Development Environment
-
-| Tool | Version | Purpose |
-|------|---------|---------|
-| Xcode | Latest stable (16.x as of early 2026) | IDE, simulator, instruments |
-| Simulator | iPhone 15 / iPhone 16 sizes | Primary test devices |
-| Physical device | Any iPhone running iOS 17+ | Haptics, real-world timer accuracy testing |
-| SwiftLint | Latest stable | Code quality |
-| SF Symbols | 6.x (ships with Xcode) | Icons throughout the UI -- thousands of free, scalable, accessible symbols |
-| Xcode Instruments | Ships with Xcode | Performance profiling, memory leak detection |
-
----
-
-## Alternatives Considered (Summary)
-
-| Category | Recommended | Alternative | Why Not |
-|----------|-------------|-------------|---------|
-| UI Framework | SwiftUI | UIKit | SwiftUI is faster for solo dev, better for this app's declarative UI needs |
-| Game Engine | SpriteKit | Unity, Godot | Overkill; SpriteKit is first-party, zero-dependency, sufficient for 2D timer games |
-| Persistence | SwiftData | Core Data, Realm, SQLite | SwiftData is Apple's modern replacement, less boilerplate, SwiftUI-native |
-| State | @Observable | Combine, TCA | @Observable is Apple's current direction; simpler for this scale |
-| Audio | AVFoundation | FMOD, third-party | AVFoundation covers all needs with zero dependencies |
-| Charts | Swift Charts | Charts (danielgindi) | First-party, SwiftUI-native, no dependency |
-| Package Manager | SPM | CocoaPods, Carthage | SPM is first-party and the only modern option |
-| Networking | None (offline-first) | Firebase, Supabase | YAGNI; add CloudKit sync later if needed |
-| Linter | SwiftLint | SwiftFormat | SwiftLint catches more bug-prone patterns; SwiftFormat is style-only |
+```
+App launches (or returns from background)
+  -> PlayerHomeView.onAppear [existing]
+    -> Check: has it been 7+ days since lastReflectionDate?
+      -> YES: ReflectionViewModel.generateReflection()
+        -> Fetches last 7 days of sessions via SessionRepository
+        -> Calls ReflectionGenerator.generate() [pure domain]
+        -> Saves WeeklyReflection model
+        -> Updates PlayerProfile.lastReflectionDate
+        -> Shows "reflection ready" indicator on PlayerHomeView
+      -> NO: Skip
+```
 
 ---
 
@@ -338,19 +440,21 @@ Since this project uses zero third-party SPM packages, version pinning is a non-
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| SwiftUI + SpriteKit hybrid | HIGH | Well-established pattern since `SpriteView` introduction (iOS 15) |
-| SwiftData | MEDIUM | Stable since iOS 17.4+ but verify current macro syntax and migration APIs before starting |
-| @Observable | HIGH | Clear Apple direction, well-documented |
-| Swift 6 strict concurrency | MEDIUM | May cause friction with SpriteKit's `SKScene` (which is `@MainActor`-adjacent but not annotated). Test early. |
-| Zero third-party dependencies | HIGH | Intentional architectural choice; all needs met by Apple frameworks |
-| Version numbers | LOW | Training data cuts off mid-2025; exact Xcode/Swift/iOS versions should be verified at project start |
+| CloudKit via SwiftData | MEDIUM | API exists and was designed for this. Exact behavior with existing model relationships needs validation during implementation. Test on real device early. |
+| Pattern analysis engine | HIGH | Pure Swift math on existing data types. No framework uncertainty. |
+| Weekly reflections | HIGH | Pure Swift generation + standard SwiftData persistence. |
+| Self-set routines | HIGH | Reuses existing RoutineEditorViewModel pattern. Minimal new code. |
+| Real sound assets | HIGH | Asset swap. Zero code change. |
+| Schema migration | MEDIUM | Adding defaulted properties should be lightweight-migrated automatically. Verify with existing data on device. |
+| Entitlements/provisioning | LOW | Requires Apple Developer account setup and correct entitlement configuration. Exact entitlements for SwiftData+CloudKit not verified against current docs. |
 
 ---
 
 ## Sources
 
-- Apple Developer Documentation (developer.apple.com) -- primary authority for all framework recommendations
-- WWDC 2023 sessions on SwiftData and SwiftUI
-- WWDC 2024 sessions on Swift Testing and Observation framework
-- SpriteKit + SpriteView documentation (iOS 15+)
-- **NOTE:** Web verification was unavailable during this research session. All version numbers should be confirmed against current Apple documentation before project initialization. Confidence levels reflect this limitation.
+- Existing TimeQuest v1.0 codebase (46 Swift files analyzed in full)
+- v1.0 STACK.md research (2026-02-12) -- established base stack decisions
+- Apple Developer Documentation (training data, not live-verified): SwiftData ModelConfiguration, CloudKit integration
+- WWDC 2023: "Meet SwiftData", "Build an app with SwiftData" (CloudKit configuration demonstrated)
+- WWDC 2024: "What's new in SwiftData" (improvements to CloudKit sync)
+- **NOTE:** WebSearch and WebFetch were unavailable during this session. CloudKit entitlement configuration and SwiftData CloudKit edge cases (cascade delete sync, relationship conflict resolution) should be verified against current Apple documentation before implementation begins.

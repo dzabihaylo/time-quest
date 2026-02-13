@@ -1,236 +1,355 @@
-# Domain Pitfalls
+# Domain Pitfalls: v2.0 Advanced Training Features
 
-**Domain:** Gamified time-perception training for teens with time blindness (iOS)
-**Researched:** 2026-02-12
-**Source basis:** Training data (web search/Context7 unavailable). Confidence capped at MEDIUM. Findings draw from gamification research (Deci & Ryan, Deterding), ADHD literature (Barkley, CHADD), teen UX patterns, and iOS development patterns.
+**Domain:** Adding iCloud sync, contextual insights, self-set routines, real sounds, and weekly reflections to existing SwiftData iOS app
+**Researched:** 2026-02-13
+**Overall confidence:** MEDIUM (training data only -- web search and Context7 unavailable)
+**Source basis:** Apple developer documentation (training data, May 2025 cutoff), SwiftData/CloudKit integration patterns, iOS audio engineering patterns, established SwiftData migration behavior. All claims should be verified against current Apple documentation during implementation.
 
 ---
 
 ## Critical Pitfalls
 
-Mistakes that cause the app to be rejected by the player, fail to train the target skill, or require a fundamental redesign.
+Mistakes that cause data loss, require architectural rework, or break the existing v1.0 functionality.
 
 ---
 
-### Pitfall 1: Building a Timer App in Game Clothing
+### Pitfall 1: CloudKit Requires All Properties to Be Optional or Have Defaults -- Your Models Are Not Ready
 
-**What goes wrong:** The app looks like a game but functions like a countdown timer with rewards bolted on. The player recognizes the pattern -- "this is just another timer" -- and disengages. Timers have already failed for this player. If the core interaction is "watch time count down and try to beat it," you've rebuilt the thing she already ignores.
+**What goes wrong:** You enable CloudKit sync by switching from the default `ModelConfiguration` to one with a CloudKit container, and the app crashes on launch or silently fails to sync. CloudKit's underlying `CKRecord` schema requires that every field be optional because records can arrive partially from the cloud. SwiftData models destined for CloudKit must have every stored property either be `Optional` or have a default value.
 
-**Why it happens:** Developers default to the most obvious time mechanic: show elapsed time, compare to target. The timer is the path of least resistance because it's easy to implement and seems logically connected to "time training." But time blindness means she doesn't have the internal reference frame to make countdowns meaningful. A timer externalizes the clock -- the opposite of building an internal one.
+**Why it happens with THIS codebase:** Looking at the current models:
+- `Routine.name: String` -- no default, not optional
+- `Routine.displayName: String` -- no default, not optional
+- `RoutineTask.name: String` -- no default, not optional
+- `RoutineTask.displayName: String` -- no default, not optional
+- `TaskEstimation.taskDisplayName: String` -- no default, not optional
+- `TaskEstimation.estimatedSeconds: Double` -- no default, not optional
+- `TaskEstimation.actualSeconds: Double` -- no default, not optional
+- `TaskEstimation.differenceSeconds: Double` -- no default, not optional
+- `TaskEstimation.accuracyPercent: Double` -- no default, not optional
+- `TaskEstimation.ratingRawValue: String` -- no default, not optional
+- `GameSession.startedAt: Date` -- has default (`.now`), OK
+- `PlayerProfile` -- all properties have defaults, OK
 
-**Consequences:** She uses it for 1-3 days, recognizes the pattern, stops. Parent loses a tool. The core thesis ("games can train time perception") gets unfairly invalidated because the execution was wrong, not the idea.
+Nearly every model violates the CloudKit requirement. Enabling sync without fixing this will produce runtime errors or silent sync failures.
+
+**Consequences:** If you just flip on CloudKit without model changes, you get one of: (a) crash on container initialization, (b) records fail to upload to CloudKit with opaque CKError codes, (c) records sync up but fail to materialize on the receiving device. Worst case: data appears to save locally but never syncs, and the user believes backup is working when it is not.
 
 **Warning signs:**
-- Core mechanic involves watching a visible clock or countdown
-- Player's primary action is "start timer, do task, stop timer"
-- Without the game wrapper, the interaction is identical to the iOS Clock app
-- Playtesters describe it as "a timer with points"
+- CKError with code `.invalidArguments` or `.serverRecordChanged` in console
+- Records show up in CloudKit Dashboard with nil values where you expect data
+- Sync works for `PlayerProfile` but not for other models (because PlayerProfile already has all defaults)
 
 **Prevention:**
-- The core mechanic must be estimation-first: "How long do you THINK this will take?" before any timing begins
-- Time feedback should come AFTER the task, not during. She does the task, then discovers how her estimate compared to reality
-- Never show a running clock during task execution. The whole point is building the internal clock, not relying on an external one
-- The game moment is the reveal -- the gap between her estimate and reality -- not the countdown
+- Before enabling CloudKit, audit every `@Model` property. Every stored property must be `Optional<T>` or have a `= defaultValue` assigned at declaration
+- For this codebase, the practical approach is adding sensible defaults to non-optional properties: `var name: String = ""`, `var estimatedSeconds: Double = 0`, etc.
+- Do NOT make everything Optional and litter the codebase with `!` unwraps. Prefer defaults over optionals for properties that logically always have a value
+- This is a schema migration. It must happen in a versioned `VersionedSchema` with a `SchemaMigrationPlan` to avoid corrupting existing local data (see Pitfall 2)
 
-**Phase relevance:** Phase 1 (core game loop design). This is THE make-or-break decision. If the core mechanic is wrong, nothing else matters.
+**Detection:** Test CloudKit sync on a real device with a real iCloud account before shipping. The Simulator's CloudKit behavior differs from production.
+
+**Phase relevance:** Must be resolved BEFORE enabling CloudKit. This is the first task in any iCloud backup phase.
+
+**Confidence:** HIGH -- this is a well-documented, fundamental CloudKit/Core Data constraint that has not changed since CloudKit's introduction and applies identically to SwiftData.
 
 ---
 
-### Pitfall 2: The Overjustification Effect -- Rewards That Destroy Intrinsic Motivation
+### Pitfall 2: Schema Migration Corrupts Existing v1.0 Data
 
-**What goes wrong:** Points, streaks, badges, and leaderboards initially drive engagement. Then the player starts gaming the system for rewards rather than actually improving her time estimation. When the rewards stop feeling novel (2-3 weeks), engagement crashes below baseline because she now associates the activity with extrinsic reward, not internal satisfaction.
+**What goes wrong:** Adding defaults to every model property (required for CloudKit, per Pitfall 1), adding new fields for v2.0 features (e.g., `createdByPlayer: Bool` on `Routine`, analytics fields on `TaskEstimation`, weekly summary models), or renaming/restructuring properties triggers a schema migration. If the migration is not handled correctly, SwiftData fails to open the existing persistent store and either crashes or silently creates a new empty store -- erasing all v1.0 data.
 
-**Why it happens:** This is the overjustification effect (Deci & Ryan, Self-Determination Theory). When you attach external rewards to an activity, the brain reclassifies the motivation: "I'm doing this for points" replaces "I'm doing this because I'm getting better." Remove or normalize the rewards (which inevitably happens as novelty fades) and motivation evaporates. Gamification literature is full of this failure pattern.
+**Why it happens with THIS codebase:** The current app uses the default `modelContainer(for:)` with no `VersionedSchema` or `SchemaMigrationPlan`. SwiftData's lightweight migration can handle simple additive changes (new optional properties, new properties with defaults) automatically. But it CANNOT handle:
+- Renaming properties
+- Changing property types
+- Removing properties
+- Adding new required (non-optional, no-default) properties
+- Changing relationship cardinality
 
-**Consequences:** Weeks 1-2 show great engagement metrics. Weeks 3-4 show a cliff. Parent thinks "she got bored of it." Actual cause: the reward structure trained the wrong behavior.
+The danger zone is that v2.0 needs BOTH CloudKit compatibility changes (Pitfall 1) AND new feature fields, and some of these changes might accidentally cross the lightweight migration boundary.
+
+**Consequences:** The player opens the updated app and all her estimation history, XP, streaks, calibration data, and routines are gone. For a skill-building app where visible progress is the primary motivator, this is catastrophic. She will not re-enter weeks of data.
 
 **Warning signs:**
-- She asks "how many points do I get?" rather than "how close was I?"
-- She games estimates (intentionally lowballing or padding) to optimize scoring
-- Engagement correlates with reward events, not with accuracy improvement
-- She does the minimum to maintain a streak but doesn't care about the result
+- App launches but shows empty state after update
+- Console shows "Failed to load persistent stores" or "The model used to open the store is incompatible"
+- SwiftData silently creates a new `.store` file alongside the old one
 
 **Prevention:**
-- Reward accuracy and improvement, not just participation. "You were 30 seconds closer than yesterday" matters more than "+50 XP"
-- Use informational feedback (how close your estimate was) rather than controlling feedback (points for compliance)
-- Streaks are acceptable only if breaking one has minimal penalty. High-penalty streak loss causes resentment and quit spirals
-- The "score" should BE the estimation accuracy, not a separate abstraction layered on top. Her improvement IS the game
-- Celebrate perception milestones ("You've nailed 5-minute estimates 3 times in a row") rather than arbitrary point thresholds
+1. Introduce `VersionedSchema` NOW, retroactively defining v1.0's schema as `SchemaV1`
+2. Define `SchemaV2` with all the changes needed for CloudKit + new features
+3. Create a `SchemaMigrationPlan` that maps V1 to V2
+4. For all v2.0 model changes, ONLY make changes that qualify as lightweight migrations: add new properties with defaults, add new optional properties, add entirely new models
+5. Never rename or remove existing properties. If a property name is wrong, add a new one and deprecate the old
+6. Test migration with REAL v1.0 data: build v1.0, populate data, then install v2.0 on top and verify everything survives
+7. Keep a copy of the v1.0 `.store` file in test fixtures for automated migration testing
 
-**Phase relevance:** Phase 1-2 (game mechanics and reward system design). Must be baked into the core loop, not retrofitted.
+**Detection:** Add a migration test that opens a v1.0 store file with v2.0 schemas and verifies all records load correctly. Run this test in CI.
+
+**Phase relevance:** Must be the FIRST thing built in v2.0 -- before any model changes. Schema versioning is the foundation that every other v2.0 feature depends on.
+
+**Confidence:** HIGH -- SwiftData migration behavior is well-documented and inherited from Core Data's migration system.
 
 ---
 
-### Pitfall 3: Parental Control Pattern Leaks Through the UX
+### Pitfall 3: CloudKit Sync Creates Duplicate Records and Merge Conflicts
 
-**What goes wrong:** The player discovers or senses that the routines were configured by a parent, not chosen by her. The app shifts in her mind from "my game" to "another thing my parents are making me do." Engagement collapses because the app is now part of the nagging cycle it was designed to break.
+**What goes wrong:** The player uses the app on one device, then opens it on another (or restores from backup). CloudKit sync delivers records that already exist locally, creating duplicates. Or the player modifies the same routine on two devices before sync occurs, and the merge produces corrupted or unexpected data.
 
-**Why it happens:** At 13, autonomy is the central developmental need. Any tool perceived as parental control gets rejected -- not because it's bad, but because it violates her need for independence. UX cues that leak the parent's involvement: routine names that match what parents say ("School morning routine"), tasks appearing on a suspiciously convenient schedule, settings she can't access, or a visible "parent mode" toggle.
+**Why it happens with THIS codebase:** The current models have no unique identity constraints. `PlayerProfile` uses `fetchOrCreate()` which fetches the first profile -- but with CloudKit sync, two devices could each create a `PlayerProfile`, and sync would deliver both. You'd end up with two profiles. Similarly, `Routine` objects have no unique identifier beyond their SwiftData `persistentModelID`, which is device-local and not stable across CloudKit sync.
 
-**Consequences:** She refuses to use the app. Worse: she weaponizes the refusal ("You're trying to control me with an app now?"). The parent-child conflict escalates rather than resolving.
+CloudKit uses a "last writer wins" merge policy by default. If the player's XP is 500 on device A and 600 on device B, whichever syncs last overwrites the other. The player loses XP, streaks, or session data silently.
+
+**Consequences:**
+- Two `PlayerProfile` instances -- the app picks one arbitrarily, the other's XP/streak data is orphaned
+- Duplicate routines appearing in the quest selection list
+- XP or streak values reverting after sync
+- Session data from one device overwriting or duplicating on another
 
 **Warning signs:**
-- Routine content mirrors parental language verbatim ("brush teeth," "pack lunch")
-- The player can't add/modify/create her own challenges
-- There's a visible "parent" section, locked settings, or admin UI accessible from her device
-- Push notifications arrive at times that feel like nagging (right when she should be doing a task)
-- She describes the app as "the thing Mom put on my phone"
+- Player sees duplicate routines or quests
+- XP/level goes backward after opening app on a second device
+- `PlayerProfile.fetchOrCreate()` returns different profiles on different launches
 
 **Prevention:**
-- Parent setup must be completely invisible. Separate device, separate app entry point, or a code-locked mode that leaves zero trace in the player UI
-- The player must be able to create her OWN challenges alongside parent-seeded ones. If she can add "how long will this YouTube video feel like?" alongside "morning routine," it becomes HER tool
-- Routine content should be framed in game language, not parent language. Not "Get ready for school" but a quest/challenge with abstracted naming
-- The player should feel like she discovered the app, not that it was imposed. Onboarding should feel like "here's your game" not "here's what you need to do"
-- Notifications should be opt-in and player-controlled. She decides when the game talks to her
+- Add a stable unique identifier (`var cloudID: String = UUID().uuidString`) to every model that should be deduplicated across devices
+- For `PlayerProfile`, which is a singleton, use a hardcoded sentinel ID (e.g., `"player-profile-singleton"`) and deduplicate on receipt
+- Implement a post-sync deduplication pass that runs when the app detects CloudKit history changes (using `NSPersistentCloudKitContainer`'s history tracking or SwiftData's equivalent)
+- For additive data (sessions, estimations), duplicates are less dangerous but still annoying. Use the `recordedAt` timestamp + task name as a natural deduplication key
+- For `PlayerProfile` fields like `totalXP`, consider whether sync should use "last writer wins" or "highest value wins." XP should only go UP, so a custom merge of `max(localXP, remoteXP)` is safer
+- Treat CloudKit sync as eventually consistent. Never assume sync has completed. Always handle the "data arrived late" case
 
-**Phase relevance:** Phase 1 (UX architecture and parent/player separation). The two-persona architecture must be designed from day one. Retrofitting invisible parenting is nearly impossible.
+**Phase relevance:** Design the deduplication strategy alongside the CloudKit enablement. Not something to bolt on after.
+
+**Confidence:** HIGH -- CloudKit merge conflicts and deduplication are the single most complained-about issue in the Core Data + CloudKit ecosystem.
 
 ---
 
-### Pitfall 4: Training Compliance Instead of Perception
+### Pitfall 4: Enabling CloudKit Silently Breaks @Query Predicates on Relationships
 
-**What goes wrong:** The game rewards completing tasks on time rather than estimating accurately. The player learns "rush through the checklist" instead of "develop an internal sense of how long things take." She gets good at the game without getting better at time perception.
+**What goes wrong:** `RoutineListView` uses `@Query(sort: \Routine.createdAt)` and the repository uses `#Predicate { $0.routine?.persistentModelID == routineID }`. After enabling CloudKit, some predicates that worked with a local-only store start failing or returning incomplete results, because CloudKit-backed stores have different query behavior for relationship traversal.
 
-**Why it happens:** Completion is easy to measure. Perception accuracy is harder to quantify and gamify. Developers default to "did she finish in the time allotted?" which is a compliance metric, not a perception metric. This recreates the exact dynamic that already fails (external pressure to be on time) instead of building the internal skill.
+**Why it happens with THIS codebase:** The `SessionRepository.fetchSessions(for:)` method filters by `$0.routine?.persistentModelID == routineID`. With CloudKit sync, `persistentModelID` is not stable across devices -- it is a local identifier. A routine synced from another device will have a different `persistentModelID` than the original. The predicate will fail to match sessions to their routines on the receiving device.
 
-**Consequences:** She might "succeed" in the game while her time blindness remains unchanged. Or she might feel pressured to rush, triggering stress and avoidance. Either way, the therapeutic goal is missed.
+Additionally, CloudKit-backed stores do not support all predicate operations that local stores support. Complex predicates involving optionals, relationship traversal, or computed properties may behave differently.
+
+**Consequences:**
+- `fetchSessions(for:)` returns empty arrays for synced routines
+- Calibration tracking breaks (it counts completed sessions per routine)
+- Accuracy trends show incomplete data
+- The app appears to work but is silently losing data associations
 
 **Warning signs:**
-- Success condition is "finished before deadline" rather than "estimated accurately"
-- The game penalizes being late more than being inaccurate
-- There's no feedback loop on estimation quality
-- The player feels time pressure during tasks (stress, rushing)
+- Sessions exist in the store but `fetchSessions(for:)` returns empty
+- CalibrationTracker always says calibration is needed even for routines with many sessions
+- AccuracyTrendChartView shows gaps or missing data points
 
 **Prevention:**
-- Core metric must be estimation accuracy: |estimated_time - actual_time|. This is the signal that perception is improving
-- Overestimation and underestimation should both be visible. A player who always pads estimates by 10 minutes hasn't calibrated; she's learned to game safety margins
-- Being "wrong" on an estimate should feel informative ("Huh, that took way longer than I thought") not punitive ("You failed!")
-- Track and celebrate calibration trends over time: "Your estimates for 10-minute tasks used to be off by 8 minutes. Now you're off by 2"
-- Explicitly separate "how accurate was your guess" from "did you finish on time." The game cares about the first. Real life benefits from both, but training the first enables the second
+- Replace `persistentModelID`-based relationship queries with queries on a stable custom identifier (the `cloudID` from Pitfall 3)
+- Test every `FetchDescriptor` and `#Predicate` against a CloudKit-backed store, not just the local store
+- Keep the relationship (`session.routine`) but don't query by `persistentModelID` -- query by your own stable ID
+- Consider adding `routineCloudID: String` directly on `GameSession` as a denormalized lookup key for queries that need to filter sessions by routine
 
-**Phase relevance:** Phase 1 (core mechanic), Phase 2 (feedback/progress system). The estimation-accuracy-as-score principle must be the foundation.
+**Phase relevance:** Must be addressed alongside CloudKit enablement. Every repository method needs audit.
+
+**Confidence:** MEDIUM -- the `persistentModelID` instability across CloudKit sync is well-documented for Core Data. The exact behavior in SwiftData may have improved but should be verified against current documentation.
 
 ---
 
-### Pitfall 5: Novelty Cliff -- Week 3 Abandonment
+### Pitfall 5: Analytics/Pattern Detection Queries Cause UI Stutter on Growing Dataset
 
-**What goes wrong:** The game is engaging for 1-2 weeks, then the player has seen everything, the core loop feels repetitive, and she stops. Time perception training requires months of daily practice to produce measurable skill transfer. An app that can't sustain 8+ weeks of engagement fails at its core mission regardless of how good the first week is.
+**What goes wrong:** Contextual insights ("You always underestimate packing by 4 minutes") and weekly reflections require querying ALL `TaskEstimation` records, grouping by task name, computing averages, detecting trends. As the dataset grows over weeks/months of use, these aggregate queries become slow. Running them synchronously on the main thread (where `@MainActor`-bound repositories currently operate) causes visible UI freezes.
 
-**Why it happens:** Most gamified apps front-load their content and variety. The first session is rich with discovery; by session 20, it's the same loop. Teens are especially sensitive to repetition because their novelty-seeking is developmentally high. ADHD amplifies this further -- the dopamine-seeking brain needs variable reward schedules and progressive challenge.
+**Why it happens with THIS codebase:** The entire repository layer is `@MainActor`. Every fetch and computation happens on the main thread. The current usage is fine because v1.0 queries are simple: fetch routines, fetch sessions for a routine, fetch a profile. But v2.0 analytics need to:
+- Fetch ALL estimations (potentially hundreds after weeks of use)
+- Group by task name
+- Compute running averages, standard deviations, trend slopes
+- Detect patterns (time-of-day effects, day-of-week effects, duration-range accuracy)
+- Generate natural language insights from the analysis
 
-**Consequences:** The app joins the graveyard of abandoned health/habit apps. The player's time perception doesn't improve because the training period was too short.
+Doing this on `@MainActor` during view appearance will cause the UI to hang, especially on older devices.
+
+**Consequences:** The "My Patterns" screen takes 1-3 seconds to appear. The weekly reflection view stutters. If the user has been playing for months, it gets progressively worse. The player associates the app with slowness and delays -- ironic for a time perception app.
 
 **Warning signs:**
-- All game mechanics are introduced in the first 3 days
-- Core interaction is identical on day 1 and day 30
-- No progressive difficulty or evolving challenge
-- No variety in feedback presentation
-- Usage analytics (if tracked) show declining session length after week 1
+- Purple "main thread hang" warnings in Instruments
+- ProgressView spinners appearing on the patterns/insights screen
+- Performance degrading over time as more sessions accumulate
 
 **Prevention:**
-- Design for a 90-day engagement arc, not a 7-day one. Map out what's new at week 2, week 4, week 8
-- Progressive challenge: start with estimating 5-minute tasks, graduate to 30-minute tasks, then sequences of tasks. The difficulty curve mirrors skill development
-- Variable reward schedule: occasional surprise feedback, unlockable insights, changing visual themes. The player shouldn't be able to predict exactly what happens next
-- Introduce new challenge types over time: estimate someone ELSE's task, estimate while doing something fun vs. boring (time flies vs. drags), estimate future tasks in advance
-- Real-world anchoring provides inherent variety: each day's routines are slightly different, so even the same mechanic feels fresh when applied to different real situations
-- Consider a "season" or chapter structure where the game evolves in tone/framing every few weeks
+- Create a separate `AnalyticsEngine` as a pure domain engine (like `XPEngine`, `StreakTracker`) that takes arrays of `TaskEstimation` values and returns computed insights. This keeps the computation pure and testable
+- Run the heavy fetch + computation on a background `ModelActor`, not on `@MainActor`
+- Cache computed insights and invalidate only when new sessions are completed (not on every view appearance)
+- Consider pre-computing insights at session completion time (when the user expects a brief processing moment) rather than on-demand when opening the patterns screen
+- Set a practical query limit: "Last 90 days" or "Last 100 sessions" rather than "all time" for trend calculations. Older data can still be included in lifetime stats but excluded from trend analysis
+- Profile with Instruments (Time Profiler) before and after adding analytics. Set a budget: patterns screen must appear in under 300ms
 
-**Phase relevance:** Phase 2-3 (content roadmap, progressive difficulty, long-term engagement). But the core loop in Phase 1 must be designed with extensibility in mind -- if the loop can't evolve, it's a dead end.
+**Phase relevance:** Design the analytics computation architecture before building insights UI. The computation model determines whether insights feel instant or sluggish.
+
+**Confidence:** MEDIUM -- the @MainActor constraint and growing dataset concern are architectural realities of this codebase. The specific performance thresholds depend on device and data volume.
 
 ---
 
 ## Moderate Pitfalls
 
-Mistakes that cause significant friction, reduced effectiveness, or require rework of a subsystem (but not a total redesign).
+Mistakes that cause significant friction, rework of a subsystem, or degraded user experience.
 
 ---
 
-### Pitfall 6: Wrong Notification Strategy -- Nagging vs. Inviting
+### Pitfall 6: Player-Created Routines Contaminate Parent-Created Data Model
 
-**What goes wrong:** Push notifications become the new nagging vector. "Time to start your morning routine!" at 7:15 AM is indistinguishable from a parent saying the same thing. She mutes notifications, and the app becomes invisible.
+**What goes wrong:** Adding self-set routines means the `Routine` model now has two sources: parent-created and player-created. Without a clear distinction in the data model, the parent dashboard shows player-created routines (confusing the parent), the parent accidentally edits a player routine (breaking the player's autonomy), or analytics blend parent-routine accuracy with player-routine accuracy (muddying insights).
+
+**Why it happens with THIS codebase:** The current `Routine` model has no `createdBy` or `source` field. `RoutineListView` in the parent dashboard uses `@Query(sort: \Routine.createdAt)` which fetches ALL routines. There is no filtering by creator. When player-created routines are added, they will immediately appear in the parent's routine list.
+
+The parent's `RoutineEditorView` can edit any routine. The player could create "Estimate my YouTube binge" as a fun self-challenge, and the parent would see it in their dashboard and potentially delete or modify it, breaking the player's sense of ownership.
+
+**Consequences:**
+- Parent sees player's personal routines and feels compelled to edit/judge them
+- Player sees parent's approval/disapproval of her self-set routines -- destroying the autonomy benefit
+- Analytics that compare "routine accuracy" blend two fundamentally different contexts
+- If the parent deletes a player-created routine (cascade delete), all associated sessions and estimations vanish
+
+**Warning signs:**
+- Parent asks "What's this routine I didn't create?"
+- Player stops creating self-set routines after parent comments on them
 
 **Prevention:**
-- Notifications should be game-framed, not task-framed. "Your quest awaits" not "Time to get ready"
-- Let her set notification preferences. If she wants no notifications, respect it. The game should be pull-based (she opens it when she's ready) not push-based (it tells her what to do)
-- If notifications exist, they should reference her progress or tease a challenge, not direct her behavior
-- Never send notifications at the exact time a parent would nag. Offset by 5-10 minutes or make timing player-controlled
+- Add `var createdByPlayer: Bool = false` to `Routine` (lightweight migration safe: new property with default)
+- Filter parent dashboard: `#Predicate { !$0.createdByPlayer }` (only show parent-created routines)
+- Filter player routine creation UI: show player-created routines as "My Challenges" separate from parent-configured "Quests"
+- Prevent parent from editing player-created routines (don't show them in the editor)
+- In analytics, separate or clearly label insights from player-created vs. parent-created routines
+- Consider whether player-created routines should be visible in the parent dashboard at all. Recommendation: NO. The parent's role is setup, not surveillance
 
-**Phase relevance:** Phase 2 (notification system design).
+**Phase relevance:** Must be designed before implementing self-set routines. The `createdByPlayer` field should be added in the schema migration alongside other v2.0 model changes.
+
+**Confidence:** HIGH -- this is a direct consequence of the existing data model lacking source attribution. The parent/player separation is a core design principle of this app.
 
 ---
 
-### Pitfall 7: Age-Inappropriate Aesthetic -- Too Childish or Too Clinical
+### Pitfall 7: Replacing Placeholder Sounds Breaks Audio Session Configuration
 
-**What goes wrong:** The visual design targets "kids" (cartoon characters, primary colors, baby-ish language) or "patients" (medical UI, clinical language, accessibility-first aesthetic). A 13-year-old rejects both. She wants something that feels like it could be a real app her friends might use, not something that marks her as "special needs" or "a little kid."
+**What goes wrong:** The placeholder `.wav` files are tiny silent or minimal files. Real sound assets are larger, possibly different formats (`.m4a`, `.caf`, `.aiff`), and may need different audio session configuration. Replacing the files without updating the audio session setup causes: sounds not playing, sounds cutting off other audio (music, podcasts), or sounds being silent when the ringer switch is off.
+
+**Why it happens with THIS codebase:** `SoundManager` uses `AVAudioPlayer` with hardcoded `.wav` extension in `preload()`. It does NOT configure an `AVAudioSession`. Without explicit session configuration, iOS uses the default `AVAudioSession.Category.soloAmbient`, which:
+- Respects the silent/ringer switch (sounds won't play if ringer is off)
+- Ducks when the app goes to background
+- Does NOT mix with other audio (playing a sound stops the user's music)
+
+For a game sound effect, you want `AVAudioSession.Category.ambient` which:
+- Respects the silent switch (appropriate -- if she has her phone on silent in class, sounds should not play)
+- Mixes with other audio (she can listen to music while playing)
+- Does not interrupt other apps' audio
+
+**Consequences:**
+- Replacing placeholder `.wav` with `.m4a` or `.caf` files: the `preload(_ soundName:, ext: "wav")` call silently fails because `Bundle.main.url(forResource:withExtension:)` returns nil for the wrong extension. No crash, but no sound either
+- If sounds are louder/longer than placeholders, they may interrupt the player's music (extremely annoying for a teen)
+- If not setting the audio session category, the default `soloAmbient` might duck or stop background music on sound playback
+
+**Warning signs:**
+- Sounds stop playing after replacing files (wrong extension)
+- User's background music pauses when game sounds play
+- Sounds don't play when the ringer switch is off (this is actually correct behavior for game sounds, but must be documented)
 
 **Prevention:**
-- Reference the aesthetic of apps teens actually use: Duolingo (slightly playful but not babyish), BeReal (minimal, social), TikTok (dynamic, modern). The visual language should feel like a mainstream app, not a therapeutic tool
-- Avoid medical/clinical terminology in the player-facing UI. No "training sessions," "therapeutic exercises," or "time blindness." Use game language: challenges, quests, levels, streaks
-- Let her choose some visual customization (color themes, avatar). Personalization signals "this is mine"
-- Test the naming: would she be embarrassed if a friend saw this app on her phone? If yes, redesign
-- "TimeQuest" as a name is borderline -- it could pass as a casual game, but evaluate whether it sounds like something a parent would install
+- Use `.caf` format for iOS sound effects (Core Audio Format -- native, lowest latency). Convert all assets to `.caf` during the asset pipeline, not at runtime
+- Update `SoundManager.preload()` to accept the actual file extension or auto-detect it
+- Add `AVAudioSession` configuration at app launch:
+  ```swift
+  try AVAudioSession.sharedInstance().setCategory(.ambient, options: .mixWithOthers)
+  try AVAudioSession.sharedInstance().setActive(true)
+  ```
+- Keep sound effects SHORT (under 3 seconds). Game UX sounds should be 0.1-1.5 seconds
+- Test with background music playing (Spotify, Apple Music). Sounds must not interrupt playback
+- Test with ringer switch off. Sounds should NOT play (this is correct for a game used by a teen in school/public)
+- Update the `soundNames` array and preload logic when adding new sounds for new v2.0 events (pattern insight reveal, weekly reflection, etc.)
 
-**Phase relevance:** Phase 1 (visual design, naming, onboarding). First impressions are decisive with teens.
+**Phase relevance:** Sound replacement should be a contained task. Do it AFTER the data model migrations are stable, as it is lower risk and independent of other features.
+
+**Confidence:** HIGH -- AVAudioSession category behavior is well-documented and stable across iOS versions. The `.wav` extension issue is a direct reading of the current code.
 
 ---
 
-### Pitfall 8: Punishing Inaccuracy Instead of Celebrating Calibration
+### Pitfall 8: Weekly Reflection Feature Creates a Periodic Computation Problem with No Scheduler
 
-**What goes wrong:** The feedback system makes bad estimates feel like failures. The player estimates "10 minutes" for something that takes 25, and the game responds with a red screen, lost points, or disappointed feedback. She learns that the game makes her feel bad, and stops playing.
+**What goes wrong:** Weekly reflections ("This week: 6 quests, accuracy improved 8%") need to be computed at the end of each week. But iOS apps have no guaranteed background execution. The app might not be opened on Sunday when the week ends. If the reflection is computed on-demand when the app opens, you need to determine "which week are we reflecting on?" and handle gaps (what if she didn't open the app for 2 weeks?).
+
+**Why it happens:** iOS aggressively suspends and kills background apps. There is no reliable cron-like scheduler. `BGAppRefreshTask` is best-effort and not guaranteed to run at a specific time. The app must handle arbitrary gaps between opens.
+
+**Consequences:**
+- If computed lazily on app open: first launch of the week shows last week's summary, but what if she opens the app on Wednesday? Do you show the partial current week? The previous complete week? Both?
+- If the app is not opened for 2 weeks: she sees a stale reflection from 2 weeks ago, or the system tries to generate two reflections at once
+- If reflections are tied to a specific day (e.g., "every Sunday"), she might never see them if she doesn't play on Sundays
 
 **Prevention:**
-- Every estimate is data, not a pass/fail. Frame surprises as discoveries: "Whoa, that took 2.5x longer than you thought! That's a big one to know about"
-- Show accuracy as a trend, not individual scores. One bad estimate doesn't matter; the trend over 2 weeks does
-- The MOST valuable game moments are when estimates are wildly wrong -- those are the calibration opportunities. The game should be most engaging (not most punishing) when the gap is largest
-- Use neutral or curious language for large gaps: "Interesting!" not "Wrong!" or "Try harder!"
-- Consider asymmetric feedback: large overestimates and underestimates get different but equally non-judgmental responses
+- Compute reflections lazily at app launch, not on a schedule. When the app opens, check: "Is there a completed week since the last reflection was generated?" If yes, generate it
+- Store reflections as persisted model objects (`WeeklyReflection` with `weekStartDate`, `weekEndDate`, summary fields). This way they survive app restarts and are queryable
+- Handle gaps: if 3 weeks have passed, generate reflections for each missed week (they are all based on historical data, so this is cheap)
+- Display the most recent unviewed reflection prominently. Older ones go to a history list
+- Define "week" consistently: Monday-Sunday or Sunday-Saturday, using `Calendar.current.dateInterval(of: .weekOfYear, for: date)` to avoid off-by-one day bugs
+- Do NOT use `BGAppRefreshTask` for this. It adds complexity for no benefit -- lazy computation on app open is sufficient and reliable
 
-**Phase relevance:** Phase 1 (feedback design), Phase 2 (progress visualization).
+**Phase relevance:** Design the reflection data model and computation trigger before building the UI. The "when to compute" problem must be solved architecturally.
+
+**Confidence:** MEDIUM -- the iOS background execution limitations are well-known. The specific approach of lazy computation is a standard pattern.
 
 ---
 
-### Pitfall 9: Scope Creep Into Feature Complexity
+### Pitfall 9: Contextual Insights Generate Misleading Patterns from Small Sample Sizes
 
-**What goes wrong:** Solo developer adds social features, detailed analytics dashboards, multiple game modes, custom routine builders, sync across devices, and a web-based parent portal. Each feature is reasonable in isolation. Together, they multiply complexity beyond what one person can build, test, and maintain. The app never ships, or ships buggy and half-finished.
+**What goes wrong:** The insights engine detects "You always underestimate Shower by 4 minutes" after 3 sessions. The player takes this as reliable self-knowledge. Then her next 5 sessions show random variation and the insight reverses. The system loses credibility, and the player stops trusting the insights.
+
+**Why it happens:** Pattern detection on small samples produces high-variance results. With 3 data points, the "average underestimation" is dominated by noise. The first few sessions include calibration sessions where estimates are expected to be wildly off. Including calibration data in pattern analysis produces misleadingly negative baselines.
+
+**Consequences:**
+- Insights flip-flop: "You underestimate Shower" one week, "You overestimate Shower" the next
+- Player acts on unreliable insights and gets worse results
+- Player learns to ignore insights because they are not trustworthy
+- Calibration session data skews all early insights negatively
+
+**Warning signs:**
+- Insights change dramatically week-over-week
+- Insights contradict the player's improving accuracy trend
+- Insights are generated for tasks with fewer than 5 non-calibration data points
 
 **Prevention:**
-- The MVP is: estimate task duration, do task, see how close you were, track accuracy over time. Everything else is post-validation
-- Maintain a strict "not now" list. Every feature idea goes on the list, not into the backlog
-- Set a ship date for the MVP and treat it as a hard constraint. If a feature threatens the date, it's cut
-- Avoid building infrastructure for scale you don't need. One player, one parent, one device. No server, no sync, no accounts for v1
-- Use iOS-native capabilities aggressively: Core Data for local storage, SwiftUI for UI, UserNotifications for alerts. Don't add dependencies for things the platform already does
+- Set a minimum sample size before generating insights: at least 5 non-calibration sessions for a given task before any pattern claim
+- Exclude calibration sessions (`isCalibration: true` on `GameSession`) from pattern analysis. Calibration is explicitly "learning your patterns" -- including that data defeats the purpose
+- Use confidence language that matches sample size: "Early pattern: you might underestimate..." (5-9 samples) vs. "Strong pattern: you consistently underestimate..." (10+ samples)
+- Show the sample size alongside insights: "Based on 12 sessions" -- transparency builds trust
+- Implement a simple statistical test: is the mean difference significantly different from zero? A paired t-test on estimated vs. actual for a given task is trivial to implement and prevents noise from being reported as signal
+- Never phrase insights as absolute truths. "Tends to" not "always." "About 4 minutes" not "exactly 4 minutes"
 
-**Phase relevance:** Every phase, but especially Phase 1 (MVP scope) and Phase 3+ (feature expansion).
+**Phase relevance:** Design the statistical thresholds and confidence language before building the insights UI. The insights engine should be a pure domain engine with clear minimum-data-required guards.
+
+**Confidence:** HIGH -- small sample statistics is well-understood. The calibration session exclusion is specific to this codebase's `isCalibration` flag.
 
 ---
 
-### Pitfall 10: No Baseline -- Can't Measure Improvement
+### Pitfall 10: iCloud Sync Exposes Parent Configuration to a Shared Family iCloud
 
-**What goes wrong:** The app doesn't establish how inaccurate the player's estimates are BEFORE training begins. Without a baseline, there's no way to show improvement. The player and parent can't tell if it's working. Motivation to continue erodes because progress is invisible.
+**What goes wrong:** If the family shares an iCloud account (common with younger kids, less common at 13 but possible), enabling CloudKit sync could expose the parent's routine configuration to the player's other devices, or even to other family members' devices. The "invisible parent" design principle is violated at the data layer.
 
-**Prevention:**
-- The first 3-5 sessions should be explicitly framed as "calibration" or "discovery" -- the game learning about her, not testing her
-- Record initial estimation accuracy per task type and duration range. This becomes the baseline
-- After 1-2 weeks, show her how her accuracy has changed compared to the beginning
-- Make the baseline visible in a non-judgmental way: "When you started, your average estimate for morning tasks was off by 12 minutes. Now it's off by 4 minutes"
-- Store enough data granularity to show improvement by task type, time of day, and duration range. Some categories will improve faster than others, and showing that is motivating
+**Why it happens:** CloudKit's private database syncs across ALL devices signed into the same iCloud account. If the parent configures routines on a shared iPad (signed into the family iCloud), those routines sync to the player's iPhone automatically. The parent's routine names (internal names like "School Morning" that are hidden from the player UI) become visible in the CloudKit data.
 
-**Phase relevance:** Phase 1 (data model must capture baselines), Phase 2 (progress visualization).
+**Consequences:**
+- Player discovers parent-configured routine names in CloudKit data or through a data export
+- If using Family Sharing with separate accounts, this is not an issue -- but must be verified
+- If the parent uses the SAME device as the player (setting up routines, then handing the phone back), sync is not the problem -- but the parent's setup session might sync partial state to another device
 
----
-
-### Pitfall 11: Treating All Time Durations as Equal
-
-**What goes wrong:** The app trains estimation for one duration range (e.g., 5-10 minute tasks) and assumes the skill transfers to all durations. Research on time perception suggests it doesn't. A person can be well-calibrated for 5-minute durations and wildly off for 45-minute ones. The game feels stale because it never progresses, or it jumps to long durations before short ones are calibrated.
+**Warning signs:**
+- Routine names appearing on devices where they shouldn't
+- Parent's internal routine names visible in any debug or export UI
 
 **Prevention:**
-- Categorize tasks by duration range: micro (1-5 min), short (5-15 min), medium (15-30 min), long (30-60 min), extended (60+ min)
-- Start training on micro and short durations where feedback loops are fast and reps are frequent
-- Graduate to longer durations only after accuracy improves on shorter ones
-- Track accuracy separately per duration range and show per-category progress
-- Long-duration estimation may need different mechanics (prospective estimation at start of day, retrospective check at end) because you can't do quick feedback loops for 60-minute tasks
+- Verify the deployment assumption: the parent sets up routines on the SAME device the player uses (this is the current v1.0 design with the hidden PIN). If so, CloudKit sync is only backing up data, not distributing it to other devices. This is the safe case
+- If multi-device support is a goal, consider: should routines sync at all? Maybe only `PlayerProfile` and `GameSession`/`TaskEstimation` should sync (the player's data), while `Routine` and `RoutineTask` stay local (the parent's configuration)
+- Implement selective sync: use two `ModelConfiguration` instances -- one local-only (for parent-configured routines) and one CloudKit-backed (for player data). SwiftData supports multiple configurations. NOTE: this adds significant complexity
+- Simplest safe approach for v2.0: CloudKit syncs ALL data, but the app is designed for single-device use. The backup is for device replacement/restore, not multi-device access. Document this assumption explicitly
 
-**Phase relevance:** Phase 2 (progressive difficulty), Phase 3 (advanced challenge types).
+**Phase relevance:** Decide the sync scope (backup-only vs. multi-device) before implementing CloudKit. This is an architectural decision, not an implementation detail.
+
+**Confidence:** MEDIUM -- the CloudKit private database behavior is well-documented. The family sharing edge case depends on the specific deployment scenario.
 
 ---
 
@@ -240,92 +359,134 @@ Mistakes that cause friction or suboptimal outcomes but are fixable without majo
 
 ---
 
-### Pitfall 12: Assuming Weekday and Weekend Patterns Are the Same
+### Pitfall 11: New Sound Assets Bloat the App Bundle
 
-**What goes wrong:** The app expects the same engagement pattern every day. On school mornings, there are structured routines with real stakes. On weekends, there's less structure and no urgency. If the game demands the same cadence on Saturday as Tuesday, it feels forced on low-structure days and the player skips, potentially breaking engagement habits.
+**What goes wrong:** Adding real, high-quality sound effects in uncompressed formats (`.wav`, `.aiff`) significantly increases the app bundle size. Five placeholder `.wav` files are tiny, but 10-15 production-quality sound effects at 16-bit 44.1kHz stereo can add 5-15 MB to the bundle. For a simple game, a 50MB+ binary feels wrong.
 
 **Prevention:**
-- Support different routine sets for different days
-- Weekend/unstructured days could offer optional "fun estimation" challenges (how long will this movie feel? how long until we arrive?) rather than task-based training
-- Don't punish skipped days. A "welcome back" is better than a "you missed 2 days" guilt message
-- Let the player choose which days are "active" for routine challenges
+- Use compressed `.caf` (AAC-encoded) or `.m4a` for sound effects. A 1-second sound effect at high quality is under 50KB in AAC
+- Keep sounds mono, not stereo. Game UI sounds do not need spatial audio
+- Sample rate of 44.1kHz is fine; 48kHz offers no perceptible benefit for short effects
+- Target total audio assets under 1 MB for the entire sound library
+- Use `afconvert` (macOS command-line tool) to batch-convert: `afconvert input.wav output.caf -d aac -f caff`
 
-**Phase relevance:** Phase 2 (routine configuration, flexible scheduling).
+**Phase relevance:** Apply during the sound replacement task. Quick optimization, no architectural impact.
+
+**Confidence:** HIGH -- iOS audio format and bundle size behavior is well-documented.
 
 ---
 
-### Pitfall 13: Ignoring the Subjective Time Distortion Factor
+### Pitfall 12: Adding Fields to TaskEstimation for Analytics Breaks Lightweight Migration
 
-**What goes wrong:** The app treats time perception as purely a cognitive skill (estimating clock time) and ignores the subjective experience that makes time blindness so disorienting. Boring tasks feel eternal. Fun tasks feel instant. A 13-year-old with time blindness isn't just bad at guessing minutes -- she genuinely experiences 20 minutes of homework as longer than 20 minutes of TikTok. Training only clock estimation misses the deeper perception issue.
+**What goes wrong:** To support contextual insights, you want to add derived/analytics fields to `TaskEstimation` (e.g., `durationCategory: String`, `timeOfDay: String`, `dayOfWeek: Int`). If these are added as stored properties without defaults, they break lightweight migration for existing records.
 
 **Prevention:**
-- Include challenges that explicitly address subjective time distortion: "Estimate how long 10 minutes of [boring thing] will feel vs. 10 minutes of [fun thing]"
-- Help her build awareness of WHEN her clock speeds up or slows down. Self-awareness is the first step to compensation
-- Over time, introduce the concept: "Things that feel long aren't always long. Things that fly by aren't always short." Make this a discovery, not a lecture
-- This is advanced content -- don't introduce it in week 1. But plan for it in the game's evolution
+- For analytics dimensions (time of day, day of week, duration category), compute them from existing data (`recordedAt` for time/day, `actualSeconds` for duration category) rather than storing them as new fields
+- If you do add stored fields, always provide defaults: `var durationCategory: String = "uncategorized"`
+- Better: create the `AnalyticsEngine` as a pure computation layer that derives these dimensions at query time from `recordedAt` and `actualSeconds`. This requires ZERO model changes and ZERO migration risk
+- If pre-computation is needed for performance, store analytics results in a SEPARATE model (`TaskAnalytics`) rather than modifying `TaskEstimation`. New models don't require migration of existing data
 
-**Phase relevance:** Phase 3 (advanced game mechanics and perception-awareness content).
+**Phase relevance:** Design analytics as a computation layer first. Only add stored fields if profiling proves computation is too slow.
+
+**Confidence:** HIGH -- this is a direct application of SwiftData migration rules to the existing model structure.
 
 ---
 
-### Pitfall 14: Data Loss or Reset Destroying Motivation
+### Pitfall 13: Self-Set Routine Creation UI Is Too Open or Too Restrictive
 
-**What goes wrong:** The player's progress data is lost due to an app update, device migration, or accidental deletion. Weeks of calibration data, accuracy trends, and achievement history vanish. For a skill-building app where visible progress is a key motivator, this is devastating.
+**What goes wrong:** If the player can create completely freeform routines, she might create routines that are too short (one 10-second task), too long (a 3-hour routine with 20 tasks), or nonsensical (task names that don't correspond to real activities). The estimation training value degrades. Conversely, if creation is too restrictive (must pick from templates only), it feels like another adult telling her what to do, defeating the autonomy benefit.
 
 **Prevention:**
-- Use Core Data with proper migration strategies from day one. Plan for schema evolution
-- Back up critical data (estimation history, accuracy baselines, achievement milestones) to iCloud via CloudKit or NSUbiquitousKeyValueStore
-- Keep the backup implementation simple -- key metrics, not raw logs
-- Test data persistence across app updates before any release
+- Use a guided creation flow: templates as starting points ("After school," "Weekend morning," "Practice prep") that she can customize, rename, add/remove tasks
+- Set guardrails, not walls: 1-10 tasks per routine, task names must be non-empty, at least one active day. These are validation rules, not creative restrictions
+- Let her name things however she wants. "Estimate my procrastination" is a valid routine if she actually uses it to estimate task durations
+- Show a preview of how the routine will look as a "quest" before saving
+- The STATE.md already specifies "guided creation with templates + customization" -- stick to this. It is the right balance
 
-**Phase relevance:** Phase 1 (data model design with migration in mind), Phase 2 (iCloud backup).
+**Phase relevance:** Design templates and validation rules alongside the routine creation UI. Not a data model concern -- this is purely UX.
+
+**Confidence:** MEDIUM -- the balance between freedom and guidance is a UX design judgment. The general approach is sound.
 
 ---
 
-### Pitfall 15: The Parent Forgets to Update Routines
+### Pitfall 14: CloudKit Sync Quota and Rate Limiting
 
-**What goes wrong:** Parent configures routines once during setup. Routines change (new semester schedule, new activity, dropped activity). Parent doesn't update the app. The game serves stale challenges for activities that no longer exist. Player notices and loses trust in the game.
+**What goes wrong:** CloudKit has per-app storage quotas and rate limits. If the app syncs aggressively (e.g., saving after every single estimation), it can hit rate limits, causing sync to stall. The free CloudKit tier provides 100MB of asset storage and 10GB of database storage per developer account, which is generous, but rate limiting is more likely to be the issue.
 
 **Prevention:**
-- Periodic prompts to the parent (not the player) to review/update routines. Quarterly or at schedule change points
-- The player should be able to flag "I don't do this anymore" or add new challenges herself
-- Keep the parent setup interface extremely simple. If updating a routine takes more than 60 seconds, the parent won't do it
-- Consider: can the player modify routines directly? If she's the one adding "roller derby practice" because she wants to estimate it, that's perfect -- it's her initiative, not parent control
+- Do not call `modelContext.save()` after every micro-change. Batch saves at natural boundaries: end of task, end of session, end of settings change
+- The current codebase already saves at reasonable boundaries (end of task completion, end of session). Keep this pattern
+- CloudKit handles sync timing automatically -- do not try to force sync. Let the framework manage push/pull
+- Monitor CloudKit errors in a non-intrusive way (log them, don't show alerts to the user). Transient rate limit errors resolve automatically
+- For a single-user app with a few sessions per day, CloudKit quotas will never be an issue. This is a "be aware" not "redesign for" concern
 
-**Phase relevance:** Phase 2 (parent UX, routine management).
+**Phase relevance:** No special handling needed. Just maintain the existing save-at-boundaries pattern.
+
+**Confidence:** MEDIUM -- CloudKit quotas and rate limits are documented but the specific thresholds may have changed.
+
+---
+
+### Pitfall 15: The @Query in RoutineListView Bypasses the Repository Pattern
+
+**What goes wrong:** `RoutineListView` uses `@Query(sort: \Routine.createdAt)` directly, bypassing `RoutineRepository`. When you add the `createdByPlayer` filter for Pitfall 6, you need to update BOTH the repository AND the `@Query` in the view. If you update one and forget the other, the parent sees player routines (or vice versa).
+
+**Why it happens with THIS codebase:** The v1.0 codebase has a mixed pattern -- repositories for ViewModels, `@Query` for one SwiftUI view. This is not necessarily wrong (SwiftUI's `@Query` is designed for views), but it creates two code paths that must stay in sync.
+
+**Prevention:**
+- Decide on a single data access pattern: either ALL access goes through repositories (remove `@Query` from views) OR accept that views use `@Query` and repositories are for ViewModel logic
+- If keeping `@Query`, update it when adding `createdByPlayer`: `@Query(filter: #Predicate { !$0.createdByPlayer }, sort: \Routine.createdAt)`
+- Document the pattern choice in the architecture. Future contributors (or future you) need to know "where do I add filters?"
+- When adding CloudKit, `@Query` will automatically reflect synced data, which is good. But it also means synced player-created routines will appear in the parent's `@Query` unless filtered
+
+**Phase relevance:** Address alongside the `createdByPlayer` model change. Quick fix, but easy to forget.
+
+**Confidence:** HIGH -- this is a direct code-level observation of the existing pattern.
 
 ---
 
 ## Phase-Specific Warnings
 
-| Phase Topic | Likely Pitfall | Mitigation |
-|-------------|---------------|------------|
-| Core game loop (Phase 1) | Building a timer app in disguise (Pitfall 1) | Estimation-first, no visible clock during tasks, feedback on accuracy not completion |
-| Core game loop (Phase 1) | Training compliance not perception (Pitfall 4) | Score = estimation accuracy, not on-time completion |
-| Reward system (Phase 1-2) | Overjustification effect kills motivation (Pitfall 2) | Accuracy IS the score; informational rewards over controlling rewards |
-| Parent/player separation (Phase 1) | Parent control leaks through UX (Pitfall 3) | Invisible parent mode, player can create own challenges, game-framed language |
-| Visual design (Phase 1) | Age-inappropriate aesthetic (Pitfall 7) | Reference mainstream teen apps, test "friend sees this on your phone" criterion |
-| Feedback system (Phase 1-2) | Punishing inaccuracy (Pitfall 8) | Discoveries not failures; trend-based not score-based feedback |
-| Data model (Phase 1) | No baseline captured (Pitfall 10) | First sessions = calibration; store initial accuracy per category |
-| Long-term engagement (Phase 2-3) | Week 3 novelty cliff (Pitfall 5) | 90-day engagement arc; progressive difficulty; variable reward schedule |
-| Notifications (Phase 2) | Nagging notification pattern (Pitfall 6) | Game-framed, player-controlled, never at parent-nag times |
-| Progressive difficulty (Phase 2-3) | Treating all durations as equal (Pitfall 11) | Per-duration-range tracking; graduate from short to long |
-| Routine management (Phase 2) | Stale routines from parent neglect (Pitfall 15) | Player can modify; simple parent update flow; periodic review prompts |
-| Advanced mechanics (Phase 3) | Ignoring subjective time distortion (Pitfall 13) | Plan distortion-awareness challenges as advanced content |
-| Ongoing (all phases) | Scope creep (Pitfall 9) | Strict MVP; "not now" list; ship date as hard constraint |
-| Data persistence (Phase 1-2) | Progress data loss (Pitfall 14) | Core Data with migrations; iCloud backup for key metrics |
+| Phase Topic | Likely Pitfall | Severity | Mitigation |
+|-------------|---------------|----------|------------|
+| Schema migration (do first) | Corrupted v1.0 data (Pitfall 2) | CRITICAL | VersionedSchema + SchemaMigrationPlan before ANY model changes |
+| CloudKit enablement | Non-optional properties crash (Pitfall 1) | CRITICAL | Add defaults to all model properties in the versioned migration |
+| CloudKit enablement | Duplicate records and merge conflicts (Pitfall 3) | CRITICAL | Stable `cloudID` on all models, deduplication strategy |
+| CloudKit enablement | Broken relationship predicates (Pitfall 4) | CRITICAL | Replace `persistentModelID` queries with custom ID queries |
+| CloudKit enablement | Parent data exposed via shared iCloud (Pitfall 10) | MODERATE | Decide backup-only vs. multi-device; consider split configurations |
+| CloudKit enablement | Rate limiting (Pitfall 14) | LOW | Maintain existing save-at-boundaries pattern |
+| Self-set routines | Player/parent data contamination (Pitfall 6) | MODERATE | `createdByPlayer` field, filtered queries, separated UI |
+| Self-set routines | Too open/restrictive creation (Pitfall 13) | LOW | Guided templates + validation guardrails |
+| Self-set routines | @Query bypass (Pitfall 15) | LOW | Update @Query filter alongside repository changes |
+| Contextual insights | UI stutter from analytics queries (Pitfall 5) | MODERATE | Background ModelActor, cached computation, pure analytics engine |
+| Contextual insights | Misleading small-sample patterns (Pitfall 9) | MODERATE | Minimum sample sizes, exclude calibration, confidence language |
+| Contextual insights | New fields break migration (Pitfall 12) | MODERATE | Compute dimensions at query time, avoid new stored fields |
+| Sound replacement | Audio session misconfiguration (Pitfall 7) | MODERATE | Set `.ambient` category, use `.caf` format, test with background music |
+| Sound replacement | Bundle bloat (Pitfall 11) | LOW | AAC-encoded `.caf`, mono, target under 1 MB total |
+| Weekly reflections | No reliable scheduler (Pitfall 8) | MODERATE | Lazy computation on app open, persisted reflection models |
 
 ---
 
-## The Meta-Pitfall: Confusing "About Time" With "Trains Time Perception"
+## Recommended Phase Ordering (Based on Pitfall Dependencies)
 
-This deserves a standalone callout because it's the umbrella risk that contains several critical pitfalls above.
+The pitfalls reveal a clear dependency chain:
 
-Many apps in the time-management space are ABOUT time (timers, schedules, reminders, countdowns) without actually training the internal perception of time passing. TimeQuest's entire value proposition is that it trains the skill, not just provides the tool. Every design decision should be tested against this question:
+1. **Schema migration foundation** -- Pitfalls 1, 2 must be resolved before anything else. Every v2.0 feature needs model changes, and those changes must not corrupt v1.0 data.
 
-**"Does this mechanic require her to USE her internal clock, or does it replace it with an external one?"**
+2. **iCloud/CloudKit** -- Pitfalls 3, 4, 10, 14 are all CloudKit-specific. Do this as a self-contained phase immediately after migration, while the migration is fresh and before other features add more model complexity.
 
-If the answer is "replaces," the mechanic is wrong, no matter how polished or engaging it is.
+3. **Self-set routines** -- Pitfalls 6, 13, 15 require the `createdByPlayer` field (which should be in the schema migration) but are otherwise independent. The UI work is contained.
+
+4. **Contextual insights + weekly reflections** -- Pitfalls 5, 8, 9, 12 are all analytics-related. These are read-only features that query existing data. Doing them after CloudKit ensures the analytics engine handles both local and synced data correctly.
+
+5. **Sound replacement** -- Pitfalls 7, 11 are completely independent of all other features. Do this last (or in parallel) as a polish task with zero data model risk.
+
+---
+
+## The Meta-Pitfall: Changing Too Many Things in One Migration
+
+The overarching risk of v2.0 is that CloudKit compatibility, new feature fields, self-set routine support, and analytics fields all require model changes, and they all need to land in a single schema migration (V1 -> V2). If the migration is too complex or any part of it fails, ALL of v2.0 is blocked.
+
+**Mitigation:** Design the V2 schema comprehensively before writing any code. List every field addition, every default value change, and every new model in one place. Validate that every change qualifies as a lightweight migration. Test the migration with real v1.0 data before building any features on top of it.
 
 ---
 
@@ -333,33 +494,33 @@ If the answer is "replaces," the mechanic is wrong, no matter how polished or en
 
 | Pitfall | Confidence | Basis |
 |---------|------------|-------|
-| Timer-in-disguise (#1) | MEDIUM | Consistent with project context (timers already failed); supported by ADHD literature on external vs. internal cues |
-| Overjustification effect (#2) | MEDIUM | Well-established in psychology (Deci & Ryan SDT); extensively documented in gamification literature |
-| Parent control leakage (#3) | MEDIUM | Consistent with adolescent development literature; directly supported by project context |
-| Training compliance not perception (#4) | MEDIUM | Aligns with Barkley's ADHD time perception research; logically derived from project goals |
-| Novelty cliff (#5) | MEDIUM | Common pattern in health/habit app literature; ADHD amplifies novelty-seeking |
-| Notification nagging (#6) | MEDIUM | Standard mobile UX concern; amplified by project context (nagging is the existing problem) |
-| Age-inappropriate aesthetic (#7) | MEDIUM | Teen UX is well-documented; specific to this player's profile |
-| Punishing inaccuracy (#8) | MEDIUM | Standard feedback design principle; critical for a perception-training context |
-| Scope creep (#9) | HIGH | Universal solo-developer risk; no external verification needed |
-| No baseline (#10) | MEDIUM | Standard measurement principle; specific application to time perception training |
-| Duration-range blindspot (#11) | MEDIUM | Supported by time perception research (different neural mechanisms for different durations) |
-| Weekday/weekend pattern (#12) | MEDIUM | Logical derivation from real-world routine structure |
-| Subjective time distortion (#13) | MEDIUM | Core concept in time perception literature; underserved in existing apps |
-| Data loss (#14) | MEDIUM | Standard iOS development concern; amplified by long-term skill-building context |
-| Stale routines (#15) | MEDIUM | Logical derivation from parent-as-setup-agent architecture |
+| CloudKit optional/default requirements (#1) | HIGH | Fundamental, well-documented CloudKit constraint since 2019 |
+| Schema migration data corruption (#2) | HIGH | Standard Core Data/SwiftData migration behavior |
+| CloudKit duplicates and merge conflicts (#3) | HIGH | Most commonly reported CloudKit issue in developer community |
+| Relationship predicate breakage (#4) | MEDIUM | Known for Core Data + CloudKit; verify behavior in current SwiftData |
+| Analytics query performance (#5) | MEDIUM | Architectural analysis of existing @MainActor pattern |
+| Player/parent data contamination (#6) | HIGH | Direct code analysis -- @Query has no creator filter |
+| Audio session misconfiguration (#7) | HIGH | Well-documented AVAudioSession behavior |
+| Weekly reflection scheduling (#8) | MEDIUM | Standard iOS background execution limitation |
+| Small-sample misleading insights (#9) | HIGH | Basic statistics -- not platform-specific |
+| iCloud shared account exposure (#10) | MEDIUM | Depends on deployment scenario assumptions |
+| Sound bundle bloat (#11) | HIGH | Standard iOS asset management |
+| Analytics fields migration risk (#12) | HIGH | Direct application of migration rules to existing models |
+| Self-set routine UX balance (#13) | MEDIUM | UX design judgment, not technical certainty |
+| CloudKit rate limiting (#14) | MEDIUM | Documented but thresholds may have changed |
+| @Query bypass of repository pattern (#15) | HIGH | Direct code observation |
 
-**Note:** All findings are based on training data. Web search and Context7 were unavailable for verification. Confidence is capped at MEDIUM accordingly. The pitfalls are internally consistent with the PROJECT.md context and well-supported by established psychology/UX research, but specific claims about current app ecosystem behavior should be validated during implementation.
+**Overall:** The CloudKit integration pitfalls (1-4) are the highest risk and have the highest confidence. They are well-documented failure modes with clear prevention strategies. The analytics pitfalls (5, 9, 12) are architectural concerns that can be prevented with good design. The sound and UX pitfalls (7, 11, 13) are lower risk and well-understood.
 
 ---
 
 ## Sources
 
-- Deci, E. L., & Ryan, R. M. -- Self-Determination Theory (foundational research on intrinsic vs. extrinsic motivation; overjustification effect)
-- Barkley, R. A. -- ADHD and time perception research (time blindness as executive function deficit, not motivational)
-- Deterding, S. et al. -- Gamification research (common failure patterns in applied game mechanics)
-- CHADD (Children and Adults with ADHD) -- Practical guidance on time blindness interventions
-- Nielsen Norman Group -- Gamification UX patterns and anti-patterns
-- Apple Human Interface Guidelines -- iOS design patterns, age-appropriate design, notification best practices
+- Apple Developer Documentation: "Syncing Model Data Across a Person's Devices" (SwiftData + CloudKit requirements)
+- Apple Developer Documentation: "Mirroring a Core Data Store with CloudKit" (CloudKit record constraints, merge policies)
+- Apple Developer Documentation: AVAudioSession Programming Guide (audio session categories and behavior)
+- Apple Developer Documentation: SwiftData schema versioning and migration
+- WWDC sessions on SwiftData migration and CloudKit integration (2023-2024)
+- Core Data + CloudKit community patterns from developer forums and post-mortems
 
-*All sources referenced from training data. Publication dates and specific URLs could not be verified due to tool restrictions.*
+*All sources referenced from training data (May 2025 cutoff). Web search and Context7 were unavailable for verification. Specific API details and thresholds should be verified against current Apple documentation during implementation.*
