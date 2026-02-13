@@ -21,7 +21,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 
 **Milestone Goal:** The player develops self-awareness about her estimation patterns and takes ownership of her time training through contextual insights, self-created routines, and weekly reflections -- plus production polish (real sounds, XP tuning, iCloud backup).
 
-- [ ] **Phase 3: Data Foundation + CloudKit Backup** - All player data survives device replacement and all v1.0 features work after schema migration
+- [x] **Phase 3: Data Foundation + CloudKit Backup** - All player data survives device replacement and all v1.0 features work after schema migration -- completed 2026-02-13
 - [ ] **Phase 4: Contextual Learning Insights** - Player can see which tasks she misjudges, in which direction, and whether she's improving
 - [ ] **Phase 5: Self-Set Routines + Production Audio** - Player can create her own quests and all sounds feel real
 - [ ] **Phase 6: Weekly Reflection Summaries** - Player absorbs a weekly snapshot of her progress and patterns
@@ -40,8 +40,8 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 **Plans**: 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- Retroactive V1 schema, V2 schema with cloudID + defaults, lightweight migration plan, model typealiases
-- [ ] 03-02-PLAN.md -- CloudKit entitlements, sync monitor, ModelContainer init, cloudID queries, PlayerProfile deduplication, backup status UI
+- [x] 03-01-PLAN.md -- Retroactive V1 schema, V2 schema with cloudID + defaults, lightweight migration plan, model typealiases
+- [x] 03-02-PLAN.md -- CloudKit entitlements, sync monitor, ModelContainer init, cloudID queries, PlayerProfile deduplication, backup status UI
 
 ### Phase 4: Contextual Learning Insights
 **Goal**: Player understands WHICH specific tasks she misjudges, in WHICH direction, and whether her estimates are getting better or worse over time
@@ -99,7 +99,7 @@ Plans:
 |-------|-----------|---------------|--------|-----------|
 | 1. Playable Foundation | v1.0 | 3/3 | Complete | 2026-02-13 |
 | 2. Engagement Layer | v1.0 | 3/3 | Complete | 2026-02-13 |
-| 3. Data Foundation + CloudKit Backup | v2.0 | 0/2 | Planned | - |
+| 3. Data Foundation + CloudKit Backup | v2.0 | 2/2 | Complete | 2026-02-13 |
 | 4. Contextual Learning Insights | v2.0 | 0/2 | Not started | - |
 | 5. Self-Set Routines + Production Audio | v2.0 | 0/2 | Not started | - |
 | 6. Weekly Reflection Summaries | v2.0 | 0/1 | Not started | - |

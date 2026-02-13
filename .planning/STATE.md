@@ -5,15 +5,15 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
-**Current focus:** v2.0 Advanced Training -- Phase 3 complete (pending verification)
+**Current focus:** v2.0 Advanced Training -- Phase 3 complete, ready for Phase 4
 
 ## Current Position
 
 Milestone: v2.0 Advanced Training
-Phase: 3 of 6 (Data Foundation + CloudKit Backup)
-Plan: 2 of 2 complete (checkpoint pending)
-Status: Checkpoint -- awaiting human verification
-Last activity: 2026-02-13 -- CloudKit backup integration + sync monitor + iCloud status UI
+Phase: 3 of 6 complete (Data Foundation + CloudKit Backup)
+Plan: 2 of 2 complete (verified)
+Status: Phase 3 complete -- ready to plan Phase 4
+Last activity: 2026-02-13 -- Phase 3 checkpoint verified, CloudKit fallback fix applied
 
 Progress: [###############...............] 62% (8/13 plans -- v1.0: 6/6, v2.0: 2/7)
 
@@ -26,12 +26,13 @@ Progress: [###############...............] 62% (8/13 plans -- v1.0: 6/6, v2.0: 2
 
 **v2.0 Advanced Training:**
 - Phases: 4 (Phases 3-6), Plans: 7 (estimated)
-- Status: In progress
+- Status: In progress -- Phase 3 complete
+- Codebase: 50 Swift files, 3,947 LOC
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
 | 03-01 | Schema Versioning | 4min | 2 | 11 |
-| 03-02 | CloudKit Backup | 5min | 2 | 10 |
+| 03-02 | CloudKit Backup | 10min | 3 | 10 |
 
 ## Accumulated Context
 
@@ -53,13 +54,16 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 - Used @preconcurrency import CoreData for NSPersistentCloudKitContainer.Event Sendable
 - Extract event data before Task boundary to avoid Sendable violation
 - CODE_SIGN_ENTITLEMENTS path relative to project dir, not repo root
+- Graceful CloudKit fallback: try? .automatic first, fall back to .none (prevents crash on simulator)
+- Container ID: iCloud.com.timequest.app (not iCloud.icloud.com.timequest.app)
 
 ### Pending Todos
 
 - Create v2.0 roadmap -- DONE
 - Plan Phase 3 (Data Foundation + CloudKit Backup) -- DONE
 - Execute Phase 3 Plan 1 (Schema Versioning) -- DONE
-- Execute Phase 3 Plan 2 (CloudKit Backup) -- DONE (checkpoint pending)
+- Execute Phase 3 Plan 2 (CloudKit Backup) -- DONE (verified)
+- Plan Phase 4 (Contextual Learning Insights) -- NEXT
 
 ### Blockers/Concerns
 
@@ -70,5 +74,5 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 ## Session Continuity
 
 Last session: 2026-02-13
-Stopped at: 03-02-PLAN.md Task 3 checkpoint (human-verify) -- awaiting CloudKit container setup + UI verification
+Stopped at: Phase 3 complete -- ready for /gsd:plan-phase 4
 Resume file: None

@@ -6,21 +6,35 @@ struct TimeQuestApp: App {
     let container: ModelContainer
 
     init() {
-        do {
-            let config = ModelConfiguration(
-                cloudKitDatabase: .automatic
-            )
-            container = try ModelContainer(
-                for: TimeQuestSchemaV2.Routine.self,
-                     TimeQuestSchemaV2.RoutineTask.self,
-                     TimeQuestSchemaV2.GameSession.self,
-                     TimeQuestSchemaV2.TaskEstimation.self,
-                     TimeQuestSchemaV2.PlayerProfile.self,
-                migrationPlan: TimeQuestMigrationPlan.self,
-                configurations: config
-            )
-        } catch {
-            fatalError("Failed to initialize model container: \(error)")
+        // Try CloudKit-backed container first, fall back to local-only if CloudKit
+        // is unavailable (e.g., simulator without iCloud sign-in, no entitlements,
+        // or CloudKit container not yet provisioned).
+        if let cloudContainer = try? ModelContainer(
+            for: TimeQuestSchemaV2.Routine.self,
+                 TimeQuestSchemaV2.RoutineTask.self,
+                 TimeQuestSchemaV2.GameSession.self,
+                 TimeQuestSchemaV2.TaskEstimation.self,
+                 TimeQuestSchemaV2.PlayerProfile.self,
+            migrationPlan: TimeQuestMigrationPlan.self,
+            configurations: ModelConfiguration(cloudKitDatabase: .automatic)
+        ) {
+            container = cloudContainer
+        } else {
+            // Fall back to local-only — migration still runs, just no CloudKit sync
+            do {
+                container = try ModelContainer(
+                    for: TimeQuestSchemaV2.Routine.self,
+                         TimeQuestSchemaV2.RoutineTask.self,
+                         TimeQuestSchemaV2.GameSession.self,
+                         TimeQuestSchemaV2.TaskEstimation.self,
+                         TimeQuestSchemaV2.PlayerProfile.self,
+                    migrationPlan: TimeQuestMigrationPlan.self,
+                    configurations: ModelConfiguration(cloudKitDatabase: .none)
+                )
+                print("[TimeQuest] CloudKit unavailable — using local storage only")
+            } catch {
+                fatalError("Failed to initialize model container: \(error)")
+            }
         }
     }
 

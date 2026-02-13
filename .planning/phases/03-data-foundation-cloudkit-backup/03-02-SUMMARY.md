@@ -62,7 +62,7 @@ completed: 2026-02-13
 - **Duration:** 5 min
 - **Started:** 2026-02-13T15:31:07Z
 - **Completed:** 2026-02-13T15:35:46Z
-- **Tasks:** 2 of 2 auto tasks (checkpoint pending)
+- **Tasks:** 3 of 3 (2 auto + 1 human-verify checkpoint PASSED)
 - **Files modified:** 10
 
 ## Accomplishments
@@ -150,11 +150,17 @@ CloudKit container must be registered with Apple Developer account:
 3. Check CloudKit checkbox
 4. Create or select container "iCloud.com.timequest.app"
 
+## Checkpoint Fix
+- **Issue:** App crashed on launch with `fatalError("Failed to initialize model container:")` due to CloudKit unavailability on simulator
+- **Root cause:** `cloudKitDatabase: .automatic` throws when CloudKit container is not provisioned or iCloud is not signed in
+- **Fix:** Graceful fallback pattern -- try CloudKit first with `try?`, fall back to `cloudKitDatabase: .none` if unavailable
+- **Also fixed:** Entitlements container ID changed from `iCloud.icloud.com.timequest.app` to `iCloud.com.timequest.app`
+
 ## Next Phase Readiness
 - Complete CloudKit backup infrastructure in place
 - All v1.0 features continue working via typealias pattern
-- Pending human verification: settings UI visual check + CloudKit container setup in Xcode
-- After verification: ready for Phase 4 (Insight Engine)
+- Human verification: PASSED -- app launches, settings show iCloud backup status, all v1.0 features intact
+- Ready for Phase 4 (Insight Engine)
 
 ## Self-Check: PASSED
 
