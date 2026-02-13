@@ -47,14 +47,20 @@ const sourceFiles = [
   { name: 'OnboardingView.swift', path: 'Features/Player/Views/OnboardingView.swift' },
   { name: 'AccuracyMeter.swift', path: 'Features/Shared/Components/AccuracyMeter.swift' },
   { name: 'AccuracyRevealScene.swift', path: 'Game/AccuracyRevealScene.swift' },
+  { name: 'PlayerProfile.swift', path: 'Models/PlayerProfile.swift' },
+  { name: 'XPEngine.swift', path: 'Domain/XPEngine.swift' },
+  { name: 'LevelCalculator.swift', path: 'Domain/LevelCalculator.swift' },
+  { name: 'StreakTracker.swift', path: 'Domain/StreakTracker.swift' },
+  { name: 'PersonalBestTracker.swift', path: 'Domain/PersonalBestTracker.swift' },
+  { name: 'PlayerProfileRepository.swift', path: 'Repositories/PlayerProfileRepository.swift' },
 ];
 
 // Groups
 const groups = [
   { name: 'App', path: 'App', files: ['TimeQuestApp.swift', 'AppDependencies.swift', 'RoleRouter.swift'] },
-  { name: 'Models', path: 'Models', files: ['Routine.swift', 'RoutineTask.swift', 'GameSession.swift', 'TaskEstimation.swift'] },
-  { name: 'Repositories', path: 'Repositories', files: ['RoutineRepository.swift', 'SessionRepository.swift'] },
-  { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift'] },
+  { name: 'Models', path: 'Models', files: ['Routine.swift', 'RoutineTask.swift', 'GameSession.swift', 'TaskEstimation.swift', 'PlayerProfile.swift'] },
+  { name: 'Repositories', path: 'Repositories', files: ['RoutineRepository.swift', 'SessionRepository.swift', 'PlayerProfileRepository.swift'] },
+  { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift'] },
   { name: 'Shared', path: 'Shared', subgroups: ['Components', 'SharedViews'] },
   { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift'] },
   { name: 'SharedViews', path: 'Views', files: ['PINEntryView.swift'] },
