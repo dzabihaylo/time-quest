@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
-**Current focus:** v2.0 Advanced Training -- Phase 4 complete, ready for Phase 5
+**Current focus:** v2.0 Advanced Training -- Phase 5 complete, ready for Phase 6
 
 ## Current Position
 
 Milestone: v2.0 Advanced Training
-Phase: 4 of 6 (Contextual Learning Insights) -- COMPLETE
+Phase: 5 of 6 complete (Self-Set Routines + Production Audio)
 Plan: 2 of 2 complete
-Status: Phase 4 complete -- InsightEngine + Insight UI shipped
-Last activity: 2026-02-13 -- Executed 04-02 (Insight UI: My Patterns + Contextual Hints)
+Status: Phase 5 complete -- ready to plan Phase 6
+Last activity: 2026-02-14 -- Executed 05-01 + 05-02 in parallel
 
-Progress: [####################..........] 71% (10/14 plans -- v1.0: 6/6, v2.0: 4/8)
+Progress: [########################......] 86% (12/14 plans -- v1.0: 6/6, v2.0: 6/8)
 
 ## Performance Metrics
 
@@ -25,9 +25,9 @@ Progress: [####################..........] 71% (10/14 plans -- v1.0: 6/6, v2.0: 
 - Codebase: 46 Swift files, 3,575 LOC
 
 **v2.0 Advanced Training:**
-- Phases: 4 (Phases 3-6), Plans: 7 (estimated)
-- Status: Phase 4 complete
-- Codebase: 56 Swift files, ~4,500 LOC
+- Phases: 4 (Phases 3-6), Plans: 8
+- Status: Phase 5 complete
+- Codebase: 62 Swift files, 5,612 LOC
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -35,6 +35,8 @@ Progress: [####################..........] 71% (10/14 plans -- v1.0: 6/6, v2.0: 
 | 03-02 | CloudKit Backup | 10min | 3 | 10 |
 | 04-01 | InsightEngine Domain Core | 6min | 2 | 5 |
 | 04-02 | Insight UI: My Patterns + Hints | 12min | 3 | 8 |
+| 05-01 | Self-Set Routines | ~15min | 3 | 10 |
+| 05-02 | Production Audio + XP Tunables | ~10min | 2 | 9 |
 
 ## Accumulated Context
 
@@ -52,43 +54,37 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 - Used nonisolated(unsafe) for VersionedSchema.versionIdentifier (Swift 6 strict concurrency)
 - Used @preconcurrency import SwiftData in schema/migration files
 - Fully qualified relationship inverse keypaths to prevent typealias cross-schema resolution
-- Used nonisolated(unsafe) for CloudKitSyncMonitor.observer (deinit access in Swift 6)
-- Used @preconcurrency import CoreData for NSPersistentCloudKitContainer.Event Sendable
-- Extract event data before Task boundary to avoid Sendable violation
-- CODE_SIGN_ENTITLEMENTS path relative to project dir, not repo root
-- Graceful CloudKit fallback: try? .automatic first, fall back to .none (prevents crash on simulator)
-- Container ID: iCloud.com.timequest.app (not iCloud.icloud.com.timequest.app)
+- Graceful CloudKit fallback: try? .automatic first, fall back to .none
 
 **Phase 4 decisions:**
-- Absolute 15s bias threshold matching TimeEstimationScorer spot_on threshold
-- Linear regression slope 0.5 accuracy-points-per-session threshold for trend detection
-- CV breakpoints 0.3/0.6 for consistency classification (standard statistical breakpoints)
-- Added Sendable conformance to all insight types for Swift 6 strict concurrency
-- EstimationSnapshot bridge pattern: pure struct + SwiftData extension in same file
-- Used InsightEngine.generateInsights() then grouped by routineName for My Patterns display
-- Contextual hints preloaded synchronously in startQuest() for zero-latency display
-- Hint capsule styled identically to calibration banner for visual consistency
+- Absolute 15s bias threshold, 0.5 slope threshold, 0.3/0.6 CV breakpoints
+- EstimationSnapshot bridge pattern: pure struct + SwiftData extension
+- Contextual hints preloaded synchronously in startQuest()
+
+**Phase 5 decisions:**
+- SchemaV3 with createdBy: String = "parent" on Routine (lightweight migration V2->V3)
+- Player creation flow as separate view (not sharing parent RoutineEditorView)
+- RoutineTemplateProvider with 3 templates (Homework, Friend's House, Activity Prep)
+- Orange star badge for player-created quests (no labeling of parent routines)
+- Parent dashboard @Query filtered to createdBy == "parent"
+- AVAudioSession .ambient category in SoundManager init
+- XPConfiguration struct extracting 7 tunable constants from XPEngine + LevelCalculator
+- Sound effects generated via Python synthesis (real audio, not silent placeholders)
 
 ### Pending Todos
 
-- Create v2.0 roadmap -- DONE
-- Plan Phase 3 (Data Foundation + CloudKit Backup) -- DONE
-- Execute Phase 3 Plan 1 (Schema Versioning) -- DONE
-- Execute Phase 3 Plan 2 (CloudKit Backup) -- DONE (verified)
-- Plan Phase 4 (Contextual Learning Insights) -- DONE
-- Execute Phase 4 Plan 1 (InsightEngine Domain Core) -- DONE
-- Execute Phase 4 Plan 2 (Insight UI: My Patterns + Contextual Hints) -- DONE
-- Plan Phase 5 -- NEXT
+- Plan Phase 6 (Weekly Reflection Summaries) -- NEXT
+- Execute Phase 6
+- Complete v2.0 milestone
 
 ### Blockers/Concerns
 
-- CloudKit + SwiftData integration needs real-device testing (MEDIUM research flag)
-- Sound effects still placeholder .wav files (Phase 5 will fix)
-- XP curve constants need playtesting data (Phase 5 exposes tunables)
+- CloudKit + SwiftData integration needs real-device testing (MEDIUM)
 - Test target not wired in generate-xcodeproj.js (tests written but not runnable via xcodebuild)
+- Sound effects are synthesized tones; may want to replace with professionally designed sounds later
 
 ## Session Continuity
 
-Last session: 2026-02-13
-Stopped at: Completed 04-02-PLAN.md -- Phase 4 complete, ready for Phase 5 planning
+Last session: 2026-02-14
+Stopped at: Phase 5 complete -- ready for /gsd:plan-phase 6
 Resume file: None
