@@ -3,7 +3,7 @@
 ## Milestones
 
 - v1.0 MVP -- Phases 1-2 (shipped 2026-02-13)
-- v2.0 Advanced Training -- Phases 3-6 (in progress)
+- v2.0 Advanced Training -- Phases 3-6 (completed 2026-02-14)
 
 ## Phases
 
@@ -24,7 +24,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 - [x] **Phase 3: Data Foundation + CloudKit Backup** - All player data survives device replacement and all v1.0 features work after schema migration -- completed 2026-02-13
 - [x] **Phase 4: Contextual Learning Insights** - Player can see which tasks she misjudges, in which direction, and whether she's improving -- completed 2026-02-13
 - [x] **Phase 5: Self-Set Routines + Production Audio** - Player can create her own quests and all sounds feel real -- completed 2026-02-14
-- [ ] **Phase 6: Weekly Reflection Summaries** - Player absorbs a weekly snapshot of her progress and patterns
+- [x] **Phase 6: Weekly Reflection Summaries** - Player absorbs a weekly snapshot of her progress and patterns -- completed 2026-02-14
 
 ## Phase Details
 
@@ -88,8 +88,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md -- WeeklyReflection value type, WeeklyReflectionEngine pure domain engine, WeeklyReflectionViewModel with UserDefaults week tracking
-- [ ] 06-02-PLAN.md -- WeeklyReflectionCardView "sports score card", PlayerHomeView dismissible card integration, PlayerStatsView "Weekly Recaps" history
+- [x] 06-01-PLAN.md -- WeeklyReflection value type, WeeklyReflectionEngine pure domain engine, WeeklyReflectionViewModel with UserDefaults week tracking
+- [x] 06-02-PLAN.md -- WeeklyReflectionCardView "sports score card", PlayerHomeView dismissible card integration, PlayerStatsView "Weekly Recaps" history
 
 ## Progress
 
@@ -103,7 +103,7 @@ Plans:
 | 3. Data Foundation + CloudKit Backup | v2.0 | 2/2 | Complete | 2026-02-13 |
 | 4. Contextual Learning Insights | v2.0 | 2/2 | Complete | 2026-02-13 |
 | 5. Self-Set Routines + Production Audio | v2.0 | 2/2 | Complete | 2026-02-14 |
-| 6. Weekly Reflection Summaries | v2.0 | 0/2 | Not started | - |
+| 6. Weekly Reflection Summaries | v2.0 | 2/2 | Complete | 2026-02-14 |
 
 ---
 *Roadmap created: 2026-02-12*
