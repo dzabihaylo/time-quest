@@ -2,6 +2,7 @@ import SwiftUI
 
 struct PlayerStatsView: View {
     let viewModel: ProgressionViewModel
+    var reflectionHistory: [WeeklyReflection] = []
 
     var body: some View {
         ScrollView {
@@ -38,6 +39,19 @@ struct PlayerStatsView: View {
                         }
                     }
                 }
+
+                // Section 3: Weekly Recaps (REQ-040)
+                if !reflectionHistory.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Weekly Recaps")
+                            .font(.headline)
+                            .padding(.leading, 4)
+
+                        ForEach(reflectionHistory, id: \.weekStartDate) { reflection in
+                            miniReflectionRow(reflection)
+                        }
+                    }
+                }
             }
             .padding(.horizontal)
             .padding(.top, 16)
@@ -63,6 +77,32 @@ struct PlayerStatsView: View {
             Spacer()
 
             Text(best.date, style: .relative)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(12)
+        .background(Color(.systemGray6))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func miniReflectionRow(_ reflection: WeeklyReflection) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(reflection.weekStartDate, format: .dateTime.month(.abbreviated).day())
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+
+                HStack(spacing: 8) {
+                    Label("\(reflection.questsCompleted) quests", systemImage: "checkmark.circle")
+                    Label("\(Int(reflection.averageAccuracy))%", systemImage: "target")
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Text(reflection.streakContextString)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

@@ -80,6 +80,7 @@ const sourceFiles = [
   { name: 'WeeklyReflection.swift', path: 'Models/WeeklyReflection.swift' },
   { name: 'WeeklyReflectionEngine.swift', path: 'Domain/WeeklyReflectionEngine.swift' },
   { name: 'WeeklyReflectionViewModel.swift', path: 'Features/Player/ViewModels/WeeklyReflectionViewModel.swift' },
+  { name: 'WeeklyReflectionCardView.swift', path: 'Features/Player/Views/WeeklyReflectionCardView.swift' },
 ];
 
 // Sound resource files
@@ -104,7 +105,7 @@ const groups = [
   { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift', 'XPBarView.swift', 'StreakBadgeView.swift', 'LevelBadgeView.swift', 'InsightCardView.swift'] },
   { name: 'SharedViews', path: 'Views', files: ['PINEntryView.swift'] },
   { name: 'Player', path: 'Player', subgroups: ['PlayerViews', 'PlayerViewModels'] },
-  { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift', 'QuestView.swift', 'EstimationInputView.swift', 'TaskActiveView.swift', 'AccuracyRevealView.swift', 'SessionSummaryView.swift', 'OnboardingView.swift', 'AccuracyTrendChartView.swift', 'PlayerStatsView.swift', 'NotificationSettingsView.swift', 'MyPatternsView.swift', 'PlayerRoutineCreationView.swift'] },
+  { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift', 'QuestView.swift', 'EstimationInputView.swift', 'TaskActiveView.swift', 'AccuracyRevealView.swift', 'SessionSummaryView.swift', 'OnboardingView.swift', 'AccuracyTrendChartView.swift', 'PlayerStatsView.swift', 'NotificationSettingsView.swift', 'MyPatternsView.swift', 'PlayerRoutineCreationView.swift', 'WeeklyReflectionCardView.swift'] },
   { name: 'PlayerViewModels', path: 'ViewModels', files: ['GameSessionViewModel.swift', 'ProgressionViewModel.swift', 'MyPatternsViewModel.swift', 'PlayerRoutineCreationViewModel.swift', 'WeeklyReflectionViewModel.swift'] },
   { name: 'Parent', path: 'Parent', subgroups: ['ParentViews', 'ParentViewModels'] },
   { name: 'ParentViews', path: 'Views', files: ['ParentDashboardView.swift', 'RoutineListView.swift', 'RoutineEditorView.swift', 'TaskEditorView.swift', 'SchedulePickerView.swift'] },

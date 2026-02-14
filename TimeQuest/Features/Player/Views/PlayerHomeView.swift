@@ -11,6 +11,8 @@ struct PlayerHomeView: View {
     @State private var selectedQuest: Routine?
     @State private var progressionVM: ProgressionViewModel?
     @State private var showingCreateQuest = false
+    @State private var reflectionVM: WeeklyReflectionViewModel?
+    @State private var showReflectionCard = false
 
     var body: some View {
         NavigationStack {
@@ -52,6 +54,18 @@ struct PlayerHomeView: View {
 
                 Spacer()
 
+                // Weekly reflection card (REQ-039)
+                if let reflection = reflectionVM?.currentReflection, showReflectionCard {
+                    WeeklyReflectionCardView(reflection: reflection) {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            showReflectionCard = false
+                        }
+                        reflectionVM?.dismissCurrentReflection()
+                    }
+                    .padding(.horizontal, 24)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
                 // Quest list
                 if todayQuests.isEmpty {
                     emptyState
@@ -74,11 +88,14 @@ struct PlayerHomeView: View {
                         }
 
                         NavigationLink {
-                            PlayerStatsView(viewModel: ProgressionViewModel(
-                                playerProfileRepository: SwiftDataPlayerProfileRepository(modelContext: modelContext),
-                                sessionRepository: SwiftDataSessionRepository(modelContext: modelContext),
-                                modelContext: modelContext
-                            ))
+                            PlayerStatsView(
+                                viewModel: ProgressionViewModel(
+                                    playerProfileRepository: SwiftDataPlayerProfileRepository(modelContext: modelContext),
+                                    sessionRepository: SwiftDataSessionRepository(modelContext: modelContext),
+                                    modelContext: modelContext
+                                ),
+                                reflectionHistory: reflectionVM?.reflectionHistory ?? []
+                            )
                         } label: {
                             HStack(spacing: 4) {
                                 Text("View Your Stats")
@@ -116,6 +133,7 @@ struct PlayerHomeView: View {
         .onAppear {
             loadTodayQuests()
             loadProgression()
+            loadReflection()
         }
         .sheet(isPresented: $showingCreateQuest, onDismiss: { loadTodayQuests() }) {
             PlayerRoutineCreationView(modelContext: modelContext)
@@ -233,6 +251,13 @@ struct PlayerHomeView: View {
         )
         vm.refresh()
         progressionVM = vm
+    }
+
+    private func loadReflection() {
+        let vm = WeeklyReflectionViewModel(modelContext: modelContext)
+        vm.refresh()
+        reflectionVM = vm
+        showReflectionCard = vm.shouldShowCard
     }
 
     private func isCalibrating(_ routine: Routine) -> Bool {
