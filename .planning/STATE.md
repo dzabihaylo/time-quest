@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-14)
 
 **Core value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
-**Current focus:** v2.0 shipped -- planning next milestone
+**Current focus:** v3.0 Adaptive & Connected -- defining requirements
 
 ## Current Position
 
-Milestone: v2.0 Advanced Training -- SHIPPED
-Phase: All 6 phases complete
-Status: Milestone archived -- ready for /gsd:new-milestone
-Last activity: 2026-02-14 -- Archived v2.0 milestone
+Milestone: v3.0 Adaptive & Connected
+Phase: Not started (defining requirements)
+Status: Defining requirements
+Last activity: 2026-02-14 -- Milestone v3.0 started
 
-Progress: [##############################] 100% (14/14 plans -- v1.0: 6/6, v2.0: 8/8)
+Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -39,5 +39,5 @@ Progress: [##############################] 100% (14/14 plans -- v1.0: 6/6, v2.0:
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: v2.0 milestone archived -- ready for /gsd:new-milestone
+Stopped at: v3.0 milestone initialized -- defining requirements
 Resume file: None

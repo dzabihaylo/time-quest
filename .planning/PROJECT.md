@@ -33,7 +33,15 @@ The player develops an accurate internal sense of time — the ability to predic
 
 ### Active
 
-(No active requirements — planning next milestone)
+#### Current Milestone: v3.0 Adaptive & Connected
+
+**Goal:** Make TimeQuest a daily-use app that adapts to the player's skill level, integrates with her real schedule and music, and looks like something a teen in 2026 would actually want on her phone.
+
+**Target features:**
+- Adaptive difficulty that evolves challenge level based on accuracy trends
+- Spotify-powered routine playlists that serve as audible time cues (hands-free)
+- Calendar-aware routines that know school vs. summer, activity seasons, holidays
+- Modern teen-friendly UI/brand refresh with updated visual identity and naming
 
 ### Out of Scope
 
@@ -49,8 +57,9 @@ The player develops an accurate internal sense of time — the ability to predic
 
 ## Context
 
-Shipped v2.0 Advanced Training with 6,211 LOC across 66 Swift files.
+Shipped v2.0 Advanced Training with 6,211 LOC across 66 Swift files. Starting v3.0 Adaptive & Connected.
 Tech stack: SwiftUI + SwiftData + SpriteKit + Swift Charts + CloudKit, iOS 17.0+, Swift 6.0, Xcode 16.2.
+New for v3.0: Spotify Web API (or iOS SDK), EventKit (Calendar/Reminders), adaptive algorithms.
 Build system: generate-xcodeproj.js (Node script) for pbxproj generation.
 Architecture: Feature-sliced MVVM, pure domain engines, @Observable ViewModels, value-type editing.
 Schema: V1→V2→V3 with lightweight migrations, CloudKit-backed with local fallback.
@@ -59,7 +68,9 @@ Schema: V1→V2→V3 with lightweight migrations, CloudKit-backed with local fal
 - She values independence and feeling grown up / in control
 - Current dynamic: parent nags → she feels less independent → resists more → conflict loop
 - She has school mornings (5x/week) plus 2-3 activities (roller derby, art class) = 7-8 real training opportunities per week
+- Her schedule rotates annually: school year, summers off, various holidays, activity seasons
 - Her phone is the one thing she always has and pays attention to
+- She listens to music constantly — Spotify is already part of her routine
 - Success = mornings and activity prep stop being a conflict, not perfection
 
 ## Constraints
@@ -92,4 +103,4 @@ Schema: V1→V2→V3 with lightweight migrations, CloudKit-backed with local fal
 | Sports score card format for reflections | Quick, scannable, visual — absorbs in 15 seconds without scrolling | ✓ Good |
 
 ---
-*Last updated: 2026-02-14 after v2.0 milestone complete*
+*Last updated: 2026-02-14 after v3.0 milestone started*
