@@ -1,7 +1,7 @@
 # Requirements: TimeQuest
 
 **Defined:** 2026-02-14
-**Core Value:** The player develops an accurate internal sense of time — the ability to predict how long things take and act on those predictions without external prompting.
+**Core Value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
 
 ## v3.0 Requirements
 
@@ -10,7 +10,7 @@ Requirements for v3.0 Adaptive & Connected. Each maps to roadmap phases.
 ### Adaptive Difficulty
 
 - [ ] **DIFF-01**: Game automatically adjusts estimation accuracy thresholds per task based on the player's historical performance
-- [ ] **DIFF-02**: Difficulty only progresses or holds — never decreases — so the player never feels like she's going backwards
+- [ ] **DIFF-02**: Difficulty only progresses or holds -- never decreases -- so the player never feels like she's going backwards
 - [ ] **DIFF-03**: Difficulty adjustment is completely invisible to the player (no difficulty labels, no notifications about changes)
 - [ ] **DIFF-04**: XP rewards scale with difficulty level so harder thresholds earn proportionally more XP
 - [ ] **DIFF-05**: SchemaV4 migration stores difficulty state per session for fair historical comparisons
@@ -22,14 +22,14 @@ Requirements for v3.0 Adaptive & Connected. Each maps to roadmap phases.
 - [ ] **SPOT-03**: When a routine starts, a duration-matched playlist is suggested/opened in the Spotify app
 - [ ] **SPOT-04**: Player sees a "Now Playing" indicator during active quests without needing to leave the app
 - [ ] **SPOT-05**: Post-routine summary shows song count as an intuitive time unit ("You got through 4.5 songs")
-- [ ] **SPOT-06**: Spotify is completely optional — game works identically without it, no forced login or nagging
+- [ ] **SPOT-06**: Spotify is completely optional -- game works identically without it, no forced login or nagging
 - [ ] **SPOT-07**: Both Spotify Free and Premium tiers work gracefully (no Premium-gating)
 
 ### Calendar Intelligence
 
 - [ ] **CAL-01**: App can access the player's calendar (with permission) to detect school days vs. holidays vs. summer
 - [ ] **CAL-02**: Routines auto-surface based on calendar context (school morning routine on school days, hidden on holidays)
-- [ ] **CAL-03**: Calendar permission is optional with graceful denial — app works identically without it
+- [ ] **CAL-03**: Calendar permission is optional with graceful denial -- app works identically without it
 - [ ] **CAL-04**: Calendar data is read-only and never persisted to SwiftData or synced via CloudKit
 - [ ] **CAL-05**: Calendar suggestions are passive context ("Free afternoon today"), never proactive nagging
 
@@ -87,35 +87,35 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DIFF-01 | — | Pending |
-| DIFF-02 | — | Pending |
-| DIFF-03 | — | Pending |
-| DIFF-04 | — | Pending |
-| DIFF-05 | — | Pending |
-| SPOT-01 | — | Pending |
-| SPOT-02 | — | Pending |
-| SPOT-03 | — | Pending |
-| SPOT-04 | — | Pending |
-| SPOT-05 | — | Pending |
-| SPOT-06 | — | Pending |
-| SPOT-07 | — | Pending |
-| CAL-01 | — | Pending |
-| CAL-02 | — | Pending |
-| CAL-03 | — | Pending |
-| CAL-04 | — | Pending |
-| CAL-05 | — | Pending |
-| UI-01 | — | Pending |
-| UI-02 | — | Pending |
-| UI-03 | — | Pending |
-| UI-04 | — | Pending |
-| UI-05 | — | Pending |
-| UI-06 | — | Pending |
+| DIFF-01 | Phase 7 | Pending |
+| DIFF-02 | Phase 7 | Pending |
+| DIFF-03 | Phase 7 | Pending |
+| DIFF-04 | Phase 7 | Pending |
+| DIFF-05 | Phase 7 | Pending |
+| SPOT-01 | Phase 9 | Pending |
+| SPOT-02 | Phase 9 | Pending |
+| SPOT-03 | Phase 9 | Pending |
+| SPOT-04 | Phase 9 | Pending |
+| SPOT-05 | Phase 9 | Pending |
+| SPOT-06 | Phase 9 | Pending |
+| SPOT-07 | Phase 9 | Pending |
+| CAL-01 | Phase 8 | Pending |
+| CAL-02 | Phase 8 | Pending |
+| CAL-03 | Phase 8 | Pending |
+| CAL-04 | Phase 8 | Pending |
+| CAL-05 | Phase 8 | Pending |
+| UI-01 | Phase 10 | Pending |
+| UI-02 | Phase 10 | Pending |
+| UI-03 | Phase 10 | Pending |
+| UI-04 | Phase 10 | Pending |
+| UI-05 | Phase 10 | Pending |
+| UI-06 | Phase 10 | Pending |
 
 **Coverage:**
 - v3.0 requirements: 23 total
-- Mapped to phases: 0
-- Unmapped: 23
+- Mapped to phases: 23
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-14*
-*Last updated: 2026-02-14 after initial definition*
+*Last updated: 2026-02-14 after roadmap creation (traceability complete)*
