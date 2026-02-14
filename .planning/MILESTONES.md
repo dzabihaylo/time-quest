@@ -19,3 +19,22 @@
 
 ---
 
+
+## v2.0 Advanced Training (Shipped: 2026-02-14)
+
+**Phases completed:** 4 phases (3-6), 8 plans, 19 tasks
+**Timeline:** 2 days (2026-02-13 → 2026-02-14)
+**Codebase:** 66 Swift files, 6,211 LOC (+2,636 LOC, +20 files from v1.0)
+**Git range:** 3a2d8b0 → a05ad47 (27 feat commits)
+
+**Key accomplishments:**
+1. iCloud backup via CloudKit — SchemaV1→V2→V3 lightweight migrations, CloudKitSyncMonitor, graceful fallback to local-only, PlayerProfile deduplication with sentinel cloudID pattern
+2. Per-task learning insights — InsightEngine pure domain engine detecting estimation bias (over/underestimate), accuracy trend (linear regression), and consistency (coefficient of variation), with "My Patterns" dedicated screen
+3. In-gameplay contextual hints — before estimating a familiar task, player sees "Last 5 times: ~12 min" reference data that informs without correcting
+4. Player-created quests — guided multi-step creation flow with 3 templates (Homework, Friend's House, Activity Prep), orange star badge distinction, parent dashboard filtered to exclude player routines
+5. Production audio — AVAudioSession .ambient config, synthesized sound effects for 5 game events, XPConfiguration struct exposing 7 tunable constants
+6. Weekly reflection summaries — "sports score card" showing quests completed, accuracy, accuracy delta, best estimate, most improved task, positive streak framing, InsightEngine pattern highlight, dismissible card on home screen with "Weekly Recaps" history in stats
+
+**Delivered:** Self-awareness layer for time perception training — the player now sees her estimation patterns, creates her own quests, and absorbs weekly progress digests, transforming TimeQuest from "parent's tool" into "my game" with iCloud-backed data and production-quality audio.
+
+---
