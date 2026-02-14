@@ -5,15 +5,15 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
-**Current focus:** v2.0 Advanced Training -- Phase 5 complete, ready for Phase 6
+**Current focus:** v2.0 Advanced Training -- Phase 6 planned, ready for execution
 
 ## Current Position
 
 Milestone: v2.0 Advanced Training
 Phase: 5 of 6 complete (Self-Set Routines + Production Audio)
-Plan: 2 of 2 complete
-Status: Phase 5 complete -- ready to plan Phase 6
-Last activity: 2026-02-14 -- Executed 05-01 + 05-02 in parallel
+Plan: Phase 6 planned (2 plans: 06-01, 06-02)
+Status: Phase 6 planned -- ready for /gsd:execute-phase 6
+Last activity: 2026-02-14 -- Planned Phase 6 (research + 2 plans + checker PASSED)
 
 Progress: [########################......] 86% (12/14 plans -- v1.0: 6/6, v2.0: 6/8)
 
@@ -73,8 +73,7 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 
 ### Pending Todos
 
-- Plan Phase 6 (Weekly Reflection Summaries) -- NEXT
-- Execute Phase 6
+- Execute Phase 6 (Weekly Reflection Summaries) -- NEXT
 - Complete v2.0 milestone
 
 ### Blockers/Concerns
@@ -86,5 +85,5 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Phase 5 complete -- ready for /gsd:plan-phase 6
+Stopped at: Phase 6 planned -- ready for /gsd:execute-phase 6
 Resume file: None
