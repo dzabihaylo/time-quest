@@ -85,10 +85,11 @@ Plans:
   3. Streak context is framed positively ("5 of 7 days") and includes one pattern highlight sourced from InsightEngine
   4. If the player dismisses or misses a reflection, she can access it later from stats/history
   5. Reflections generate correctly even for weeks with gaps, computing summaries from whatever historical data exists
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 06-01: WeeklyReflectionEngine + reflection view + home integration
+- [ ] 06-01-PLAN.md -- WeeklyReflection value type, WeeklyReflectionEngine pure domain engine, WeeklyReflectionViewModel with UserDefaults week tracking
+- [ ] 06-02-PLAN.md -- WeeklyReflectionCardView "sports score card", PlayerHomeView dismissible card integration, PlayerStatsView "Weekly Recaps" history
 
 ## Progress
 
@@ -102,7 +103,7 @@ Plans:
 | 3. Data Foundation + CloudKit Backup | v2.0 | 2/2 | Complete | 2026-02-13 |
 | 4. Contextual Learning Insights | v2.0 | 2/2 | Complete | 2026-02-13 |
 | 5. Self-Set Routines + Production Audio | v2.0 | 2/2 | Complete | 2026-02-14 |
-| 6. Weekly Reflection Summaries | v2.0 | 0/1 | Not started | - |
+| 6. Weekly Reflection Summaries | v2.0 | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-12*
