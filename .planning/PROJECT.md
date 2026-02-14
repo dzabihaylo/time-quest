@@ -2,7 +2,7 @@
 
 ## What This Is
 
-An iOS game that trains time perception in a 13-year-old with time blindness. Disguised as a quest game, it teaches the player to accurately estimate how long real-life tasks take, building an internal clock through repeated estimation-feedback cycles. A parent sets up routines behind the scenes; the player experiences it as her own game with XP, levels, streaks, accuracy milestones, learning insights, self-created quests, and weekly progress reflections.
+An iOS game that trains time perception in a 13-year-old who struggles with estimating how long things take. Disguised as a quest game, it teaches the player to accurately estimate how long real-life tasks take, building an internal clock through repeated estimation-feedback cycles. A parent sets up routines behind the scenes; the player experiences it as her own game with XP, levels, streaks, accuracy milestones, learning insights, self-created quests, and weekly progress reflections.
 
 ## Core Value
 
@@ -50,7 +50,7 @@ The player develops an accurate internal sense of time — the ability to predic
 - Parental surveillance dashboard — parent role is setup only, not monitoring
 - Android version — iOS only for now
 - Visible countdown timer during tasks — externalizes the clock, opposite of training internal sense
-- Punishment for inaccuracy — time blindness is neurological, not laziness
+- Punishment for inaccuracy — this is a game, not a test; punishment kills engagement
 - AI-generated motivational messages — teens detect and despise inauthentic positivity
 - Goal-setting in reflections — reflections are informational, not prescriptive
 - Mandatory reflection before play — reflections must never block gameplay
@@ -64,7 +64,7 @@ Build system: generate-xcodeproj.js (Node script) for pbxproj generation.
 Architecture: Feature-sliced MVVM, pure domain engines, @Observable ViewModels, value-type editing.
 Schema: V1→V2→V3 with lightweight migrations, CloudKit-backed with local fallback.
 
-- The player is a 13-year-old girl with deep time blindness (not selective — she can't calibrate time for anything, including things she enjoys)
+- The player is a 13-year-old girl who struggles with time perception — she can't accurately estimate how long things take, including things she enjoys
 - She values independence and feeling grown up / in control
 - Current dynamic: parent nags → she feels less independent → resists more → conflict loop
 - She has school mornings (5x/week) plus 2-3 activities (roller derby, art class) = 7-8 real training opportunities per week
@@ -93,9 +93,9 @@ Schema: V1→V2→V3 with lightweight migrations, CloudKit-backed with local fal
 | Value-type editing in ViewModels | Prevents SwiftData auto-save corruption | ✓ Good |
 | Pure domain engines | Testable, zero-dependency business logic | ✓ Good — InsightEngine + WeeklyReflectionEngine both pure Foundation |
 | Concave XP curve (baseXP * level^1.5) | Fast early levels keep 13-year-old engaged | — Pending playtesting |
-| Graceful streak pause (never reset) | No guilt, no punishment aligns with ADHD-friendly design | ✓ Good |
+| Graceful streak pause (never reset) | No guilt, no punishment — keeps the game encouraging | ✓ Good |
 | EstimationSnapshot bridge pattern | Decouples domain engines from SwiftData; enables reuse across InsightEngine + WeeklyReflectionEngine | ✓ Good |
-| Curiosity-framed language throughout | "Interesting --" not "You failed" — respects neurological condition | ✓ Good |
+| Curiosity-framed language throughout | "Interesting --" not "You failed" — keeps tone encouraging and non-judgmental | ✓ Good |
 | CloudKit with graceful fallback | try? .automatic first, fall back to .none — works on simulator and without iCloud | ✓ Good |
 | SchemaV3 lightweight migrations only | No custom migration code needed; defaults on new properties | ✓ Good |
 | UserDefaults for reflection state | No schema change needed for week tracking; avoids V4 migration | ✓ Good |
