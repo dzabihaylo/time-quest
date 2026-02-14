@@ -1,325 +1,387 @@
 # Project Research Summary
 
-**Project:** TimeQuest v2.0 -- Advanced Training Features
-**Domain:** iOS time-perception training game with contextual learning insights, self-set routines, real sound assets, iCloud backup, and weekly reflections
-**Researched:** 2026-02-13
-**Confidence:** MEDIUM
+**Project:** TimeQuest v3.0 -- Adaptive & Connected
+**Domain:** Educational iOS game -- time perception training for teens with ADHD-related time blindness
+**Researched:** 2026-02-14
+**Confidence:** MEDIUM (training data through May 2025; Spotify SDK and EventKit iOS 18+ details require verification)
 
 ## Executive Summary
 
-TimeQuest v2.0 extends the successful v1.0 MVP (46 files, 3,575 LOC) with ownership-transfer features that shift the player from passive training to active self-awareness. Research reveals an architecturally ideal scenario: every v2.0 feature maps to capabilities already latent in the v1.0 stack. No third-party dependencies are needed. The core additions are CloudKit framework integration for iCloud backup, new pure domain engines for pattern analysis and reflection generation, schema evolution to support self-set routines, and real audio asset replacements. The v1.0 architecture was explicitly designed to accommodate these additions through its repository abstraction, pure domain engine pattern, and value-type editing approach.
+TimeQuest v3.0 introduces four coordinated enhancements to an existing SwiftUI/SwiftData iOS app: adaptive difficulty calibration, Spotify music integration, calendar-driven routine scheduling, and a UI/brand refresh. This is NOT a greenfield project -- it's extending a working, production v2.0 codebase (66 files, 6,211 LOC, SchemaV3) with 4 new capabilities that operate independently but complement each other.
 
-The recommended approach is CloudKit-first migration followed by independent feature buildouts. CloudKit compatibility requires adding property defaults to all SwiftData models (a lightweight migration), which must happen before any other work begins. This migration is the critical path dependency. Once complete, three feature streams can proceed in parallel: (1) pattern analysis and contextual insights (dependency root for weekly reflections), (2) self-set routines with templates (ownership transfer), and (3) sound asset replacement (polish). Weekly reflections integrate insights and session data as a capstone feature. The pure-domain-engine pattern allows pattern analysis and reflection generation to be built and tested independently of UI or persistence concerns.
+The recommended approach builds on the established architecture: pure domain engines (zero framework dependencies) for adaptive difficulty and calendar intelligence, new service-layer wrappers for external APIs (Spotify, EventKit), and a theme system for the UI refresh. All four pillars are technically independent -- they can be built and shipped in any order. The critical success factors are: (1) preserve the ADHD-friendly design principles when adding features (no punishment spirals, graceful degradation everywhere, simplicity over features), (2) use lightweight SchemaV4 migration to avoid CloudKit sync issues for existing users, and (3) keep Spotify and calendar integration strictly optional -- the core time estimation game must work perfectly without them.
 
-The primary risk is CloudKit sync complexity. SwiftData's built-in CloudKit support handles the infrastructure, but four critical pitfalls must be prevented: (1) non-optional properties without defaults cause sync failures, (2) schema migration can corrupt v1.0 data if not properly versioned, (3) duplicate records and merge conflicts require stable identity and deduplication strategy, and (4) relationship predicates based on `persistentModelID` break across devices. Prevention requires: adding defaults to all model properties in a versioned migration, implementing stable custom identifiers for all models, establishing deduplication logic for the singleton `PlayerProfile`, and replacing `persistentModelID`-based queries with custom ID queries. These are well-understood challenges with documented solutions. Testing on real devices with real iCloud accounts is mandatory before ship.
+The highest risks are ADHD-specific pitfalls in adaptive difficulty (avoid punishment loops by using long adjustment windows and upward-only difficulty ratcheting), Spotify audio session conflicts (use Web API only, not SDK playback control, to preserve the existing .ambient audio session for game sounds), and calendar permission sensitivity (EventKit access feels invasive in a "game" -- frame as player choice, handle denial gracefully). The architecture is well-designed and proven; the execution risk is in honoring the user-centered design constraints that make TimeQuest effective for its ADHD audience.
 
 ## Key Findings
 
 ### Recommended Stack
 
-v2.0 requires zero new third-party dependencies. Every new capability maps to an Apple first-party framework that ships with iOS 17 SDK. The only framework addition is CloudKit (via SwiftData's `ModelConfiguration(cloudKitDatabase: .automatic)`), which enables iCloud backup through configuration rather than architectural change. Pattern analysis, reflection generation, and routine templates are pure Swift domain engines with zero framework dependencies, following the established v1.0 pattern. Real sound assets replace placeholders through file swap with no code changes. The existing stack (SwiftUI, SwiftData, SpriteKit, Swift Charts, AVFoundation, UserNotifications, iOS 17.0+, Swift 6.0) is validated and unchanged.
+**v3.0 adds exactly two framework dependencies and zero third-party libraries to the existing stack.** The base stack (SwiftUI, SwiftData, SpriteKit, Swift Charts, CloudKit, AVFoundation on iOS 17.0+, Swift 6.0, Xcode 16.2) remains unchanged.
 
-**Core technologies:**
-- **CloudKit framework** (via SwiftData): iCloud backup/sync of all player data — integrated through `ModelConfiguration`, not manual CloudKit API usage. SwiftData handles schema mapping and conflict resolution.
-- **New SwiftData models**: `WeeklyReflection` for persisted summaries, schema additions to `Routine` (`createdBy: String`) and `PlayerProfile` (`lastReflectionViewedDate: Date?`) — lightweight migrations with defaults.
-- **New domain engines** (pure Swift): `InsightEngine` (pattern detection), `WeeklyReflectionEngine` (weekly summary generation), `RoutineTemplateProvider` (static routine templates) — follow `TimeEstimationScorer` and `XPEngine` pattern, zero dependencies, fully testable.
-- **Real audio assets**: Replace 5 placeholder .wav files with production sounds from freesound.org (CC0) — .wav format, under 1MB total, zero code changes. AVAudioSession configuration added for `.ambient` category (mix with background music, respect silent switch).
+**New framework additions:**
+- **EventKit.framework** (Apple first-party): Calendar read access for schedule intelligence -- the only way to access calendar data on iOS. Read-only, mature API (stable since iOS 6, `requestFullAccessToEvents()` added in iOS 17 for the target deployment). Privacy-sensitive: requires NSCalendarsUsageDescription and user permission.
+- **SpotifyiOS.framework** (Swift Package Manager): OAuth + playback control for Spotify integration. First external dependency in the project. Requires Spotify Developer account, registered redirect URI, and token storage in Keychain. Alternative approach: Spotify Web API with PKCE (no SDK) eliminates SDK dependency but increases implementation complexity.
+- **Security.framework** (Apple first-party, implicit): Keychain access for Spotify token storage. Already available, no explicit linking needed. Use raw Keychain API (30 LOC) rather than third-party wrapper.
 
-**Critical CloudKit constraints:**
-All SwiftData models must have property defaults or be optional for CloudKit compatibility. Current models violate this (e.g., `Routine.name: String` has no default). Adding defaults is a lightweight migration but must be the first v2.0 task. Existing models already use optional relationships and cascade deletes, which are CloudKit-compatible. Array properties like `Routine.activeDays: [Int]` should be verified for CloudKit round-trip correctness.
+**New pure domain engines (no dependencies):**
+- **AdaptiveDifficultyEngine**: EMA-based dynamic difficulty calibration. Follows exact pattern of existing InsightEngine and WeeklyReflectionEngine -- static methods on structs, EstimationSnapshot value-type inputs, zero framework imports.
+- **CalendarIntelligenceEngine**: Schedule context determination from calendar events. Consumes CalendarEvent value types (EventKit bridge), returns ScheduleContext. Pure Swift domain logic.
+- **RoutinePlaylistEngine**: Duration-matched playlist assembly. Bin-packing algorithm, value-type inputs, no Spotify dependency.
+
+**Key architectural decision:** Spotify integration via Web API (REST with URLSession) rather than iOS SDK playback control. Web API eliminates audio session conflicts with existing SoundManager, works with Free tier (playlist creation), and keeps the architecture client-only (no backend server needed with PKCE flow). Trade-off: no native in-app playback control, playlist is created and opened in Spotify app.
+
+**Critical version requirements:**
+- iOS 17.0+ deployment target (unchanged from v2.0)
+- EventKit: `requestFullAccessToEvents()` requires iOS 17.0+
+- Spotify iOS SDK: Verify Swift 6.0 strict concurrency compatibility (may need `@preconcurrency import`)
+- SwiftUI MeshGradient (UI refresh): iOS 18.0+ with fallback to LinearGradient on iOS 17
+
+**Confidence:** HIGH for EventKit and Security.framework (mature Apple APIs). MEDIUM for Spotify iOS SDK (version and Swift 6 compatibility need verification). HIGH for UI refresh technologies (all built into SwiftUI on iOS 17+).
 
 ### Expected Features
 
-v2.0 transforms TimeQuest from a training tool into a self-awareness platform. Research identifies three feature tiers based on v1.0's shipped foundation and expert patterns for gamified skill-building apps targeting teens with ADHD.
+**Must ship (table stakes):**
+- **Automatic difficulty progression** -- tighter accuracy thresholds as player skill improves. Cannot be "Easy/Medium/Hard" toggle -- must be invisible and algorithmic. ADHD-critical: never DECREASE difficulty (frustration spiral prevention).
+- **Spotify account connection** -- one-time OAuth, persistent via Keychain. Free tier and Premium must both work gracefully.
+- **Duration-matched playlist** -- routine takes ~25 minutes, playlist is ~25-27 minutes. Music provides audible time cue without checking screen.
+- **School day detection** -- calendar intelligence determines "today is a school day" to surface morning routine automatically.
+- **Routine auto-surfacing** -- school morning routine appears on school days, skipped on holidays/summer without manual schedule changes.
+- **Visual refresh of core screens** -- home screen, quest flow (estimation → active → reveal → summary), patterns. First impression must feel 2026-modern, not prototype.
+- **Graceful degradation everywhere** -- Spotify not installed? Calendar denied? App works identically. New features are enhancements, never requirements.
 
-**Must have (table stakes):**
-- **iCloud backup of progress data** — After weeks of daily play, losing XP/levels/history to device replacement is devastating for a 13-year-old. A backup status indicator ("Synced" / "Last backed up: [date]") provides parent peace-of-mind.
-- **Real sound assets** — v1.0 shipped with placeholder .wav files (all 8,864 bytes, identical size). Placeholder audio feels broken, not unfinished. Replacing 5 core sounds (estimate lock, reveal, level up, personal best, session complete) is zero-complexity, high-polish.
-- **XP curve tuning** — After weeks of play, the concave curve (baseXP * level^1.5) requires validation against actual play data. This is a constants change, not a feature build.
+**Should ship (differentiators):**
+- **XP scaling with difficulty** -- mastering-level accuracy earns 1.5x XP. Rewards improvement without changing threshold definitions.
+- **Post-routine song count** -- "You got through 4.5 songs" as intuitive time unit. Complements time-in-seconds for ADHD time perception building.
+- **Holiday awareness** -- detect all-day calendar events (Christmas, school breaks) to suppress school routines automatically.
+- **Dark mode as primary** -- design dark-first with light fallback. Player uses phone at night in dim rooms.
+- **SF Rounded typography** -- `.fontDesign(.rounded)` for friendly-modern feel, zero bundle size, automatic Dynamic Type.
 
-**Should have (differentiators):**
-- **Contextual learning insights** — Per-task pattern detection ("You underestimate packing by 4 minutes," "Shower estimates improving every week"). Shows WHICH tasks she misjudges and in WHICH direction. More actionable than aggregate accuracy. Includes in-gameplay contextual nudges before estimation (reference data, not corrections), "My Patterns" dedicated screen, consistency scores, and trend detection per task.
-- **Self-set routines with guided creation** — Player creates her own routines alongside parent-configured ones. Transfers ownership from "parent's tool" to "my tool." Templates provide starting points ("Homework session," "Getting ready for a friend's house") with full customization. Visual distinction between player-created and parent-created routines without revealing parent routines as "assigned."
-- **Weekly reflection summaries** — Brief weekly digest (quests completed, average accuracy, accuracy change, best estimate, streak context, pattern highlight). Creates meta-awareness rhythm. Delivered as dismissible card at top of PlayerHomeView, not push notification. Target 15 seconds to absorb — "sports score card" not "quarterly business review."
+**Defer (v3.1+):**
+- Batch estimation mode (high complexity, unlocks only at max difficulty)
+- Activity season awareness (requires weeks of calendar pattern analysis)
+- Per-routine music preferences (nice-to-have on basic Spotify)
+- Smart notification timing from calendar (complex, marginal value)
+- Challenge mode for mastered tasks (v4.0 stretch goal)
 
-**Anti-features (explicitly avoid):**
-- AI-generated coaching messages (teens detect and despise inauthentic positivity)
-- Comparison to "normal" time (introduces external judgment, reveals parent reference)
-- Parent insight reports (surveillance breaks trust)
-- Achievement badges system (scope creep, XP/levels already provide progression)
-- Streak multipliers (create anxiety, break "pause never reset" design)
-- Home screen widget (defer to v3.0)
+**Anti-features (explicitly do NOT build):**
+- Visible difficulty level display ("Level 4 - Expert!") -- creates anxiety, externalizes difficulty
+- Player-selectable difficulty -- she'll game the system or feel pressured
+- Music during estimation phase -- distracts from cognitive estimation task
+- Spotify Premium gate -- features requiring Premium exclude Free users
+- Forced Spotify connection -- blocks gameplay, violates simplicity principle
+- Calendar write access -- feels like surveillance
+- Full calendar display -- TimeQuest is not a calendar app
+- Avatar system / animated backgrounds / skeuomorphic gamification -- scope creep, childish feel
 
-**Feature dependencies:**
-`EstimationSnapshot` (shared value type) → `InsightEngine` → contextual insights + weekly reflections. `Routine.createdBy` → self-set routines. CloudKit defaults → iCloud backup. Sound assets and XP tuning are independent. InsightEngine is the dependency root — build it first.
+**Feature sizing estimate:**
+- Adaptive Difficulty: ~330 LOC, 3 new files, 5 modified files, LOW risk
+- Spotify Integration: ~680 LOC, 4 new files, 5 modified files, HIGH risk (external dependency)
+- Calendar Intelligence: ~470 LOC, 3 new files, 5 modified files, MEDIUM risk (privacy/permissions)
+- UI/Brand Refresh: ~1,190 LOC, 7 new files, 13 modified files, LOW risk (visual only)
+- **Total:** ~2,670 LOC added (43% growth), ~17 new files, ~28 modified files
+
+**Confidence:** HIGH (based on v2.0 codebase analysis and domain research). Feature prioritization aligns with ADHD-friendly design principles.
 
 ### Architecture Approach
 
-v2.0 integrates through established v1.0 patterns with zero architectural disruption. The existing repository abstraction, pure domain engines, value-type editing pattern, and composition root remain unchanged. New domain engines (`InsightEngine`, `WeeklyReflectionEngine`, `RoutineTemplateProvider`) follow the pure-struct-with-static-methods pattern — zero framework imports, value-type inputs/outputs, no SwiftData dependencies. ViewModels bridge between SwiftData models and domain engines using a shared `EstimationSnapshot` value type that decouples business logic from persistence. CloudKit integration occurs at the ModelContainer configuration level (single-line change) with model property defaults added for compatibility. Schema changes are additive only (new properties with defaults, new optional properties) to ensure lightweight migration.
+**v3.0 extends the existing architecture without structural changes.** The established patterns (pure domain engines, EstimationSnapshot value-type bridge, repository protocols, composition root AppDependencies, QuestPhase state machine) are proven and continue. New features follow these patterns exactly.
 
-**Major components:**
-1. **Pattern Analysis Layer** — `InsightEngine` (pure domain) takes `[EstimationSnapshot]` and returns `[Insight]`. `InsightsViewModel` queries `SessionRepository`, maps to snapshots, calls engine, publishes results. `MyPatternsView` and in-gameplay contextual hints consume insights. No new repositories needed.
-2. **Self-Set Routine Creation** — Reuses `RoutineEditState` value type and repository save logic. New `PlayerRoutineEditorViewModel` auto-sets `createdBy = "player"` and `name = displayName`. `RoutineTemplateProvider` provides static template data. Separate view for player-facing language/templates; shared data types and persistence.
-3. **Weekly Reflection Engine** — `WeeklyReflectionEngine` (pure domain) aggregates session data and reuses `InsightEngine` for pattern highlights. Computed lazily on app open (no background scheduler needed). Optional `WeeklyReflectionSummary` model for historical persistence (defer if not immediately needed). Displayed as dismissible card on `PlayerHomeView`.
-4. **CloudKit Backup Infrastructure** — `ModelConfiguration(cloudKitDatabase: .automatic)` enables sync. All models get property-level defaults. Stable `cloudID: String = UUID().uuidString` added for deduplication. `PlayerProfile` uses sentinel ID ("player-profile-singleton") for singleton enforcement across devices. Relationship queries replaced with custom ID queries (no `persistentModelID` usage).
+**Major architectural additions:**
 
-**Integration touchpoints:**
-- `GameSessionViewModel` adds `contextualHint: Insight?` property for in-gameplay nudges
-- `PlayerHomeView` adds navigation to MyPatternsView, weekly reflection banner, "Create Quest" button
-- `TimeQuestApp` registers new models and CloudKit configuration
-- `SoundManager` receives AVAudioSession configuration for `.ambient` category
-- `NotificationManager` adds weekly reflection scheduling (optional)
+1. **AdaptiveDifficultyEngine (Domain layer)** -- Pure struct with static methods. Inputs: `[EstimationSnapshot]`. Outputs: `DifficultyParameters` (hint visibility, accuracy band multiplier, XP multiplier). Algorithm: exponential moving average (EMA) over last 10 sessions per task, 4 difficulty levels (learning/practicing/confident/mastering). Integration point: `GameSessionViewModel.startQuest()` computes difficulty per task, applies parameters during estimation and scoring. **No new dependencies.**
 
-**File growth:** ~10 new Swift files, ~8 modified files. Estimated ~930 LOC addition (3,575 → ~4,505 LOC, +25% codebase growth).
+2. **SpotifyService + SpotifyAuthManager (Services layer)** -- `@Observable @MainActor` service managing OAuth (ASWebAuthenticationSession), token storage (Keychain via Security.framework), and Web API calls (URLSession). Integration: added to AppDependencies, consumed by parent setup (playlist selection) and GameSessionViewModel (playback on quest start). **Critical decision:** Web API only, no SDK playback control -- avoids audio session conflict with existing SoundManager's `.ambient` category.
+
+3. **CalendarService + CalendarIntelligenceEngine (Services + Domain)** -- CalendarService wraps EventKit (permission request, event fetching), bridges to CalendarEvent value types. CalendarIntelligenceEngine analyzes events to determine ScheduleContext (isSchoolDay, isHoliday, activeActivities). Integration: PlayerHomeView loads calendar context on appear, filters routines based on schedule. **Read-only, never writes to calendar. Permissions handled gracefully.**
+
+4. **Theme system (Design layer, new folder)** -- Environment-based theme (Theme struct injected via `.environment()`, same pattern as AppDependencies). ThemeColors, ThemeTypography, ThemeSpacing, ThemeIcons, ThemeAnimation define design tokens. ThemedCard and ThemedButton reusable components consume theme. Migration: incremental, one view at a time, starting with low-risk views. **Zero schema impact, zero model changes.**
+
+**Schema evolution:** SchemaV4 adds 4 fields across 3 models (all optional or defaulted for lightweight migration):
+- `GameSession.difficultyLevelRawValue: String = "learning"` (track which difficulty was active)
+- `TaskEstimation.accuracyBandMultiplier: Double = 1.0` (track threshold adjustment for fair comparisons)
+- `Routine.spotifyPlaylistURI: String?` (linked Spotify playlist)
+- `Routine.spotifyPlaylistName: String?` (cached for display, avoid API call)
+
+**Data flow examples:**
+- **Adaptive difficulty:** `startQuest()` → fetch snapshots → `AdaptiveDifficultyEngine.computeDifficulty(taskName:, snapshots:)` → apply hint visibility + threshold multiplier → score with adjusted bands → apply XP multiplier.
+- **Spotify:** Parent dashboard → connect OAuth → store tokens in Keychain → select playlist → save URI to Routine → quest start → `spotifyService.play(playlistURI:)` → music in Spotify app.
+- **Calendar:** App open → `CalendarService.fetchTodayEvents()` → `CalendarIntelligenceEngine.analyzeDay(events:)` → filter routines → surface school morning on school days, hide on holidays.
+
+**Build system impact:** generate-xcodeproj.js requires updates for EventKit.framework linkage and SPM package reference (first SPM dependency). The pbxproj needs new sections: XCRemoteSwiftPackageReference + XCSwiftPackageProductDependency for SpotifyiOS.
+
+**Confidence:** HIGH for adaptive difficulty and theme system (pure domain, proven patterns). MEDIUM for Spotify and calendar (external APIs, privacy/permissions add complexity).
 
 ### Critical Pitfalls
 
-Research identified 15 domain-specific pitfalls across severity tiers. The five critical pitfalls (data loss, architectural rework, or v1.0 breakage) must be prevented in Phase 1.
+Research identified 18 pitfalls (6 critical, 6 moderate, 6 minor) plus 3 ADHD-specific pitfalls and 3 cross-feature integration pitfalls. Top 5 by impact:
 
-1. **CloudKit requires all properties to be optional or have defaults — models are not ready** — Current models have non-optional properties without defaults (`Routine.name`, `TaskEstimation.taskDisplayName`, etc.). Enabling CloudKit without fixing causes crashes, silent sync failures, or records uploading with nil values. Prevention: Audit every @Model property and add sensible defaults (`var name: String = ""`, `var estimatedSeconds: Double = 0`). Test CloudKit sync on real device with real iCloud account before shipping. This is the first v2.0 task.
+1. **Adaptive difficulty creates punishment loop for ADHD players (CRITICAL)** -- If difficulty drops on bad days (ADHD executive function fluctuates randomly day-to-day), the player interprets it as "the game thinks I failed." Prevention: (a) LONG adjustment window (10-15 sessions, not 3-5) to smooth out fluctuation, (b) UPWARD-ONLY ratchet -- never decrease difficulty, only pause during declining trends, (c) PER-TASK adjustment (not global), (d) INVISIBLE -- no UI indication of difficulty level, only internal threshold adjustments. This is the highest UX risk in v3.0.
 
-2. **Schema migration corrupts existing v1.0 data** — Adding defaults, new fields (`createdBy`, `lastReflectionViewedDate`), or restructuring properties triggers migration. Without proper versioning, SwiftData fails to open existing store and either crashes or creates new empty store, erasing all v1.0 data. Prevention: Introduce `VersionedSchema` retroactively defining v1.0 as `SchemaV1`, define `SchemaV2` with v2.0 changes, create `SchemaMigrationPlan`. Only make lightweight migration changes (add properties with defaults, add optional properties, add new models). Never rename or remove properties. Test migration with real v1.0 data. This is the foundation all v2.0 features depend on.
+2. **Spotify audio session conflict destroys existing sound effects (CRITICAL)** -- If Spotify playback changes AVAudioSession category, SoundManager's `.ambient` session for game sounds fails. Prevention: Use Spotify Web API ONLY (create/manage playlists), do NOT use Spotify iOS SDK's SPTAppRemote for playback control. Music plays in Spotify app (separate process, separate audio session). TimeQuest keeps `.ambient` for its 5 game sounds. No conflict because `.ambient` explicitly mixes with other apps' audio.
 
-3. **CloudKit sync creates duplicate records and merge conflicts** — Models lack stable unique identity beyond device-local `persistentModelID`. Two devices could each create a `PlayerProfile`, sync would deliver both. Last-writer-wins merge loses XP/streak data. Prevention: Add stable `cloudID: String = UUID().uuidString` to all models. Use sentinel ID for singleton `PlayerProfile`. Implement post-sync deduplication. For `PlayerProfile.totalXP`, use max(localXP, remoteXP) merge (XP only goes up). Design deduplication strategy alongside CloudKit enablement.
+3. **SchemaV4 migration breaks CloudKit sync for existing users (CRITICAL)** -- If migration is not lightweight, store fails to open or data is lost. If two devices have different schema versions (one updated, one not), CloudKit sync can corrupt data. Prevention: (a) EVERY new field has a default value, (b) NO custom migration logic -- lightweight only, (c) test with real V3 store file before shipping, (d) consider device-local ModelConfiguration for Spotify/Calendar metadata (don't sync tokens or EventKit IDs).
 
-4. **Enabling CloudKit breaks @Query predicates on relationships** — `SessionRepository.fetchSessions(for:)` filters by `$0.routine?.persistentModelID == routineID`. With CloudKit, `persistentModelID` is not stable across devices. Synced routines have different IDs on receiving device; predicate fails to match sessions to routines. Prevention: Replace `persistentModelID`-based queries with stable custom ID queries. Add `routineCloudID: String` on `GameSession` as denormalized lookup key. Test every `FetchDescriptor` and `#Predicate` against CloudKit-backed store.
+4. **EventKit calendar access contradicts "invisible parent" and requires privacy justification (CRITICAL)** -- Permission prompt appears to PLAYER ("TimeQuest wants your calendar"), not parent. If denied, feature fails permanently. Calendar data is sensitive (family schedule, appointments). COPPA concerns for under-13 users. Prevention: (a) frame as PLAYER CHOICE, not requirement -- "Want TimeQuest to know your schedule?" with clear value prop and easy decline, (b) read-only access only, never write, (c) query narrow time window (today only), never store event details in SwiftData, (d) handle denial gracefully -- app works identically, calendar is purely additive, (e) consider ALTERNATIVE: parent-configured schedule (no EventKit, no permission prompt, simpler architecture).
 
-5. **Analytics/pattern detection queries cause UI stutter on growing dataset** — Contextual insights and weekly reflections require fetching ALL `TaskEstimation` records, grouping, computing aggregates. Entire repository layer is @MainActor. After weeks/months of use, synchronous main-thread queries cause visible UI freezes. Prevention: Create pure domain engine that takes value types (not @Model objects), run heavy fetch + computation on background ModelActor, cache computed insights (invalidate on session completion), set query limits ("last 90 days" not "all time"). Profile with Instruments before/after, budget: patterns screen under 300ms.
+5. **Spotify OAuth token management in a teen's app (expiry, account sharing, under-13 complications) (CRITICAL)** -- Access tokens expire every 60 minutes. If not refreshed, music stops mid-routine. If tokens stored in UserDefaults (not Keychain), security vulnerability. If OAuth flow fails (multi-step task abandonment), Spotify feature never works but player doesn't know why. Prevention: (a) store tokens in KEYCHAIN (not UserDefaults, not SwiftData), (b) auto-refresh before expiry (check on every API call, refresh if <5 min remaining), (c) make Spotify OPTIONAL everywhere -- no forced login, no blocking gameplay, (d) one-tap OAuth via ASWebAuthenticationSession with `prefersEphemeralWebBrowserSession: false` (uses existing Safari session), (e) handle Free vs Premium tier gracefully (Free tier cannot play on-demand tracks via API -- suggest "open playlist in Spotify" instead of API-controlled playback).
 
-**Additional moderate pitfalls:**
-- Player-created routines contaminating parent dashboard (add `createdByPlayer: Bool`, filter queries)
-- Replacing placeholder sounds breaking audio session (configure `.ambient` category, use .caf format, test with background music)
-- Weekly reflection needing reliable scheduler (compute lazily on app open, persist summaries)
-- Contextual insights generating misleading patterns from small samples (minimum 5 sessions, exclude calibration, confidence language)
-- iCloud exposing parent config to shared family account (verify single-device backup-only design)
+**Additional critical pitfalls:**
+- **Adaptive difficulty destabilizes XP/leveling economy** -- tighter thresholds reduce spot_on frequency, slowing progression. Mitigation: decouple difficulty from XP, use accuracy-proportional XP.
+- **Adaptive difficulty corrupts InsightEngine trend analysis** -- stored accuracyPercent based on fixed thresholds becomes incomparable after difficulty adjusts. Mitigation: store absolute accuracy, use difficulty-adjusted ratings only for display.
+- **Spotify Web API requires backend server** -- Mitigation: PKCE flow eliminates client secret, no server needed for mobile apps.
+- **UI theme retrofit touches 20+ views with regression risk** -- Mitigation: incremental migration, theme tokens, UI refresh LAST phase.
+- **EventKit main thread queries freeze UI** -- Mitigation: async queries, cached results, narrow date range.
+
+**ADHD-specific pitfalls:**
+- **Too many settings cause decision paralysis** -- Mitigation: minimal settings (2 toggles max), automatic behavior everywhere else.
+- **Spotify OAuth multi-step flow will be abandoned** -- Mitigation: no persistent "in progress" state, no nagging after abandonment.
+- **Calendar-suggested routines feel like nagging** -- Mitigation: passive context ("Free afternoon today"), never suggest actions ("Time for a quest!").
+
+**Confidence:** HIGH for all identified pitfalls. These are derived from codebase analysis (ADHD design principles, existing audio session config, SwiftData migration history) and standard iOS/Spotify API behavior.
 
 ## Implications for Roadmap
 
-Based on research, v2.0 should be structured as four sequential phases driven by dependency and risk analysis. CloudKit migration is the critical path that unblocks all other work. Pattern analysis is the dependency root for two downstream features. Self-set routines and sound replacement are independent. Weekly reflections integrate everything as a capstone.
+Based on combined research, v3.0 should be structured as **4 independent phases in series** (not parallel, to minimize merge conflicts and integration complexity). Each phase delivers a shippable increment. If any phase blocks or is cut, the others still ship.
 
-### Phase 1: Data Foundation + CloudKit Backup
+### Suggested Phase Structure
 
-**Rationale:** Schema migration and CloudKit compatibility must come first. Every v2.0 feature requires model changes; those changes must not corrupt v1.0 data (Pitfall 2). CloudKit requires property defaults (Pitfall 1). Doing migration and CloudKit as a single phase ensures all subsequent feature data is synced from day one. This phase has the highest risk (data loss) and highest confidence (well-documented constraints).
+**Phase 1: Schema Evolution + Adaptive Difficulty**
 
-**Delivers:**
-- Versioned schema (SchemaV1 retroactive, SchemaV2 with v2.0 changes)
-- SchemaMigrationPlan (V1 → V2)
-- Property defaults on all models (CloudKit compatible)
-- New model properties: `Routine.createdBy`, `PlayerProfile.lastReflectionViewedDate`, stable `cloudID` on all models
-- CloudKit ModelConfiguration enabled
-- iCloud + CloudKit entitlements
-- Backup status indicator in settings
-
-**Addresses features:**
-- iCloud backup of progress data (table stakes)
-- Foundation for all v2.0 features (enables schema changes)
-
-**Avoids pitfalls:**
-- Pitfall 1 (CloudKit property defaults)
-- Pitfall 2 (schema migration corruption)
-- Pitfall 3 (duplicate records — stable cloudID added)
-- Pitfall 4 (relationship predicates — replace persistentModelID queries)
-- Pitfall 10 (parent config exposure — document single-device backup-only design)
-
-**Testing requirements:**
-- Test migration with real v1.0 data (build v1.0, populate, upgrade to v2.0)
-- Test CloudKit sync on real device with real iCloud account
-- Verify existing v1.0 features work with defaults
-- Verify all repository queries work with CloudKit-backed store
-
-**Research flag:** MEDIUM — SwiftData + CloudKit constraints are well-documented but exact behavior with relationships needs validation during implementation. Test early and often on real devices.
-
-### Phase 2: Contextual Learning Insights
-
-**Rationale:** Pattern analysis is the dependency root for weekly reflections (Phase 4 reuses `InsightEngine` types and computation). Building the pure domain engine first unlocks both features. This is the most complex new domain code and benefits from early testing. With CloudKit enabled (Phase 1), the analytics engine automatically handles both local and synced data. This phase is read-only (queries existing data) with no schema changes beyond Phase 1.
+**Rationale:** Schema changes must come first (both Adaptive Difficulty and Spotify need new fields). Adaptive Difficulty is pure domain logic with zero external dependencies -- lowest risk, highest testability. It follows the exact pattern of InsightEngine (pure engine consuming EstimationSnapshot).
 
 **Delivers:**
-- `EstimationSnapshot` value type (shared domain type)
-- `InsightEngine` pure domain engine (pattern detection, bias detection, trend analysis, consistency scoring)
-- `InsightsViewModel` (bridges SwiftData to domain)
-- `InsightCardView` shared component
-- `MyPatternsView` (dedicated patterns screen)
-- In-gameplay contextual hints (modify `GameSessionViewModel`, `EstimationInputView`)
-- Navigation from `PlayerHomeView`/`PlayerStatsView` to MyPatternsView
+- TimeQuestSchemaV4 with all new fields (from all 4 pillars)
+- TimeQuestMigrationPlan updated with v3ToV4 lightweight stage
+- AdaptiveDifficultyEngine (pure domain, comprehensive tests)
+- Modified TimeEstimationScorer (accepts accuracyBandMultiplier param)
+- Modified GameSessionViewModel (computes and applies difficulty per task)
+- Updated EstimationInputView (conditionally shows/hides hints based on difficulty)
+- Updated AccuracyRevealView (difficulty-adjusted feedback, mastery XP bonus indicator)
 
-**Addresses features:**
-- Contextual learning insights (differentiator)
-- Per-task bias detection
-- Trend detection per task
-- Consistency scores
-- "My Patterns" screen
+**Features from FEATURES.md:**
+- Automatic difficulty progression (table stakes)
+- XP scaling with difficulty (differentiator)
+- Difficulty floor / frustration prevention (ADHD-critical)
 
 **Avoids pitfalls:**
-- Pitfall 5 (UI stutter — pure domain engine, background computation, caching strategy)
-- Pitfall 9 (small-sample misleading insights — minimum 5 sessions, exclude calibration, confidence language)
-- Pitfall 12 (analytics fields breaking migration — compute dimensions at query time, no new stored fields)
+- Pitfall #1 (ADHD punishment loop): long window, upward-only, per-task, invisible
+- Pitfall #2 (XP economy destabilization): accuracy-proportional XP, not rating-based
+- Pitfall #3 (SchemaV4 migration): lightweight, all defaults, tested with V3 store
+- Pitfall #4 (difficulty/insights interaction): store absolute accuracy, display difficulty-adjusted ratings
 
-**Testing requirements:**
-- Unit tests for InsightEngine (pure functions, fast)
-- Test with real estimation history (hundreds of records)
-- Profile with Instruments (Time Profiler) — patterns screen under 300ms
-- Test contextual hints do not interrupt gameplay flow
+**Research flag:** NO -- adaptive difficulty is well-understood game design. EMA algorithm is textbook. Integration points are clear from codebase analysis.
 
-**Research flag:** LOW — Pattern detection is pure Swift math on existing data types. No framework uncertainty. Standard statistical computations well-understood.
+**Estimated effort:** ~330 LOC, 3 new files, 5 modified files. 3-5 days implementation + testing.
 
-### Phase 3: Self-Set Routines + Sound Assets (Parallel)
+---
 
-**Rationale:** Self-set routines depend on `createdBy` schema change (completed in Phase 1) but are otherwise independent of insights. Sound replacement is completely independent of all features. Both can be built in parallel (or sequentially if solo developer). Both are lower risk than CloudKit and analytics. Self-set routines are the ownership transfer milestone. Sound assets are table-stakes polish.
+**Phase 2: Calendar Intelligence**
+
+**Rationale:** System framework integration (EventKit) with well-established patterns. No external third-party dependency. Lower risk than Spotify. Permission flow is the main UX challenge but it's a solved problem. Builds on existing RoutineRepository patterns.
 
 **Delivers:**
-- `RoutineTemplateProvider` domain engine (static template data)
-- `RoutineCreator` enum (creator type)
-- `PlayerRoutineEditorViewModel` (reuses `RoutineEditState`)
-- `PlayerRoutineEditorView` (player-facing language, templates, validation)
-- "Create Quest" button on `PlayerHomeView`
-- Visual distinction for player-created quests (badge/indicator)
-- Updated `RoutineEditorViewModel` to set `createdBy = "parent"`
-- Filtered queries: parent dashboard excludes player routines
-- **Sound assets:** 5 production-quality .wav files (freesound.org CC0), AVAudioSession `.ambient` configuration, under 1MB total
+- CalendarService (EventKit wrapper, permission handling)
+- CalendarEvent value type + EventKit bridge extension
+- ScheduleSuggestionEngine (pure domain, keyword matching heuristics)
+- CalendarPermissionView (pre-permission explanation UI)
+- ScheduleSuggestionsView (calendar suggestion cards on home screen)
+- Integration into PlayerHomeView (fetch events on appear, filter routines by schedule)
 
-**Addresses features:**
-- Self-set routines with guided creation (differentiator)
-- Routine templates
-- Player vs parent routine distinction
-- Real sound assets (table stakes)
+**Features from FEATURES.md:**
+- School day detection (table stakes)
+- Routine auto-surfacing (table stakes)
+- Holiday awareness (differentiator)
 
 **Avoids pitfalls:**
-- Pitfall 6 (player/parent data contamination — `createdByPlayer` flag, filtered queries, separated UI)
-- Pitfall 7 (audio session misconfiguration — `.ambient` category, .wav/.caf format, test with background music)
-- Pitfall 11 (sound bundle bloat — AAC-encoded .caf if needed, mono, target under 1MB)
-- Pitfall 13 (creation UI too open/restrictive — guided templates + validation guardrails)
-- Pitfall 15 (@Query bypass — update @Query filter alongside repository)
+- Pitfall #5 (EventKit privacy/consent): optional, graceful denial, teen-friendly description
+- Pitfall #6 (main thread EventKit queries): async, cached, narrow date range
+- Pitfall #7 (EventKit IDs don't sync): store derived schedule, not EventKit refs
+- ADHD Pitfall #3 (calendar nagging): passive context, never suggest actions
+- Integration Pitfall B (calendar vs parent authority): read-only, advisory, never modify routines
 
-**Testing requirements:**
-- Player can create routine from template
-- Player routine appears in quest list
-- Parent dashboard does not show player routines
-- Parent cannot edit player routines
-- Sounds play correctly with background music (Spotify, Apple Music)
-- Sounds respect silent switch
+**Research flag:** LOW -- if parent-configured schedule is chosen over EventKit, this becomes trivial (just UI for schedule config, no framework integration). If EventKit is chosen, permission flow UX needs design attention but technical implementation is straightforward.
 
-**Research flag:** LOW — Reuses existing `RoutineEditState` pattern. Sound asset replacement is file swap. Standard patterns, minimal uncertainty.
+**Estimated effort:** ~470 LOC, 3 new files, 5 modified files. 4-6 days implementation + testing.
 
-### Phase 4: Weekly Reflection Summaries
+---
 
-**Rationale:** Depends on `InsightEngine` from Phase 2 (reuses insight types for pattern highlights). Integrates session data and pattern analysis as capstone feature. Least critical feature (can slip if time-constrained). Benefits from having more estimation data to summarize (weeks of play).
+**Phase 3: Spotify Integration**
+
+**Rationale:** Highest-risk pillar (external dependency, OAuth complexity, audio session concerns, Free vs Premium tiers). Build after simpler pillars to avoid blocking progress on external issues. Well-defined from research: Web API with PKCE, Keychain tokens, playlist creation only (no playback control).
 
 **Delivers:**
-- `WeeklyReflectionEngine` pure domain engine (aggregation logic)
-- `WeeklyReflectionViewModel` (lazy computation on app open)
-- `WeeklyReflectionView` (summary cards, streak context, pattern highlight)
-- Reflection banner on `PlayerHomeView` (dismissible)
-- Optional: `WeeklyReflectionSummary` model for historical persistence (defer if not needed)
-- Optional: Weekly notification scheduling via `NotificationManager` (defer if not needed)
+- SpotifyConfiguration (client ID, redirect URI, scopes -- config file, not hardcoded)
+- SpotifyAuthManager (Keychain-backed token storage, auto-refresh logic)
+- SpotifyService (OAuth flow via ASWebAuthenticationSession, Web API playlist CRUD)
+- KeychainHelper (minimal Keychain read/write, ~30 LOC, no third-party wrapper)
+- SpotifyConnectView (parent dashboard OAuth UI)
+- SpotifyPlaylistPickerView (parent dashboard playlist selection)
+- QuestMusicBannerView (player quest "Now Playing" indicator)
+- Integration into GameSessionViewModel (playlist creation on quest start, pause on finish)
+- TimeQuestApp.onOpenURL handler (OAuth redirect callback)
+- generate-xcodeproj.js updates (EventKit linkage, SPM package reference)
 
-**Addresses features:**
-- Weekly reflection summaries (differentiator)
-- Weekly summary card
-- Pattern highlight
-- Streak context
-- Delivery mechanism
+**Features from FEATURES.md:**
+- Spotify account connection (table stakes)
+- Duration-matched playlist (table stakes)
+- Post-routine song count (differentiator)
 
 **Avoids pitfalls:**
-- Pitfall 8 (no reliable scheduler — lazy computation on app open, persisted reflection models)
-- Pitfall 5 (UI stutter — same mitigation as Phase 2 insights)
+- Pitfall #8 (audio session conflict): Web API only, no SDK playback, SoundManager keeps .ambient
+- Pitfall #9 (token management): Keychain, auto-refresh, graceful degradation
+- Pitfall #10 (no backend server): PKCE flow, no client secret needed
+- Pitfall #11 (playlist duration mismatch): use actual duration history, 10-15% buffer, set expectations
+- Pitfall #12 (Free tier playback): suggest playlist approach, not API-controlled playback
+- Pitfall #13 (login complexity): hide in settings, interruptible, minimal branding
+- ADHD Pitfall #2 (OAuth abandonment): no persistent "in progress" state, no nagging
 
-**Testing requirements:**
-- Weekly summary renders correctly from 7 days of sessions
-- Computation completes under 300ms
-- Historical reflections accessible if persistence added
-- Reflection does not block app launch
+**Research flag:** MEDIUM -- Spotify iOS SDK version, PKCE support, Free tier restrictions need verification against current Spotify Developer docs before implementation. OAuth flow UX should be prototyped early.
 
-**Research flag:** LOW — Reuses `InsightEngine` and `EstimationSnapshot`. Standard aggregation logic. No framework uncertainty.
+**Estimated effort:** ~680 LOC, 4 new files, 5 modified files, plus generate-xcodeproj.js updates. 6-8 days implementation + testing.
+
+---
+
+**Phase 4: UI/Brand Refresh**
+
+**Rationale:** Purely visual, zero functional impact. Should be LAST because (a) new views from Phases 1-3 exist and can be themed in a single pass, (b) theme migration while other work is in-flight creates merge conflicts, (c) incremental migration (one view at a time) is safest when all features are stable.
+
+**Delivers:**
+- Design/ folder with Theme system (Theme struct, ThemeColors, ThemeTypography, ThemeSpacing, ThemeIcons, ThemeAnimation)
+- View+Theme extension (`.themed()` modifier, environment key)
+- ThemedCard and ThemedButton reusable components
+- `.themed()` injected at ContentView root
+- Incremental migration of all views (PlayerHomeView → QuestView chain → ParentDashboard → remaining views)
+- AccuracyRevealScene and CelebrationScene color updates
+- Asset catalog additions (AccentPrimary, AccentSecondary color sets with light/dark variants)
+
+**Features from FEATURES.md:**
+- Visual refresh of all screens (table stakes)
+- Dark mode as primary (differentiator)
+- SF Rounded typography (differentiator)
+
+**Avoids pitfalls:**
+- Pitfall #14 (20+ view regression risk): incremental, low-risk views first, use previews
+- Pitfall #15 (alienating existing player): evolutionary not revolutionary, preserve layout hierarchy
+- Integration Pitfall C (Spotify branding conflict): minimal Spotify branding, game identity dominates
+
+**Research flag:** NO -- SwiftUI theme patterns are well-understood. All APIs are built into iOS 17+. This is execution risk (careful migration), not technical risk.
+
+**Estimated effort:** ~1,190 LOC, 7 new files, 13 modified files. 5-7 days implementation + visual QA.
+
+---
 
 ### Phase Ordering Rationale
 
-- **CloudKit first:** Schema migration is the critical path. All features depend on model changes. Doing CloudKit early means all feature data is synced from day one, avoiding "partially backed up" states. CloudKit is infrastructure that doesn't affect feature code.
-- **Insights before reflections:** `InsightEngine` is reused by weekly reflections. Building the dependency root first unlocks downstream features. The shared `EstimationSnapshot` type is used by both engines.
-- **Routines + sounds parallel with insights:** Self-set routines are independent of insights (different code paths, different ViewModels). Sound assets are independent of everything. If solo developer, do after insights; if parallel work possible, overlap with Phase 2.
-- **Reflections last:** Integrates everything (sessions + insights). Least critical for v2.0 success. Can slip without breaking other features.
+**Why this order:**
+1. **Schema first** (foundational, everything depends on stable schema)
+2. **Adaptive difficulty second** (pure domain, highest design risk but no external blockers -- can be fully tested in isolation)
+3. **Calendar third** (system framework, lower complexity than Spotify, permission flow is solved problem)
+4. **Spotify fourth** (external dependency with most unknowns -- API changes, auth flow issues, SDK compatibility)
+5. **UI refresh last** (applies to final feature set including new views from phases 1-4)
 
-**Dependency graph:**
-```
-Phase 1 (CloudKit + schema) → Phase 2 (insights) → Phase 4 (reflections)
-Phase 1 (CloudKit + schema) → Phase 3 (routines + sounds)
-```
+**Dependency logic:**
+- Schema V4 blocks both Adaptive Difficulty and Spotify (they need new fields)
+- Adaptive Difficulty blocks nothing (pure domain)
+- Calendar blocks nothing (independent feature)
+- Spotify blocks nothing (independent feature)
+- UI refresh should be last to theme final view set
 
-**XP curve tuning:** Not a phase — it's a constants change pending playtesting data. Expose tunable values during any phase, adjust after real play sessions.
+**Alternative ordering:** Calendar and Spotify could be swapped (Spotify before Calendar). Rationale for Calendar first: EventKit is lower-risk than external API, privacy prompt is the main UX concern (well-understood), parent-configured schedule is a viable fallback if EventKit proves problematic.
+
+**If scope pressure:** Cut Spotify entirely. Phases 1 (adaptive), 2 (calendar), and 4 (UI) deliver a complete v3.0 without external dependencies. Spotify can ship as standalone v3.1.
 
 ### Research Flags
 
-Phases with deeper research needs during planning:
+**Phases needing deeper research during planning:**
+- **Phase 3 (Spotify):** Verify Spotify iOS SDK current version, PKCE support, Swift 6 compatibility, Free vs Premium tier API restrictions, rate limits. Prototype OAuth flow early to validate UX. Check Spotify brand guidelines for minimal integration. **Estimated research:** 2-4 hours before implementation.
+- **Phase 2 (Calendar):** Verify iOS 18 EventKit privacy changes (if any). Decision: EventKit vs parent-configured schedule needs UX validation. **Estimated research:** 30 minutes verification before implementation.
 
-- **Phase 1 (CloudKit):** MEDIUM flag — SwiftData + CloudKit constraints are well-documented (WWDC 2023-2024, Apple docs), but exact behavior with cascade deletes, array properties (`activeDays: [Int]`), and merge conflict resolution should be verified against current iOS 17.4+ behavior. Web search was unavailable during research; recommendations based on training data through May 2025. Test on real device early to validate assumptions.
+**Phases with standard patterns (skip research-phase):**
+- **Phase 1 (Adaptive Difficulty):** Pure domain logic, EMA algorithm is textbook, integration points are clear from codebase.
+- **Phase 4 (UI Refresh):** SwiftUI theme patterns are well-documented, no framework uncertainty.
 
-- **Phase 2 (Insights):** LOW flag — Pattern detection is pure Swift math. Statistical thresholds (minimum sample size, confidence intervals) are well-understood. Performance profiling needed but no framework uncertainty. Skip additional research.
+**Overall research confidence by phase:**
+1. Schema + Adaptive Difficulty: HIGH (codebase patterns proven, algorithm well-understood)
+2. Calendar Intelligence: HIGH (EventKit API mature, integration pattern established)
+3. Spotify Integration: MEDIUM (external API, verification needed)
+4. UI/Brand Refresh: HIGH (SwiftUI built-in capabilities, zero external deps)
 
-Phases with standard patterns (skip research-phase):
+### Recommended Milestone Tracking
 
-- **Phase 3 (Routines):** Standard SwiftUI CRUD with value-type editing pattern already established in v1.0. Sound asset replacement is file swap. No research needed.
+**Milestone: v3.0 Adaptive & Connected**
+- Target: 4 independent shippable phases
+- Estimated total effort: 18-26 days (implementation + testing across 4 phases)
+- Success criteria: Each phase passes independent QA, can ship without other phases
+- Descope trigger: If any phase takes >150% estimated time, evaluate cutting to ship remaining phases
 
-- **Phase 4 (Reflections):** Reuses Phase 2 engines and patterns. Standard aggregation logic. No research needed.
-
-**Overall:** Phase 1 is the only phase with meaningful research uncertainty, and it's well-bounded (CloudKit + SwiftData constraints are thoroughly documented). The rest of v2.0 builds on patterns already validated in v1.0.
+**Phase completion criteria:**
+1. Schema + Adaptive Difficulty: Difficulty adjusts per-task, XP economy stable, no schema migration issues on test device
+2. Calendar Intelligence: Permission flow works, routines auto-surface on school days, calendar denial handled gracefully
+3. Spotify Integration: OAuth flow completes, playlist creates successfully, Free and Premium tiers both work, audio session conflict verified absent
+4. UI/Brand Refresh: All views themed, no visual regressions, dark mode looks correct, previews validate changes
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | MEDIUM | CloudKit via SwiftData is well-documented (WWDC 2023-2024) but exact behavior with relationships and array properties needs validation. Web/Context7 unavailable during research. All other stack elements (SwiftData, SwiftUI, domain engines) are HIGH confidence based on v1.0 codebase analysis. |
-| Features | HIGH | Feature recommendations based on existing v1.0 data model analysis, established patterns for gamified skill-training apps, and ADHD-friendly design principles. All v2.0 features are read-side computations over existing data or reuse established patterns. |
-| Architecture | HIGH | Architecture approach directly derived from v1.0 codebase analysis (46 files read in full). Pure domain engine pattern, repository abstraction, value-type editing, and composition root are shipped patterns with high confidence. Integration points clearly mapped. |
-| Pitfalls | MEDIUM to HIGH | CloudKit pitfalls (1-4) are well-documented failure modes with clear prevention strategies (HIGH confidence). Analytics pitfalls (5, 9, 12) are architectural concerns based on codebase analysis (MEDIUM confidence). Sound and UX pitfalls (7, 11, 13) are well-understood (HIGH confidence). Overall: pitfalls are known, mitigations are standard. |
+| **Stack** | MEDIUM | EventKit and Security.framework HIGH (Apple first-party, mature). Spotify iOS SDK MEDIUM (version/compatibility need verification). UI tech HIGH (SwiftUI built-in). |
+| **Features** | HIGH | Feature prioritization aligned with ADHD design principles. Sizing estimates based on codebase analysis. Table stakes vs differentiators well-justified. |
+| **Architecture** | HIGH | All four pillars extend existing patterns exactly (pure domain engines, service-layer wrappers, environment-based theme). SchemaV4 follows proven V1→V2→V3 lightweight migration pattern. |
+| **Pitfalls** | HIGH | ADHD-specific pitfalls derived from design principles. Audio session, schema migration, EventKit privacy are iOS fundamentals. Spotify pitfalls well-documented (OAuth, Free tier, token expiry). |
 
 **Overall confidence:** MEDIUM
 
-The medium rating is driven entirely by CloudKit integration uncertainty (SwiftData + CloudKit exact API syntax and edge case behavior) due to web search being unavailable during research. All other aspects of v2.0 have HIGH confidence: the feature design builds on validated v1.0 patterns, the architecture reuses existing abstractions, and the pitfalls are well-documented with known mitigations. The CloudKit uncertainty is well-bounded and can be resolved through testing on real devices early in Phase 1.
+**Reasoning:** Technical architecture is sound and proven. The execution risk is in: (1) honoring ADHD-friendly design constraints when adding features (this is UX judgment, not technical certainty), (2) Spotify iOS SDK details that require verification against current docs, (3) EventKit iOS 18+ privacy changes (if any). All four research files flag these same uncertainties consistently.
 
 ### Gaps to Address
 
-**CloudKit + SwiftData specifics:**
-- **Gap:** Exact entitlement configuration for SwiftData-managed CloudKit (vs. manual CloudKit) should be verified. Training data suggests only `CloudKit` service needed, not `CloudDocuments`, but this should be validated against current Xcode documentation.
-- **How to handle:** Test CloudKit enablement on real device in Phase 1 immediately. Apple Developer Forums and WWDC session transcripts (2023-2024) cover this extensively.
+**Spotify iOS SDK specifics (Phase 3 pre-work):**
+- Current version and distribution method (SPM confirmed, but version unknown)
+- Swift 6 strict concurrency compatibility (may require `@preconcurrency import`)
+- PKCE flow support and implementation details (documented as of 2019, verify current)
+- Free tier vs Premium tier API endpoint restrictions (Web API playback control may be Premium-only)
+- Rate limits for playlist creation endpoints (undocumented, need testing)
+- **Mitigation:** 2-4 hour research-phase at Phase 3 start. Web search Spotify Developer docs, verify SDK GitHub repo, test OAuth flow in prototype app before integrating into TimeQuest.
 
-**Array property CloudKit compatibility:**
-- **Gap:** `Routine.activeDays: [Int]` is an array of primitives. Codable arrays should serialize correctly to CloudKit, but round-trip behavior should be verified (especially with empty arrays and arrays containing 0).
-- **How to handle:** Test CloudKit sync with routines containing various `activeDays` values (empty, single value, 7 days) during Phase 1.
+**EventKit iOS 18 changes (Phase 2 pre-work):**
+- Verify `requestFullAccessToEvents()` API stability on iOS 17-18
+- Check for any new privacy restrictions in iOS 18
+- Confirm EventKit identifier portability across devices (documented as device-local, verify)
+- **Mitigation:** 30-minute verification before Phase 2 implementation. Quick check Apple Developer docs, EventKit Release Notes.
 
-**`persistentModelID` CloudKit stability:**
-- **Gap:** Training data indicates `persistentModelID` is device-local and not stable across CloudKit sync (inherited from Core Data behavior). SwiftData documentation should be checked to see if this has changed.
-- **How to handle:** Phase 1 testing should verify this by syncing a routine from device A to device B and checking if `persistentModelID` matches. If unstable, implement custom `cloudID` as planned.
+**ADHD UX validation (ongoing during phases):**
+- Adaptive difficulty "feels invisible" -- needs playtesting with actual player (Phase 1)
+- Spotify OAuth flow completion rate (multi-step task abandonment risk) (Phase 3)
+- Calendar permission acceptance rate (privacy concern in "game" context) (Phase 2)
+- UI refresh "feels evolutionary, not jarring" -- subjective, needs player reaction (Phase 4)
+- **Mitigation:** Build with configurable parameters (adaptive difficulty thresholds, OAuth retry logic, permission prompt copy). Test incrementally. Adjust based on actual player feedback post-Phase completion.
 
-**XP curve tuning data:**
-- **Gap:** Optimal XP curve requires actual play data from v1.0 usage. Research cannot determine this in advance.
-- **How to handle:** Not a blocker. Expose tunable constants (`baseXP`, `exponent` in `XPEngine`), gather play data, tune during Phase 2-4 as background task. Ship v2.0 with v1.0 curve, iterate post-launch if needed.
-
-**Performance profiling for analytics:**
-- **Gap:** Exact query performance (fetch all TaskEstimations, group by task, compute aggregates) depends on device hardware and data volume. Cannot be determined from static analysis.
-- **How to handle:** Profile with Instruments (Time Profiler) during Phase 2 with realistic data volume (100-500 TaskEstimation records). Set budget: MyPatternsView appearance under 300ms. Add caching if needed.
-
-**Weekly reflection persistence necessity:**
-- **Gap:** Research recommends optional `WeeklyReflectionSummary` model for historical reflection persistence. Whether this is needed depends on UX decision: does player want to review "3 weeks ago" reflections?
-- **How to handle:** Defer during Phase 4. Start with lazy computation (no persistence). If product owner wants history access, add `WeeklyReflectionSummary` model as lightweight follow-on. Not a critical path decision.
+**generate-xcodeproj.js SPM support (Phase 3 blocker):**
+- pbxproj format for XCRemoteSwiftPackageReference and XCSwiftPackageProductDependency
+- How to register SPM packages in project.pbxproj correctly
+- **Mitigation:** Study existing pbxproj files from other projects with SPM dependencies. Add SPM section to generate-xcodeproj.js template. Test with minimal "hello world" SPM package before adding SpotifyiOS.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- **TimeQuest v1.0 codebase** — All 46 Swift files analyzed directly from `/Users/davezabihaylo/Desktop/Claude Cowork/GSD/TimeQuest/`. Architecture patterns, data models, domain engines, repository implementations, ViewModel patterns, and composition root observed directly from shipped code.
-- **v1.0 STACK.md research** (2026-02-12) — Established base stack decisions (SwiftUI, SwiftData, SpriteKit, Swift Charts, iOS 17.0+, Swift 6.0). Validated against shipped codebase.
-- **PROJECT.md v2.0 target features** — Feature requirements sourced from project definition.
+- **TimeQuest v2.0 codebase** (66 Swift files, 6,211 LOC, analyzed directly from `/Users/davezabihaylo/Desktop/Claude Cowork/GSD/TimeQuest/`) -- existing architecture patterns, AppDependencies composition root, pure domain engines (InsightEngine, CalibrationTracker, XPEngine), EstimationSnapshot bridge, SchemaV1→V2→V3 migration history, SoundManager .ambient audio session config, GameSessionViewModel QuestPhase state machine, PROJECT.md player context and ADHD design principles
+- **Apple Developer Documentation** (training data through May 2025) -- EventKit framework (EKEventStore, authorization model, event queries, identifier portability), AVAudioSession (categories, interruption handling, .ambient mixing behavior), Security.framework Keychain API, SwiftUI environment-based theming (.environment(), EnvironmentKey pattern), ASWebAuthenticationSession OAuth flow, SwiftData lightweight migration constraints, CloudKit sync behavior with schema changes
 
 ### Secondary (MEDIUM confidence)
-- **Apple Developer Documentation** (training data, not live-verified): SwiftData ModelConfiguration API, CloudKit integration patterns, schema versioning and migration behavior, AVAudioSession programming guide, CloudKit record constraints.
-- **WWDC sessions** (training data, May 2025 cutoff): "Meet SwiftData" (WWDC 2023), "Build an app with SwiftData" (WWDC 2023 — CloudKit configuration demonstrated), "What's new in SwiftData" (WWDC 2024 — improvements to CloudKit sync).
-- **Core Data + CloudKit patterns** — SwiftData inherits Core Data migration and CloudKit sync behavior. Community patterns from developer forums and post-mortems (training data knowledge).
+- **Spotify Developer Documentation** (training data through May 2025) -- Web API Authorization Code Flow with PKCE (no client secret needed for mobile), playlist endpoints (create, add tracks, metadata), player endpoints (playback control, premium-only restrictions), user profile endpoint (product tier detection), iOS SDK SPTAppRemote architecture (playback control, requires installed app), brand guidelines (logo usage, color requirements). **Needs verification:** current SDK version (was ~2.x as of mid-2025), Swift 6 compatibility, exact PKCE implementation details, Free tier limitations as of 2026.
+- **Game design research** (training data) -- Dynamic difficulty adjustment (DDA) patterns in educational games, exponential moving average (EMA) for skill tracking, flow theory (Csikszentmihalyi), engagement curves, anti-frustration mechanics. Standard algorithms, high confidence in concept, MEDIUM confidence in ADHD-specific parameter tuning (10-15 session window, upward-only ratchet) which requires playtesting validation.
+- **ADHD research** (training data) -- Executive function variability (well-documented in clinical literature), decision paralysis with too many options (well-documented), task abandonment in multi-step processes (well-documented), sensitivity to perceived failure and punishment framing (well-documented). Application to adaptive difficulty thresholds and OAuth flow UX is design judgment derived from established ADHD principles (MEDIUM confidence -- needs validation with actual player).
 
 ### Tertiary (LOW confidence, needs validation)
-- **CloudKit entitlement configuration for SwiftData** — Training data suggests `.cloudKitDatabase: .automatic` uses private database with specific entitlements. Exact keys (`CloudKit` service vs. `CloudDocuments`) should be verified against current Xcode project settings documentation.
-- **SwiftData CloudKit edge cases** — Cascade delete sync behavior, relationship conflict resolution, array property serialization. Training data provides general guidance but specific API behavior should be tested in Phase 1.
-- **iOS 17.4+ SwiftData CloudKit stability** — Training data indicates early iOS 17 releases had SwiftData CloudKit bugs; iOS 17.4+ reportedly more stable. Recommend iOS 17.4 as minimum deployment target (verify against current bug reports).
-
-**Web search and Context7 were unavailable during research.** All CloudKit-specific claims based on training data through May 2025. SwiftData + CloudKit integration API was demonstrated at WWDC 2023 and refined at WWDC 2024, so core patterns are stable. Exact syntax and edge cases should be verified against current Apple documentation during Phase 1 implementation.
+- **Spotify iOS SDK current version and distribution** -- SPM confirmed in training data as of 2024, exact current version unknown (was ~2.1.x in mid-2025), verify GitHub repo `https://github.com/spotify/ios-sdk` before Phase 3.
+- **EventKit iOS 18 privacy changes** -- iOS 17 added `requestFullAccessToEvents()` (replacing deprecated `requestAccess(to:)`), iOS 18 may have introduced new permission categories (writeOnly/readOnly distinction refinement), verify Apple EventKit Release Notes before Phase 2.
+- **Spotify rate limits** -- documented as existing but exact thresholds undisclosed and vary by endpoint, test during Phase 3 implementation with actual API calls.
+- **SwiftUI MeshGradient availability** -- announced for iOS 18 at WWDC 2024, verify shipped in iOS 18.0 final release and works as documented (used in Phase 4 for background depth effects with LinearGradient fallback on iOS 17).
 
 ---
-*Research completed: 2026-02-13*
-*Ready for roadmap: yes*
+
+**Research completed:** 2026-02-14
+**Ready for roadmap:** Yes
+
+All four research files (STACK.md, FEATURES.md, ARCHITECTURE.md, PITFALLS.md) synthesized. Phase suggestions provide clear starting point for roadmap creation with explicit deliverables, feature mappings, and pitfall mitigations per phase. Research flags identify which phases need deeper investigation during planning with estimated research time. Confidence assessment honest about uncertainties (Spotify SDK verification, EventKit iOS 18 changes, ADHD UX parameters) and provides concrete mitigation strategies. Effort estimates enable milestone tracking.

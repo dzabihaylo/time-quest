@@ -1,14 +1,14 @@
-# Architecture Patterns: v2.0 Integration
+# Architecture Patterns: v3.0 Integration
 
-**Domain:** v2.0 feature integration into existing TimeQuest iOS app (contextual insights, self-set routines, iCloud backup, weekly reflections)
-**Researched:** 2026-02-13
-**Overall Confidence:** MEDIUM (training data only -- web/Context7 unavailable; CloudKit constraints based on training data through May 2025)
+**Domain:** v3.0 feature integration into existing TimeQuest iOS app (adaptive difficulty, Spotify integration, calendar intelligence, UI/brand refresh)
+**Researched:** 2026-02-14
+**Overall Confidence:** MEDIUM (training data only -- web tools unavailable; Spotify SDK and EventKit patterns based on training data through May 2025; adaptive difficulty and theming recommendations based on codebase analysis + established iOS patterns)
 
 ---
 
-## Existing Architecture Snapshot
+## Existing Architecture Snapshot (Post-v2.0)
 
-Before detailing v2.0 changes, here is the concrete current state from the shipped v1.0 codebase (46 Swift files, 3,575 LOC).
+66 Swift files, 6,211 LOC. The codebase has clean architectural boundaries that the v3.0 features must respect.
 
 ### Current Layer Map
 
@@ -21,752 +21,1150 @@ Before detailing v2.0 changes, here is the concrete current state from the shipp
 |  - RoutineListView        - EstimationInputView     - LevelBadgeView  |
 |  - SchedulePickerView     - TaskActiveView          - StreakBadgeView  |
 |  - TaskEditorView         - AccuracyRevealView      - XPBarView       |
-|                           - SessionSummaryView      - TimeFormatting   |
-|                           - PlayerStatsView                            |
+|                           - SessionSummaryView      - InsightCardView  |
+|                           - PlayerStatsView         - TimeFormatting   |
 |                           - AccuracyTrendChartView                     |
 |                           - OnboardingView                             |
 |                           - NotificationSettingsView                   |
+|                           - MyPatternsView                             |
+|                           - WeeklyReflectionCardView                   |
+|                           - PlayerRoutineCreationView                  |
 +-----------------------------------------------------------------------+
 | ViewModel Layer (@Observable, @MainActor)                              |
 |  - RoutineEditorViewModel  (value-type RoutineEditState pattern)       |
 |  - GameSessionViewModel    (QuestPhase state machine)                  |
 |  - ProgressionViewModel    (chart data, personal bests)                |
+|  - MyPatternsViewModel     (insight data from InsightEngine)           |
+|  - WeeklyReflectionViewModel (reflection data + history)               |
+|  - PlayerRoutineCreationViewModel (template-guided creation)           |
 +-----------------------------------------------------------------------+
-| Domain Layer (pure Swift, zero framework imports)                      |
-|  - TimeEstimationScorer    - XPEngine                                  |
+| Domain Layer (pure Foundation only, zero UI/SwiftData imports)         |
+|  - TimeEstimationScorer    - XPEngine + XPConfiguration                |
 |  - FeedbackGenerator       - LevelCalculator                           |
 |  - CalibrationTracker      - StreakTracker                             |
-|  - PersonalBestTracker                                                 |
+|  - PersonalBestTracker     - InsightEngine                             |
+|  - WeeklyReflectionEngine  - RoutineTemplateProvider                   |
 +-----------------------------------------------------------------------+
 | Data Layer (SwiftData + Repository Protocols)                          |
 |  Models:       Routine, RoutineTask, GameSession, TaskEstimation,      |
-|                PlayerProfile                                           |
-|  Repositories: RoutineRepositoryProtocol (SwiftDataRoutineRepository)  |
-|                SessionRepositoryProtocol (SwiftDataSessionRepository)   |
-|                PlayerProfileRepositoryProtocol (SwiftDataPlayerProfile.)|
+|                PlayerProfile, WeeklyReflection (value type)            |
+|  Bridge:       EstimationSnapshot (value type decoupling SwiftData)    |
+|  Schemas:      SchemaV1 -> V2 -> V3 (lightweight migrations)          |
+|  Repositories: RoutineRepositoryProtocol                               |
+|                SessionRepositoryProtocol                                |
+|                PlayerProfileRepositoryProtocol                          |
 +-----------------------------------------------------------------------+
 | App Layer                                                              |
-|  - TimeQuestApp (ModelContainer registration)                          |
+|  - TimeQuestApp (ModelContainer + CloudKit with graceful fallback)     |
 |  - ContentView (ModelContext -> AppDependencies bridge)                 |
 |  - AppDependencies (@Observable composition root)                      |
 |  - RoleRouter (AppRole enum, RoleState, PIN gate)                      |
 +-----------------------------------------------------------------------+
 | Services                                                               |
-|  - SoundManager, NotificationManager                                   |
+|  - SoundManager (AVAudioSession .ambient)                              |
+|  - NotificationManager (UserNotifications)                             |
+|  - CloudKitSyncMonitor                                                 |
 +-----------------------------------------------------------------------+
 ```
 
-### Key Architectural Patterns Already Established
+### Key Architectural Patterns (Established, Must Continue)
 
-1. **Value-type editing**: RoutineEditorViewModel uses `RoutineEditState` (struct) to prevent SwiftData auto-save corruption. Only writes to @Model on explicit `save()`.
-2. **Pure domain engines**: All business logic in `Domain/` has zero Foundation-only imports. No SwiftData, no SwiftUI.
-3. **Repository abstraction**: `@MainActor` protocol -> SwiftData implementation. AppDependencies holds concrete instances.
-4. **QuestPhase state machine**: `.selecting -> .estimating -> .active -> .revealing -> .summary` drives the game loop.
-5. **Composition root**: AppDependencies created in ContentView with modelContext, injected via `.environment()`.
-6. **ModelContainer registration**: In TimeQuestApp `WindowGroup.modelContainer(for: [...])` lists all model types.
+1. **Pure domain engines**: All business logic in `Domain/` imports only Foundation. No SwiftData, no SwiftUI. Static methods on structs. Inputs and outputs are value types.
+2. **EstimationSnapshot bridge**: SwiftData @Model objects are mapped to `EstimationSnapshot` value types before passing to domain engines. This decouples domain from persistence.
+3. **Repository protocols**: `@MainActor` protocols with SwiftData implementations. AppDependencies holds concrete instances.
+4. **QuestPhase state machine**: `.selecting -> .estimating -> .active -> .revealing -> .summary` in GameSessionViewModel.
+5. **Composition root**: AppDependencies created in ContentView, injected via `.environment()`.
+6. **XPConfiguration pattern**: Tunable constants centralized in a Sendable struct with static default.
+7. **Schema versioned migrations**: V1->V2->V3 lightweight migrations via TimeQuestMigrationPlan.
 
 ---
 
-## v2.0 Feature Integration Plan
+## v3.0 Feature Integration Plan
 
-### Feature 1: Contextual Learning Insights (Pattern Detection)
+### Overview: Four Pillars
 
-**What it is:** Analyze TaskEstimation history to detect per-task patterns (consistent over/underestimation, time-of-day effects, improving/stagnating trends) and surface them as insights both in-gameplay and in a dedicated "My Patterns" screen.
+| Pillar | Category | External Dependencies | Schema Changes | Existing Code Impact |
+|--------|----------|----------------------|----------------|---------------------|
+| Adaptive Difficulty | Pure domain engine | None | SchemaV4 (2 new fields on GameSession) | Modifies GameSessionViewModel |
+| Spotify Integration | External service | Spotify iOS SDK (SpotifyiOS) | SchemaV4 (optional fields on Routine) | New feature area + SoundManager coordination |
+| Calendar Intelligence | System framework | EventKit | None (reads only) | New service + integration into routine suggestions |
+| UI/Brand Refresh | Visual layer | None | None | Touches all views (but additive, not structural) |
 
-#### New Components
+### Dependency Graph Between Pillars
+
+```
+Adaptive Difficulty -----> standalone (consumes EstimationSnapshot)
+                    \
+                     +---> both modify GameSessionViewModel
+                    /
+Spotify Integration -----> SoundManager coordination (audio ducking)
+
+Calendar Intelligence ---> standalone (new CalendarService)
+                      \--> routine suggestion UI (integrates with RoutineRepository)
+
+UI/Brand Refresh ---------> touches all views (parallel-safe, no logic changes)
+```
+
+No pillar blocks another. They can be built in any order. The recommended order is based on risk and dependency density, not hard requirements.
+
+---
+
+## Pillar 1: AdaptiveDifficultyEngine
+
+### Concept
+
+Dynamically adjust task estimation difficulty based on the player's historical accuracy. When the player consistently nails estimates for a task, increase challenge (shorter reference windows, remove contextual hints, introduce distractor tasks). When struggling, ease parameters (provide hints, allow wider accuracy bands for XP).
+
+### New Components
 
 | Component | Layer | Type | File Path |
 |-----------|-------|------|-----------|
-| `InsightEngine` | Domain | Pure struct (static methods) | `Domain/InsightEngine.swift` |
-| `InsightType` | Domain | Enum + associated values | `Domain/InsightEngine.swift` |
-| `InsightsViewModel` | ViewModel | @Observable @MainActor | `Features/Player/ViewModels/InsightsViewModel.swift` |
-| `MyPatternsView` | View | SwiftUI | `Features/Player/Views/MyPatternsView.swift` |
-| `InsightCardView` | View | SwiftUI | `Features/Shared/Components/InsightCardView.swift` |
+| `AdaptiveDifficultyEngine` | Domain | Pure struct (static methods) | `Domain/AdaptiveDifficultyEngine.swift` |
+| `DifficultyConfiguration` | Domain | Value type (struct) | `Domain/AdaptiveDifficultyEngine.swift` |
+| `DifficultyLevel` | Domain | Enum | `Domain/AdaptiveDifficultyEngine.swift` |
+| `DifficultySnapshot` | Domain | Value type (bridge output) | `Domain/AdaptiveDifficultyEngine.swift` |
 
-#### Data Model Changes
-
-**None.** The existing `TaskEstimation` model already contains everything needed for pattern detection:
-- `taskDisplayName` -- group by task
-- `estimatedSeconds` / `actualSeconds` / `differenceSeconds` -- compute bias direction
-- `accuracyPercent` -- trend analysis
-- `recordedAt` -- time-of-day and trend-over-time analysis
-- `session` relationship -> `session.routine` -- group by routine
-
-The insight engine operates as a read-only analytics layer over existing data. No schema migration required.
-
-#### InsightEngine Design (Pure Domain)
+### AdaptiveDifficultyEngine Design (Pure Domain)
 
 ```swift
-// Domain/InsightEngine.swift
+// Domain/AdaptiveDifficultyEngine.swift
 import Foundation
 
-enum InsightType: Equatable {
-    case consistentBias(taskName: String, direction: BiasDirection, avgSeconds: Double)
-    case improvingTask(taskName: String, recentAccuracy: Double, priorAccuracy: Double)
-    case stagnatingTask(taskName: String, accuracy: Double, sessionCount: Int)
-    case bestTimeOfDay(hour: Int, avgAccuracy: Double)
-    case fastestImproving(taskName: String, improvementPercent: Double)
+enum DifficultyLevel: String, Codable, Sendable {
+    case learning       // New task or struggling: generous accuracy bands, always show hints
+    case practicing     // Getting the hang of it: standard accuracy bands, show hints
+    case confident      // Consistent accuracy: tighter bands, hints optional
+    case mastering      // High accuracy streak: tightest bands, no hints, bonus XP
 }
 
-enum BiasDirection: String {
-    case over   // consistently overestimates
-    case under  // consistently underestimates
+struct DifficultyParameters: Sendable {
+    let level: DifficultyLevel
+    let showContextualHint: Bool
+    let accuracyBandMultiplier: Double  // 1.0 = standard, 1.5 = generous, 0.75 = tight
+    let xpMultiplier: Double            // 1.0 = standard, 1.5 = mastering bonus
+    let suggestTimerVisibility: Bool    // At "learning" level, offer optional timer
 }
 
-struct Insight: Identifiable {
-    let id = UUID()
-    let type: InsightType
-    let headline: String   // "You always underestimate Packing"
-    let body: String       // "Your estimates for Packing average 4m12s under..."
-    let emoji: String      // SF Symbol name
-}
+struct AdaptiveDifficultyEngine {
 
-struct InsightEngine {
-    /// Minimum estimations per task before generating insights
-    static let minimumSampleSize = 5
+    // MARK: - Thresholds (follow XPConfiguration pattern)
 
-    /// Generate all applicable insights from estimation history.
-    /// Pure function: takes data in, returns insights out.
-    static func generateInsights(
-        estimations: [EstimationSnapshot],
-        currentHour: Int = Calendar.current.component(.hour, from: .now)
-    ) -> [Insight] {
-        var insights: [Insight] = []
-        insights.append(contentsOf: detectBiases(estimations))
-        insights.append(contentsOf: detectImprovements(estimations))
-        insights.append(contentsOf: detectBestTimeOfDay(estimations, currentHour: currentHour))
-        return insights
+    static let minimumSessionsForAdaptation = 5  // Same as InsightEngine.minimumSessions
+    static let learningAccuracyThreshold = 40.0   // Below 40% avg -> learning
+    static let practicingAccuracyThreshold = 60.0  // 40-60% -> practicing
+    static let confidentAccuracyThreshold = 80.0   // 60-80% -> confident
+    // Above 80% -> mastering
+
+    /// Determine difficulty parameters for a specific task based on estimation history.
+    /// Pure function: snapshots in, parameters out.
+    static func computeDifficulty(
+        taskName: String,
+        snapshots: [EstimationSnapshot]
+    ) -> DifficultyParameters {
+        let taskSnapshots = snapshots
+            .filter { $0.taskDisplayName == taskName && !$0.isCalibration }
+            .sorted { $0.recordedAt < $1.recordedAt }
+
+        guard taskSnapshots.count >= minimumSessionsForAdaptation else {
+            return DifficultyParameters(
+                level: .learning,
+                showContextualHint: true,
+                accuracyBandMultiplier: 1.5,
+                xpMultiplier: 1.0,
+                suggestTimerVisibility: true
+            )
+        }
+
+        // Use recent window (last 5-10 sessions) for responsiveness
+        let recentWindow = Array(taskSnapshots.suffix(10))
+        let avgAccuracy = recentWindow.map(\.accuracyPercent).reduce(0, +)
+            / Double(recentWindow.count)
+
+        let level: DifficultyLevel
+        if avgAccuracy < learningAccuracyThreshold {
+            level = .learning
+        } else if avgAccuracy < practicingAccuracyThreshold {
+            level = .practicing
+        } else if avgAccuracy < confidentAccuracyThreshold {
+            level = .confident
+        } else {
+            level = .mastering
+        }
+
+        return parameters(for: level)
     }
 
-    // ... private static methods for each detection type
+    /// Map difficulty level to concrete parameters.
+    static func parameters(for level: DifficultyLevel) -> DifficultyParameters {
+        switch level {
+        case .learning:
+            return DifficultyParameters(
+                level: .learning,
+                showContextualHint: true,
+                accuracyBandMultiplier: 1.5,
+                xpMultiplier: 1.0,
+                suggestTimerVisibility: true
+            )
+        case .practicing:
+            return DifficultyParameters(
+                level: .practicing,
+                showContextualHint: true,
+                accuracyBandMultiplier: 1.2,
+                xpMultiplier: 1.0,
+                suggestTimerVisibility: false
+            )
+        case .confident:
+            return DifficultyParameters(
+                level: .confident,
+                showContextualHint: false,
+                accuracyBandMultiplier: 1.0,
+                xpMultiplier: 1.2,
+                suggestTimerVisibility: false
+            )
+        case .mastering:
+            return DifficultyParameters(
+                level: .mastering,
+                showContextualHint: false,
+                accuracyBandMultiplier: 0.75,
+                xpMultiplier: 1.5,
+                suggestTimerVisibility: false
+            )
+        }
+    }
 }
-
-/// Value-type snapshot of TaskEstimation data.
-/// Decouples insight engine from SwiftData @Model.
-struct EstimationSnapshot {
-    let taskDisplayName: String
-    let estimatedSeconds: Double
-    let actualSeconds: Double
-    let differenceSeconds: Double
-    let accuracyPercent: Double
-    let recordedAt: Date
-}
 ```
 
-**Key design decision:** The InsightEngine takes `[EstimationSnapshot]` (a value type), NOT `[TaskEstimation]` (a SwiftData @Model). This preserves the pure-domain-engine pattern. The ViewModel bridges between SwiftData and the domain layer by mapping `TaskEstimation` -> `EstimationSnapshot` before calling InsightEngine.
+### Integration with Existing Code
 
-#### Data Flow
+**GameSessionViewModel is the primary integration point.** It already loads contextual hints during `startQuest()` and scores estimations in `completeActiveTask()`.
 
-```
-PlayerStatsView / MyPatternsView
-  -> InsightsViewModel.loadInsights()
-    -> sessionRepository.fetchAllSessions()
-    -> map session.orderedEstimations -> [EstimationSnapshot]
-    -> InsightEngine.generateInsights(estimations:)
-    -> viewModel.insights = [Insight]
-  -> View renders InsightCardView for each Insight
-```
+| Existing Component | Change | Impact |
+|-------------------|--------|--------|
+| `GameSessionViewModel.startQuest()` | After loading contextual hints, also compute `DifficultyParameters` for each task via `AdaptiveDifficultyEngine.computeDifficulty()` | MODERATE -- adds a new stored dictionary `taskDifficulty: [String: DifficultyParameters]` |
+| `GameSessionViewModel.contextualHints` | Already exists. Difficulty engine's `showContextualHint` flag now controls whether to populate it. | MINOR -- adds conditional check |
+| `XPEngine.xpForEstimation()` | Must accept `xpMultiplier` from difficulty parameters. Or: XPEngine stays pure, ViewModel applies multiplier after calling it. | **Recommendation: ViewModel applies multiplier** -- keeps XPEngine unchanged |
+| `TimeEstimationScorer.score()` | `accuracyBandMultiplier` adjusts what counts as "spot_on", "close", etc. Two options: (a) scorer accepts multiplier parameter, or (b) scorer stays pure, ViewModel remaps rating post-scoring. | **Recommendation: Scorer accepts optional multiplier** -- cleaner than post-hoc remapping |
+| `EstimationInputView` | Show/hide contextual hint based on difficulty. At `.learning` level, optionally show a "need help?" timer toggle. | MINOR UI addition |
+| `AccuracyRevealView` | At `.mastering` level, show bonus XP indicator. At `.learning` level, show encouragement. | MINOR UI addition |
+| `InsightEngine` | No changes -- difficulty engine consumes the same `[EstimationSnapshot]` input. | None |
 
-For in-gameplay contextual hints (shown during estimation phase):
+### Data Flow
 
 ```
 GameSessionViewModel.startQuest()
-  -> fetch previous estimations for current task
-  -> InsightEngine.generateInsights(estimations: filteredForThisTask)
-  -> if insight found, set viewModel.contextualHint = insight
-  -> EstimationInputView shows hint below input ("You usually underestimate this one")
+  -> fetch all estimations (already done for contextual hints)
+  -> map to [EstimationSnapshot] (already done)
+  -> for each task in routine:
+       AdaptiveDifficultyEngine.computeDifficulty(taskName:, snapshots:)
+       -> store in taskDifficulty[taskName]
+  -> when showing EstimationInputView:
+       if taskDifficulty[currentTask].showContextualHint -> show hint
+       else -> hide hint
+  -> when scoring in completeActiveTask():
+       let baseResult = TimeEstimationScorer.score(estimated:, actual:,
+           accuracyBandMultiplier: difficulty.accuracyBandMultiplier)
+       let adjustedXP = Int(Double(XPEngine.xpForEstimation(rating: result.rating))
+           * difficulty.xpMultiplier)
 ```
 
-#### Integration Points with Existing Code
+### Schema Changes
 
-| Existing Component | Change | Type |
-|-------------------|--------|------|
-| `GameSessionViewModel` | Add optional `contextualHint: Insight?` property; populate during `startQuest()` | Minor addition |
-| `PlayerHomeView` | Add NavigationLink to MyPatternsView in stats section | Minor addition |
-| `PlayerStatsView` | Add insights section above/below existing charts | Minor addition |
-| `EstimationInputView` | Show contextual hint if available | Minor addition |
-| `SessionRepository` | No changes -- `fetchAllSessions()` already exists | None |
-| `AppDependencies` | No changes -- InsightEngine is static, no instance needed | None |
+**SchemaV4 additions to GameSession:**
+
+```swift
+// Track which difficulty level was active for this session
+// This enables analyzing whether difficulty adaptation is working
+var difficultyLevelRawValue: String = "learning"  // DifficultyLevel.rawValue
+```
+
+**SchemaV4 additions to TaskEstimation:**
+
+```swift
+// Track the accuracy band multiplier used when scoring this estimation
+// Enables fair historical comparisons (a "spot_on" at 0.75x is harder than at 1.5x)
+var accuracyBandMultiplier: Double = 1.0
+```
+
+Both are additive with defaults -- lightweight migration. Existing records get default values that match their actual scoring conditions (standard bands, learning level).
 
 ---
 
-### Feature 2: Self-Set Routines (Player-Created Routines)
+## Pillar 2: Spotify Integration (SpotifyService)
 
-**What it is:** The player can create her own routines alongside parent-created ones. This transfers ownership and signals the skill is internalizing ("she wants to estimate things on her own").
+### Concept
 
-#### Data Model Changes
+The player can attach a "quest playlist" to a routine. When a quest starts, Spotify plays the playlist. Music provides a temporal anchor -- "this song usually plays during teeth-brushing" helps build time intuition through auditory cues. The parent dashboard allows connecting/disconnecting the Spotify account.
 
-**Add `createdBy` field to Routine model.** This is the only schema change needed for self-set routines.
+### Architecture Decision: Spotify iOS SDK vs. Web API
 
-```swift
-// Models/Routine.swift -- MODIFIED
-@Model
-final class Routine {
-    var name: String
-    var displayName: String
-    var activeDays: [Int]
-    var isActive: Bool
-    var createdAt: Date
-    var updatedAt: Date
-    var createdBy: String  // NEW: "parent" or "player"
+**Use the Spotify iOS SDK (SpotifyiOS framework) for playback control, and the Spotify Web API for playlist management.**
 
-    @Relationship(deleteRule: .cascade, inverse: \RoutineTask.routine)
-    var tasks: [RoutineTask] = []
+Rationale:
+- The iOS SDK handles OAuth (via `SPTSessionManager`), playback control (via `SPTAppRemote`), and deep-links to the Spotify app. It requires the Spotify app to be installed.
+- The Web API handles playlist creation and reading playlist contents. It uses standard REST with the OAuth token obtained from the iOS SDK.
+- The iOS SDK cannot create playlists -- that is a Web API operation.
+- Playback requires the Spotify app on device. The iOS SDK controls the Spotify app's player remotely via `SPTAppRemote`.
 
-    @Relationship(deleteRule: .cascade, inverse: \GameSession.routine)
-    var sessions: [GameSession] = []
-    // ...
-}
-```
+**Confidence: MEDIUM** -- Spotify iOS SDK APIs are based on training data through May 2025. The SDK has been stable since 2019 but may have received updates. Verify current SDK version and API surface before implementation.
 
-**SwiftData migration consideration:** Adding a new stored property with a default value to an existing @Model is a lightweight migration. SwiftData handles this automatically -- no manual migration plan needed. The existing routines will have `createdBy` set to the default value.
-
-**Use `String` not an enum for `createdBy`:** SwiftData stores enums as their raw values, and String enums work well. However, storing as raw `String` gives maximum forward compatibility (e.g., adding "template" creator later) without migration. Use a `RoutineCreator` enum in the domain layer that maps to/from the string.
-
-#### New Components
+### New Components
 
 | Component | Layer | Type | File Path |
 |-----------|-------|------|-----------|
-| `RoutineCreator` | Domain | Enum | `Domain/RoutineCreator.swift` |
-| `PlayerRoutineEditorViewModel` | ViewModel | @Observable @MainActor | `Features/Player/ViewModels/PlayerRoutineEditorViewModel.swift` |
-| `PlayerRoutineEditorView` | View | SwiftUI | `Features/Player/Views/PlayerRoutineEditorView.swift` |
-| `RoutineTemplates` | Domain | Struct with static data | `Domain/RoutineTemplates.swift` |
+| `SpotifyService` | Services | @Observable class | `Services/SpotifyService.swift` |
+| `SpotifyAuthManager` | Services | Class (handles OAuth + token storage) | `Services/SpotifyAuthManager.swift` |
+| `SpotifyConfiguration` | Domain | Struct (client ID, redirect URI, scopes) | `Domain/SpotifyConfiguration.swift` |
+| `SpotifyPlaylistViewModel` | ViewModel | @Observable @MainActor | `Features/Parent/ViewModels/SpotifyPlaylistViewModel.swift` |
+| `SpotifyConnectView` | View | SwiftUI | `Features/Parent/Views/SpotifyConnectView.swift` |
+| `SpotifyPlaylistPickerView` | View | SwiftUI | `Features/Parent/Views/SpotifyPlaylistPickerView.swift` |
+| `QuestMusicBannerView` | View | SwiftUI | `Features/Player/Views/QuestMusicBannerView.swift` |
 
-#### Design Decision: Reuse vs. Separate Editor
-
-**Recommendation: Create a separate PlayerRoutineEditorView rather than reusing the parent's RoutineEditorView.**
-
-Rationale:
-- The parent editor has `name` (internal) + `displayName` (player-facing) fields -- the player should only see one name field
-- The parent editor's language is setup-oriented ("Schedule", "Active days") -- the player's should be game-framed ("When do you want this quest?", "Quest days")
-- The player editor should offer templates ("Getting ready for a friend's house", "Homework session", "Activity prep") -- the parent editor does not
-- The `RoutineEditorViewModel`'s `RoutineEditState` value-type pattern should be reused. The VM logic for task add/remove/reorder is identical. Only the View differs.
-
-**Solution:** Create `PlayerRoutineEditorViewModel` that wraps the same `RoutineEditState` struct but auto-sets `createdBy = "player"` and `name = displayName` (player doesn't need separate internal names). The VM can even subclass or compose with the existing RoutineEditorViewModel's save logic, though composition is cleaner:
+### SpotifyService Design
 
 ```swift
-// Features/Player/ViewModels/PlayerRoutineEditorViewModel.swift
+// Services/SpotifyService.swift
+import Foundation
+
+enum SpotifyConnectionState: Sendable {
+    case disconnected
+    case connecting
+    case connected(userName: String)
+    case error(String)
+}
+
 @MainActor
 @Observable
-final class PlayerRoutineEditorViewModel {
-    var editState: RoutineEditState
-    var selectedTemplate: RoutineTemplate?
+final class SpotifyService {
+    var connectionState: SpotifyConnectionState = .disconnected
+    var isPlaying: Bool = false
+    var currentTrackName: String?
 
-    private let repository: RoutineRepositoryProtocol
-    private let modelContext: ModelContext
+    // MARK: - Auth
 
-    func save() throws {
-        // Set name = displayName (player doesn't see internal names)
-        editState.name = editState.displayName
-        let routine = Routine(
-            name: editState.name,
-            displayName: editState.displayName,
-            activeDays: editState.activeDays,
-            isActive: true,
-            createdBy: RoutineCreator.player.rawValue
-        )
-        // ... same task creation logic as RoutineEditorViewModel
-    }
+    /// Initiate OAuth flow. Opens Spotify app or web auth.
+    func connect() { /* SPTSessionManager.initiateSession() */ }
+
+    /// Disconnect and clear stored tokens.
+    func disconnect() { /* Clear Keychain tokens */ }
+
+    /// Handle redirect URL from Spotify OAuth callback.
+    func handleAuthCallback(url: URL) -> Bool { /* Parse token */ }
+
+    // MARK: - Playback Control
+
+    /// Start playing a playlist by Spotify URI.
+    func play(playlistURI: String) { /* SPTAppRemote.playerAPI.play() */ }
+
+    /// Pause playback.
+    func pause() { /* SPTAppRemote.playerAPI.pause() */ }
+
+    /// Resume playback.
+    func resume() { /* SPTAppRemote.playerAPI.resume() */ }
+
+    // MARK: - Playlist Discovery
+
+    /// Fetch user's playlists from Spotify Web API.
+    func fetchUserPlaylists() async throws -> [SpotifyPlaylist] { /* Web API call */ }
+
+    // MARK: - Token Storage
+
+    /// Store/retrieve OAuth token from Keychain (not UserDefaults -- tokens are sensitive).
+    private func storeToken(_ token: String) { /* Keychain */ }
+    private func retrieveToken() -> String? { /* Keychain */ }
+}
+
+struct SpotifyPlaylist: Identifiable, Sendable {
+    let id: String          // Spotify playlist ID
+    let name: String
+    let uri: String         // spotify:playlist:xxxxx
+    let imageURL: URL?
+    let trackCount: Int
 }
 ```
 
-#### Routine Templates
+### Audio Coordination with SoundManager
+
+**Critical design consideration:** The existing SoundManager uses `AVAudioSession.sharedInstance().setCategory(.ambient)`. This means game sounds mix with other audio. Spotify playback uses its own audio session (in the Spotify app). The coordination works naturally:
+
+- **SoundManager** plays short SFX (0.2-2.0s) in `.ambient` mode -- these overlay on top of Spotify music.
+- **SpotifyService** controls the Spotify app's playback -- Spotify manages its own audio session.
+- **No audio session conflict** because SoundManager uses `.ambient` (never steals audio focus) and Spotify runs in a separate process.
+
+**The only coordination needed:** When showing the accuracy reveal (a dramatic moment), optionally duck the Spotify volume briefly. `SPTAppRemote.playerAPI` does not support volume control directly, but we can pause/resume around the reveal animation.
+
+```
+AccuracyRevealView appears:
+  -> SpotifyService.pause()  // Brief pause for dramatic reveal
+  -> SoundManager.play("reveal")
+  -> 2-second delay
+  -> SpotifyService.resume()
+```
+
+### Integration with Existing Code
+
+| Existing Component | Change | Impact |
+|-------------------|--------|--------|
+| `AppDependencies` | Add `spotifyService: SpotifyService` property | MINOR -- new service added to composition root |
+| `TimeQuestApp` | Handle Spotify OAuth redirect URL via `onOpenURL` modifier | MINOR addition |
+| `Routine` model | Add optional `spotifyPlaylistURI: String?` field (SchemaV4) | MINOR schema addition |
+| `GameSessionViewModel.startQuest()` | If routine has spotifyPlaylistURI, call `spotifyService.play()` | MINOR addition |
+| `GameSessionViewModel.finishQuest()` | Call `spotifyService.pause()` | MINOR addition |
+| `ParentDashboardView` | Add "Connect Spotify" section and playlist picker per routine | MODERATE UI addition |
+| `QuestView` | Show small "Now Playing" banner during active quest | MINOR UI addition |
+| `SoundManager` | No changes -- `.ambient` audio session already allows overlay | None |
+
+### Data Flow: Connecting Spotify (Parent Flow)
+
+```
+ParentDashboardView
+  -> "Connect Spotify" button
+    -> SpotifyService.connect()
+      -> Opens Spotify app for OAuth
+      -> User authorizes
+      -> Redirect back to TimeQuest
+    -> TimeQuestApp.onOpenURL
+      -> SpotifyService.handleAuthCallback(url:)
+      -> connectionState = .connected
+
+ParentDashboardView (per routine)
+  -> "Set Quest Playlist" button
+    -> SpotifyPlaylistPickerView
+      -> SpotifyService.fetchUserPlaylists()
+      -> User selects playlist
+      -> routine.spotifyPlaylistURI = playlist.uri
+      -> Save via RoutineRepository
+```
+
+### Data Flow: Playing Music (Player Flow)
+
+```
+QuestView.onAppear
+  -> GameSessionViewModel.startQuest()
+    -> if let uri = routine.spotifyPlaylistURI:
+         spotifyService.play(playlistURI: uri)
+    -> QuestMusicBannerView appears showing "Now Playing: [playlist name]"
+
+AccuracyRevealView.onAppear
+  -> spotifyService.pause()
+  -> soundManager.play("reveal")
+  -> after 2s: spotifyService.resume()
+
+SessionSummaryView (quest complete)
+  -> GameSessionViewModel.finishQuest()
+    -> spotifyService.pause()
+```
+
+### Schema Changes
+
+**SchemaV4 additions to Routine:**
 
 ```swift
-// Domain/RoutineTemplates.swift
-import Foundation
-
-struct RoutineTemplate: Identifiable {
-    let id = UUID()
-    let name: String            // "Friend's House Prep"
-    let suggestedTasks: [String] // ["Pick outfit", "Pack bag", "Check directions"]
-    let emoji: String           // SF Symbol
-}
-
-struct RoutineTemplates {
-    static let all: [RoutineTemplate] = [
-        RoutineTemplate(
-            name: "Homework Session",
-            suggestedTasks: ["Get materials", "Work time", "Pack up"],
-            emoji: "book.fill"
-        ),
-        RoutineTemplate(
-            name: "Going to a Friend's",
-            suggestedTasks: ["Pick outfit", "Get ready", "Pack what you need", "Check directions"],
-            emoji: "person.2.fill"
-        ),
-        RoutineTemplate(
-            name: "Activity Prep",
-            suggestedTasks: ["Gather gear", "Get changed", "Pack bag", "Snack"],
-            emoji: "figure.run"
-        ),
-        RoutineTemplate(
-            name: "Custom Quest",
-            suggestedTasks: [],
-            emoji: "sparkles"
-        ),
-    ]
-}
+var spotifyPlaylistURI: String?   // Optional: "spotify:playlist:37i9dQZF1DXcBWIGoYBM5M"
+var spotifyPlaylistName: String?  // Cached display name to avoid API call for UI
 ```
 
-#### Integration Points with Existing Code
+### OAuth and Security
 
-| Existing Component | Change | Type |
-|-------------------|--------|------|
-| `Routine` model | Add `createdBy: String` property with default `"parent"` | Schema addition (auto-migrated) |
-| `RoutineEditorViewModel.createNew()` | Set `createdBy = "parent"` on new routines | Minor change |
-| `RoutineRepository.fetchActiveForToday()` | No change -- already fetches all active routines regardless of creator | None |
-| `PlayerHomeView` | Add "Create Quest" button that navigates to PlayerRoutineEditorView | UI addition |
-| `PlayerHomeView.questCard()` | Optionally show a badge for player-created quests ("Your Quest") | Minor UI tweak |
-| `TimeQuestApp` | No change -- Routine model is already registered in ModelContainer | None |
+- **Token storage:** Use Keychain, not UserDefaults. OAuth tokens are credentials.
+- **Scopes needed:** `user-read-playback-state`, `user-modify-playback-state`, `playlist-read-private`, `playlist-read-collaborative`.
+- **No playlist creation scope needed** for v3.0 -- we only read existing playlists. Creating playlists from within TimeQuest can be deferred to a later version.
+- **Redirect URI:** Register `timequest://spotify-callback` as a URL scheme in Info.plist and in the Spotify Developer Dashboard.
+- **Client ID:** Store in a configuration file or environment variable, NOT hardcoded. Use `SpotifyConfiguration.swift` with a placeholder that gets replaced at build time.
+- **Spotify app requirement:** The iOS SDK requires the Spotify app to be installed for playback. If not installed, show a graceful message: "Install Spotify to add music to your quests." No crash, no broken state.
 
-#### Data Flow
+### Spotify-Not-Installed Fallback
 
-```
-PlayerHomeView -> "Create Quest" button
-  -> PlayerRoutineEditorView (sheet)
-    -> PlayerRoutineEditorViewModel (RoutineEditState with templates)
-    -> User picks template or starts blank
-    -> User edits tasks, sets quest days
-    -> save() -> RoutineRepository.save() with createdBy = "player"
-  -> PlayerHomeView refreshes todayQuests -> shows new quest in list
+```swift
+// SpotifyService.swift
+var isSpotifyInstalled: Bool {
+    UIApplication.shared.canOpenURL(URL(string: "spotify:")!)
+}
+
+func connect() {
+    guard isSpotifyInstalled else {
+        connectionState = .error("Spotify app not installed")
+        return
+    }
+    // ... proceed with OAuth
+}
 ```
 
 ---
 
-### Feature 3: iCloud/CloudKit Backup (SwiftData Sync)
+## Pillar 3: Calendar Intelligence (CalendarService)
 
-**What it is:** Sync SwiftData to iCloud so progress is preserved across device replacement, app reinstall, or (eventually) multi-device access.
+### Concept
 
-#### CloudKit Requirements for SwiftData Models
+Read the player's (or family's) calendar to detect upcoming events and suggest time-relevant routines. "You have soccer practice at 4 PM -- want to start your 'Activity Prep' quest at 3:15?" This builds real-world time awareness by connecting estimation practice to actual scheduled events.
 
-**Confidence: MEDIUM** -- Based on training data knowledge of SwiftData + CloudKit constraints. These constraints are well-documented but the exact API surface should be verified against current Xcode SDK.
+### Architecture Decision: EventKit Directly, No Wrapper
 
-SwiftData supports CloudKit sync through `ModelConfiguration`. To enable it, the data models must satisfy CloudKit compatibility requirements:
+**Use EventKit (EKEventStore) directly.** EventKit is Apple's framework for reading calendar data. It is mature, well-documented, and the API surface needed is small (read events for a date range). No third-party wrapper adds value.
 
-**Required model constraints:**
+**Confidence: HIGH** -- EventKit API has been stable since iOS 6. The permission model changed slightly in iOS 17 (added write-only vs full access distinction), but read access request patterns are well-established.
 
-1. **All properties must have default values or be optional.** CloudKit records arrive asynchronously; the model must be constructable without all fields present.
-2. **No unique constraints.** CloudKit does not support server-side uniqueness enforcement. The `#Unique` macro cannot be used on any model that syncs.
-3. **Relationships must be optional.** Both sides of a relationship must be optional (`var routine: Routine?`, not `var routine: Routine`).
-4. **No transformable attributes without explicit support.** Custom Codable types in arrays (like `[Int]` for `activeDays`) work, but complex nested Codable types may need verification.
-
-**Current model audit against CloudKit constraints:**
-
-| Model | Property | CloudKit Compatible? | Issue | Fix |
-|-------|----------|---------------------|-------|-----|
-| `Routine` | `name: String` | NO -- no default | Missing default | Add `= ""` |
-| `Routine` | `displayName: String` | NO -- no default | Missing default | Add `= ""` |
-| `Routine` | `activeDays: [Int]` | MAYBE | Array of primitives should work | Verify with CloudKit |
-| `Routine` | `isActive: Bool` | YES | Has implicit default | OK |
-| `Routine` | `createdAt: Date` | YES | Default `= .now` | OK |
-| `RoutineTask` | `name: String` | NO -- no default | Missing default | Add `= ""` |
-| `RoutineTask` | `displayName: String` | NO -- no default | Missing default | Add `= ""` |
-| `RoutineTask` | `orderIndex: Int` | YES | Default `= 0` | OK |
-| `RoutineTask` | `routine: Routine?` | YES | Already optional | OK |
-| `GameSession` | `routine: Routine?` | YES | Already optional | OK |
-| `GameSession` | `startedAt: Date` | YES | Default `= .now` | OK |
-| `GameSession` | `isCalibration: Bool` | YES | Default `= false` (implicit) | Verify -- may need explicit default |
-| `TaskEstimation` | Multiple non-optional, no-default properties | NO | 7 properties lack defaults | Add defaults to all |
-| `PlayerProfile` | All properties | YES | All have defaults | OK |
-
-**Summary of required changes for CloudKit compatibility:**
-
-```swift
-// Routine -- add defaults
-var name: String = ""
-var displayName: String = ""
-var activeDays: [Int] = []
-
-// RoutineTask -- add defaults
-var name: String = ""
-var displayName: String = ""
-var referenceDurationSeconds: Int? = nil  // already optional, OK
-
-// GameSession -- verify isCalibration has explicit default
-var isCalibration: Bool = false  // already has default in init, but stored property may need it
-
-// TaskEstimation -- add defaults to ALL stored properties
-var taskDisplayName: String = ""
-var estimatedSeconds: Double = 0
-var actualSeconds: Double = 0
-var differenceSeconds: Double = 0
-var accuracyPercent: Double = 0
-var ratingRawValue: String = ""
-var orderIndex: Int = 0
-var recordedAt: Date = .now
-```
-
-**These default values do not change runtime behavior.** The existing `init()` methods still set all values explicitly. The defaults only satisfy CloudKit's requirement that a model can be partially initialized during sync.
-
-#### ModelConfiguration Changes
-
-```swift
-// TimeQuestApp.swift -- MODIFIED
-@main
-struct TimeQuestApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
-        .modelContainer(for: [
-            Routine.self,
-            RoutineTask.self,
-            GameSession.self,
-            TaskEstimation.self,
-            PlayerProfile.self
-        ], cloudKitDatabase: .automatic)  // <-- Enable CloudKit sync
-    }
-}
-```
-
-**Alternative approach using ModelConfiguration:**
-
-```swift
-let config = ModelConfiguration(
-    cloudKitDatabase: .automatic  // or .private("iCloud.com.yourteam.TimeQuest")
-)
-let container = try ModelContainer(
-    for: Routine.self, RoutineTask.self, GameSession.self,
-         TaskEstimation.self, PlayerProfile.self,
-    configurations: config
-)
-```
-
-#### Entitlements and Capabilities
-
-| Requirement | What to Do |
-|-------------|------------|
-| iCloud capability | Enable in Xcode target -> Signing & Capabilities -> iCloud |
-| CloudKit container | Create container `iCloud.com.{teamID}.TimeQuest` |
-| Background modes | Enable "Remote notifications" for push-based sync triggers |
-| Push notifications entitlement | Required for CloudKit change notifications |
-
-#### CloudKit Database Type
-
-**Use `.private` database (the default for `.automatic`).** Each user's data syncs only to their own iCloud account. This is correct for TimeQuest because:
-- Data is personal (one player's estimation history)
-- No sharing between accounts needed
-- Private database has the most generous CloudKit quotas
-- No CloudKit Dashboard schema management needed (schema auto-created from SwiftData models)
-
-#### Architecture Impact
-
-**Minimal.** The repository layer does not change. Repositories already call `modelContext.save()` and `modelContext.fetch()`. CloudKit sync happens transparently beneath the ModelContext layer. The main changes are:
-
-1. Model property defaults (migration-safe additions)
-2. ModelContainer configuration (one-line change)
-3. Xcode entitlements (project configuration, not code)
-4. Conflict resolution policy (see Pitfalls section below)
-
-**No new components needed** for basic iCloud backup. CloudKit sync is infrastructure, not feature code.
-
-#### Conflict Resolution
-
-SwiftData with CloudKit uses **last-writer-wins** conflict resolution by default. For TimeQuest this is acceptable because:
-- Single-user app (one player, one device at a time)
-- Primary use case is backup/restore, not real-time multi-device editing
-- Estimation data is append-only (new TaskEstimation records, never edited)
-- The only mutable models are `Routine` (edited by parent) and `PlayerProfile` (updated at session end)
-
-**Risk scenario:** User plays on old device, then restores to new device. If both devices have different PlayerProfile.totalXP, last-writer-wins could lose XP. Mitigation: PlayerProfile updates are monotonically increasing (XP only goes up, streak only changes once per day). A merge conflict here means the user sees the latest state, which is the desired behavior.
-
-#### Important Caveats
-
-| Caveat | Impact | Mitigation |
-|--------|--------|------------|
-| CloudKit sync is eventual, not instant | User may not see synced data for seconds to minutes | Show "syncing" indicator; design for offline-first |
-| First sync after enabling CloudKit uploads entire local store | May take several minutes with large history | Enable CloudKit early (before data grows large) |
-| CloudKit has per-record size limits (~1MB) | Not an issue -- our records are tiny (strings + doubles + dates) | None needed |
-| Array properties (`activeDays: [Int]`) may have CloudKit quirks | Codable arrays are serialized; verify they round-trip correctly | Test early with CloudKit enabled |
-| `isCalibration` on GameSession is not explicitly defaulted at property declaration | CloudKit requires default at property level, not just in init | Add explicit `= false` at property declaration |
-
----
-
-### Feature 4: Weekly Reflection Summaries
-
-**What it is:** A brief weekly summary showing estimation accuracy trends, best moments, patterns detected, and progress toward goals. Presented as a screen the player can review, optionally triggered by a notification.
-
-#### New Components
+### New Components
 
 | Component | Layer | Type | File Path |
 |-----------|-------|------|-----------|
-| `WeeklyReflectionEngine` | Domain | Pure struct (static methods) | `Domain/WeeklyReflectionEngine.swift` |
-| `WeeklyReflection` | Domain | Value type | `Domain/WeeklyReflectionEngine.swift` |
-| `WeeklyReflectionViewModel` | ViewModel | @Observable @MainActor | `Features/Player/ViewModels/WeeklyReflectionViewModel.swift` |
-| `WeeklyReflectionView` | View | SwiftUI | `Features/Player/Views/WeeklyReflectionView.swift` |
-| `WeeklyReflectionSummary` | Model (optional) | @Model | `Models/WeeklyReflectionSummary.swift` |
+| `CalendarService` | Services | @Observable class | `Services/CalendarService.swift` |
+| `CalendarEvent` | Domain | Value type (struct) | `Domain/CalendarEvent.swift` |
+| `ScheduleSuggestionEngine` | Domain | Pure struct (static methods) | `Domain/ScheduleSuggestionEngine.swift` |
+| `ScheduleSuggestion` | Domain | Value type (struct) | `Domain/ScheduleSuggestionEngine.swift` |
+| `CalendarPermissionView` | View | SwiftUI | `Features/Shared/Views/CalendarPermissionView.swift` |
+| `ScheduleSuggestionsView` | View | SwiftUI | `Features/Player/Views/ScheduleSuggestionsView.swift` |
 
-#### Design: Compute vs. Store
-
-**Recommendation: Compute reflections on-demand from existing data, with optional caching.**
-
-Rationale:
-- All data needed (TaskEstimation, GameSession, PlayerProfile) already exists
-- Computing a weekly summary from ~7 days of sessions is cheap (tens to low hundreds of records)
-- Storing summaries would add a new @Model, a migration, and CloudKit sync overhead for data that can be reconstructed
-- Exception: if we want to show "Your reflection from 3 weeks ago" comparisons, caching the computed summary is worthwhile
-
-**Compromise approach:** Compute live for the current week. Optionally persist `WeeklyReflectionSummary` as a lightweight cache for historical reflections (defer persistence to later if not needed immediately).
-
-#### WeeklyReflectionEngine Design
+### CalendarService Design
 
 ```swift
-// Domain/WeeklyReflectionEngine.swift
-import Foundation
+// Services/CalendarService.swift
+import EventKit
 
-struct WeeklyReflection {
-    let weekStartDate: Date
-    let weekEndDate: Date
-    let sessionsCompleted: Int
-    let totalEstimations: Int
-    let averageAccuracy: Double
-    let accuracyChange: Double       // vs. prior week (+/- percent)
-    let bestEstimation: BestMoment?  // closest estimate of the week
-    let mostImproved: String?        // task name that improved most
-    let consistentBias: BiasInfo?    // "You overestimated 70% of the time"
-    let streakStatus: StreakInfo
-    let insights: [Insight]          // reuses InsightEngine types
+enum CalendarPermissionState: Sendable {
+    case notDetermined
+    case authorized
+    case denied
+    case restricted
 }
 
-struct BestMoment {
-    let taskName: String
-    let differenceSeconds: Double
-    let date: Date
-}
+@MainActor
+@Observable
+final class CalendarService {
+    var permissionState: CalendarPermissionState = .notDetermined
+    var todayEvents: [CalendarEvent] = []
 
-struct BiasInfo {
-    let direction: BiasDirection
-    let percent: Double
-}
+    private let eventStore = EKEventStore()
 
-struct StreakInfo {
-    let current: Int
-    let isActive: Bool
-    let longestThisWeek: Int
-}
+    // MARK: - Permissions
 
-struct WeeklyReflectionEngine {
-    /// Generate a weekly reflection from session data.
-    /// Pure function: estimation snapshots in, reflection out.
-    static func generateReflection(
-        currentWeekEstimations: [EstimationSnapshot],
-        priorWeekEstimations: [EstimationSnapshot],
-        sessionsThisWeek: Int,
-        currentStreak: Int,
-        isStreakActive: Bool,
-        weekStart: Date,
-        weekEnd: Date
-    ) -> WeeklyReflection {
-        // ... compute all fields from input data
+    func requestAccess() async {
+        // iOS 17+: requestFullAccessToEvents()
+        // Fallback: requestAccess(to: .event)
+        do {
+            let granted = try await eventStore.requestFullAccessToEvents()
+            permissionState = granted ? .authorized : .denied
+        } catch {
+            permissionState = .denied
+        }
     }
-}
-```
 
-**Key design decision:** WeeklyReflectionEngine takes the same `EstimationSnapshot` type as InsightEngine. This means the mapping from SwiftData models to value types happens once, in the ViewModel, and both engines consume the same data format.
+    func checkCurrentPermission() {
+        let status = EKEventStore.authorizationStatus(for: .event)
+        switch status {
+        case .fullAccess, .authorized:
+            permissionState = .authorized
+        case .denied:
+            permissionState = .denied
+        case .restricted:
+            permissionState = .restricted
+        case .notDetermined:
+            permissionState = .notDetermined
+        case .writeOnly:
+            // We need read access, writeOnly is insufficient
+            permissionState = .denied
+        @unknown default:
+            permissionState = .notDetermined
+        }
+    }
 
-#### Data Flow
+    // MARK: - Event Fetching
 
-```
-PlayerHomeView (weekly prompt banner)
-  -> WeeklyReflectionView (NavigationLink)
-    -> WeeklyReflectionViewModel.loadReflection()
-      -> sessionRepository.fetchAllSessions()
-      -> filter to current week + prior week
-      -> map to [EstimationSnapshot]
-      -> WeeklyReflectionEngine.generateReflection(...)
-      -> InsightEngine.generateInsights(currentWeekEstimations)
-      -> viewModel.reflection = WeeklyReflection
-    -> View renders summary cards
+    func fetchTodayEvents() {
+        guard permissionState == .authorized else { return }
 
-Notification trigger (optional):
-  -> NotificationManager.scheduleWeeklyReflection(dayOfWeek: .sunday, hour: 18)
-  -> Notification: "Your weekly Time Sense report is ready"
-  -> User opens app -> PlayerHomeView shows reflection banner
-```
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: .now)
+        guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) else { return }
 
-#### Integration Points with Existing Code
-
-| Existing Component | Change | Type |
-|-------------------|--------|------|
-| `PlayerHomeView` | Add conditional banner "Your weekly report is ready" when it's Sunday/Monday and reflection hasn't been viewed | UI addition |
-| `PlayerProfile` | Add `lastReflectionViewedDate: Date?` to track whether current week's reflection has been seen | Schema addition (auto-migrated) |
-| `NotificationManager` | Add `scheduleWeeklyReflection()` method | Method addition |
-| `SessionRepository` | No changes -- `fetchAllSessions()` already exists | None |
-| `InsightEngine` | Reused directly -- no changes | None |
-
----
-
-## New Model Summary (All Changes)
-
-### Modified Models
-
-```swift
-// Routine.swift -- 2 changes
-@Model
-final class Routine {
-    var name: String = ""                    // CHANGED: add default for CloudKit
-    var displayName: String = ""             // CHANGED: add default for CloudKit
-    var activeDays: [Int] = []               // CHANGED: add default for CloudKit
-    var isActive: Bool = true                // unchanged (already has default)
-    var createdAt: Date = .now               // unchanged (already has default)
-    var updatedAt: Date = .now               // unchanged (already has default)
-    var createdBy: String = "parent"         // NEW: for self-set routines + CloudKit default
-    // ... relationships unchanged
-}
-
-// RoutineTask.swift -- 2 changes
-@Model
-final class RoutineTask {
-    var name: String = ""                    // CHANGED: add default for CloudKit
-    var displayName: String = ""             // CHANGED: add default for CloudKit
-    var referenceDurationSeconds: Int? = nil // unchanged
-    var orderIndex: Int = 0                  // unchanged (already has default)
-    var routine: Routine?                    // unchanged
-}
-
-// TaskEstimation.swift -- all properties get defaults for CloudKit
-@Model
-final class TaskEstimation {
-    var taskDisplayName: String = ""         // CHANGED: add default
-    var estimatedSeconds: Double = 0         // CHANGED: add default
-    var actualSeconds: Double = 0            // CHANGED: add default
-    var differenceSeconds: Double = 0        // CHANGED: add default
-    var accuracyPercent: Double = 0          // CHANGED: add default
-    var ratingRawValue: String = ""          // CHANGED: add default
-    var orderIndex: Int = 0                  // unchanged (already has default)
-    var recordedAt: Date = .now              // CHANGED: add default
-    var session: GameSession?                // unchanged
-}
-
-// GameSession.swift -- 1 change
-@Model
-final class GameSession {
-    var routine: Routine?                    // unchanged
-    var startedAt: Date = .now               // CHANGED: add explicit default at property level
-    var completedAt: Date? = nil             // unchanged
-    var isCalibration: Bool = false          // CHANGED: add explicit default at property level
-    var xpEarned: Int = 0                    // unchanged (already has default)
-    // ... relationships unchanged
-}
-
-// PlayerProfile.swift -- 1 new property
-@Model
-final class PlayerProfile {
-    var totalXP: Int = 0                     // unchanged
-    var currentStreak: Int = 0               // unchanged
-    var lastPlayedDate: Date?                // unchanged
-    var notificationsEnabled: Bool = true    // unchanged
-    var notificationHour: Int = 7            // unchanged
-    var notificationMinute: Int = 30         // unchanged
-    var soundEnabled: Bool = true            // unchanged
-    var createdAt: Date = Date.now           // unchanged
-    var lastReflectionViewedDate: Date?      // NEW: weekly reflection tracking
-}
-```
-
-### New Models (Optional)
-
-```swift
-// Models/WeeklyReflectionSummary.swift -- OPTIONAL, defer if not needed
-@Model
-final class WeeklyReflectionSummary {
-    var weekStartDate: Date = .now
-    var sessionsCompleted: Int = 0
-    var averageAccuracy: Double = 0
-    var accuracyChange: Double = 0
-    var bestTaskName: String = ""
-    var bestDifferenceSeconds: Double = 0
-    var createdAt: Date = .now
-
-    init(from reflection: WeeklyReflection) { ... }
-}
-```
-
-### Migration Safety Assessment
-
-All model changes are **additive**:
-- Adding default values to existing properties: SwiftData handles automatically (lightweight migration)
-- Adding new optional properties (`lastReflectionViewedDate`, `createdBy`): SwiftData handles automatically
-- Adding new stored property with default (`createdBy: String = "parent"`): Existing records get the default value
-
-**No manual migration plan needed.** SwiftData's automatic lightweight migration covers all these changes. This is because we are only:
-1. Adding defaults to existing properties (no-op for existing data)
-2. Adding new properties with defaults (existing records get default)
-3. NOT renaming, removing, or changing types of existing properties
-
----
-
-## New Domain Engines
-
-### Complete Inventory
-
-| Engine | Purpose | Input | Output | Dependencies |
-|--------|---------|-------|--------|--------------|
-| `InsightEngine` | Pattern detection across estimation history | `[EstimationSnapshot]` | `[Insight]` | None (pure) |
-| `WeeklyReflectionEngine` | Weekly summary computation | `[EstimationSnapshot]` + metadata | `WeeklyReflection` | None (pure) |
-| `RoutineTemplates` | Static template data for player routine creation | None | `[RoutineTemplate]` | None (static data) |
-
-These follow the existing pattern: pure Swift structs with static methods, zero framework imports, value-type inputs and outputs.
-
-### Shared Value Types
-
-```swift
-// Domain/EstimationSnapshot.swift -- NEW shared type
-import Foundation
-
-/// Value-type snapshot of TaskEstimation data.
-/// Used by InsightEngine and WeeklyReflectionEngine.
-/// Decouples domain engines from SwiftData @Model types.
-struct EstimationSnapshot {
-    let taskDisplayName: String
-    let estimatedSeconds: Double
-    let actualSeconds: Double
-    let differenceSeconds: Double
-    let accuracyPercent: Double
-    let recordedAt: Date
-    let routineDisplayName: String?
-}
-
-extension TaskEstimation {
-    /// Bridge from SwiftData model to domain value type.
-    func toSnapshot() -> EstimationSnapshot {
-        EstimationSnapshot(
-            taskDisplayName: taskDisplayName,
-            estimatedSeconds: estimatedSeconds,
-            actualSeconds: actualSeconds,
-            differenceSeconds: differenceSeconds,
-            accuracyPercent: accuracyPercent,
-            recordedAt: recordedAt,
-            routineDisplayName: session?.routine?.displayName
+        let predicate = eventStore.predicateForEvents(
+            withStart: startOfDay,
+            end: endOfDay,
+            calendars: nil  // All calendars
         )
+
+        let ekEvents = eventStore.events(matching: predicate)
+        todayEvents = ekEvents
+            .filter { !$0.isAllDay }  // Only timed events are useful for scheduling
+            .map { CalendarEvent(from: $0) }
+            .sorted { $0.startDate < $1.startDate }
+    }
+
+    func fetchEvents(for dateRange: DateInterval) -> [CalendarEvent] {
+        guard permissionState == .authorized else { return [] }
+
+        let predicate = eventStore.predicateForEvents(
+            withStart: dateRange.start,
+            end: dateRange.end,
+            calendars: nil
+        )
+
+        return eventStore.events(matching: predicate)
+            .filter { !$0.isAllDay }
+            .map { CalendarEvent(from: $0) }
+            .sorted { $0.startDate < $1.startDate }
     }
 }
 ```
 
-**Note:** The `toSnapshot()` extension on TaskEstimation is in the Domain layer but imports SwiftData indirectly through the model. To keep domain truly pure, this extension should live in a bridge file (e.g., `Repositories/EstimationSnapshotBridge.swift` or alongside the ViewModel). The InsightEngine and WeeklyReflectionEngine themselves remain pure.
+### CalendarEvent Value Type (Domain Bridge)
+
+```swift
+// Domain/CalendarEvent.swift
+import Foundation
+
+/// Value type that bridges EventKit EKEvent to the pure domain layer.
+/// Follows the EstimationSnapshot pattern: decouples domain engines from framework types.
+struct CalendarEvent: Identifiable, Sendable {
+    let id: String           // EKEvent.eventIdentifier
+    let title: String
+    let startDate: Date
+    let endDate: Date
+    let location: String?
+    let calendarName: String
+
+    var durationMinutes: Int {
+        Int(endDate.timeIntervalSince(startDate) / 60)
+    }
+
+    var minutesUntilStart: Int {
+        Int(startDate.timeIntervalSince(.now) / 60)
+    }
+}
+
+// Bridge extension (lives alongside CalendarService, not in Domain/)
+import EventKit
+
+extension CalendarEvent {
+    init(from ekEvent: EKEvent) {
+        self.id = ekEvent.eventIdentifier ?? UUID().uuidString
+        self.title = ekEvent.title ?? "Untitled"
+        self.startDate = ekEvent.startDate
+        self.endDate = ekEvent.endDate
+        self.location = ekEvent.location
+        self.calendarName = ekEvent.calendar?.title ?? "Unknown"
+    }
+}
+```
+
+### ScheduleSuggestionEngine Design (Pure Domain)
+
+```swift
+// Domain/ScheduleSuggestionEngine.swift
+import Foundation
+
+struct ScheduleSuggestion: Identifiable, Sendable {
+    let id = UUID()
+    let routineName: String
+    let routineID: String  // Routine.cloudID for lookup
+    let reason: String     // "Soccer practice starts in 45 minutes"
+    let suggestedStartTime: Date
+    let urgency: SuggestionUrgency
+}
+
+enum SuggestionUrgency: Sendable {
+    case upcoming   // 30-60 minutes away
+    case soon       // 15-30 minutes away
+    case now        // Under 15 minutes away
+}
+
+struct ScheduleSuggestionEngine {
+
+    /// Match calendar events to routines and generate timing suggestions.
+    /// Pure function: events + routines in, suggestions out.
+    static func generateSuggestions(
+        events: [CalendarEvent],
+        routines: [RoutineSummary],
+        currentTime: Date = .now
+    ) -> [ScheduleSuggestion] {
+        var suggestions: [ScheduleSuggestion] = []
+
+        for event in events {
+            let minutesUntil = Int(event.startDate.timeIntervalSince(currentTime) / 60)
+
+            // Only suggest for events 10-90 minutes in the future
+            guard minutesUntil > 10 && minutesUntil < 90 else { continue }
+
+            // Match event to a routine by keyword matching
+            for routine in routines {
+                if matchesEvent(routine: routine, event: event) {
+                    let prepTime = estimatedPrepTime(for: routine)
+                    let suggestedStart = event.startDate.addingTimeInterval(-prepTime)
+
+                    let urgency: SuggestionUrgency
+                    if minutesUntil < 15 { urgency = .now }
+                    else if minutesUntil < 30 { urgency = .soon }
+                    else { urgency = .upcoming }
+
+                    suggestions.append(ScheduleSuggestion(
+                        routineName: routine.displayName,
+                        routineID: routine.cloudID,
+                        reason: "\(event.title) starts in \(minutesUntil) minutes",
+                        suggestedStartTime: suggestedStart,
+                        urgency: urgency
+                    ))
+                }
+            }
+        }
+
+        return suggestions.sorted { $0.suggestedStartTime < $1.suggestedStartTime }
+    }
+
+    // MARK: - Private Matching Logic
+
+    /// Simple keyword matching between routine tasks and event titles.
+    private static func matchesEvent(routine: RoutineSummary, event: CalendarEvent) -> Bool {
+        let eventWords = Set(event.title.lowercased().split(separator: " ").map(String.init))
+        let routineWords = Set(routine.taskNames.joined(separator: " ")
+            .lowercased().split(separator: " ").map(String.init))
+
+        // Match if routine name or task names share keywords with event
+        let keywords = ["practice", "game", "class", "lesson", "school",
+                        "soccer", "basketball", "piano", "dance", "swim",
+                        "homework", "study", "friend", "party"]
+
+        let eventKeywords = eventWords.intersection(keywords)
+        let routineKeywords = routineWords.intersection(keywords)
+
+        return !eventKeywords.intersection(routineKeywords).isEmpty
+    }
+
+    private static func estimatedPrepTime(for routine: RoutineSummary) -> TimeInterval {
+        // Estimate total routine time based on task count
+        // Default: 5 minutes per task + 5 minute buffer
+        Double(routine.taskCount * 5 + 5) * 60
+    }
+}
+
+/// Lightweight summary of a Routine for domain engine consumption.
+/// Avoids passing SwiftData @Model to pure domain code.
+struct RoutineSummary: Sendable {
+    let cloudID: String
+    let displayName: String
+    let taskNames: [String]
+    let taskCount: Int
+}
+```
+
+### Integration with Existing Code
+
+| Existing Component | Change | Impact |
+|-------------------|--------|--------|
+| `AppDependencies` | Add `calendarService: CalendarService` property | MINOR |
+| `PlayerHomeView` | Add schedule suggestions section above quest list | MODERATE UI addition |
+| `RoutineRepository` | Add method to create `[RoutineSummary]` from fetched routines | MINOR convenience method |
+| `ParentDashboardView` or settings | Add calendar permission toggle/request UI | MINOR |
+| `NotificationManager` | Optionally schedule reminders based on calendar event timing | Future enhancement |
+
+### Data Flow
+
+```
+App launch / PlayerHomeView.onAppear:
+  -> CalendarService.checkCurrentPermission()
+  -> if .authorized:
+       CalendarService.fetchTodayEvents()
+       let routineSummaries = routines.map { RoutineSummary(from: $0) }
+       let suggestions = ScheduleSuggestionEngine.generateSuggestions(
+           events: calendarService.todayEvents,
+           routines: routineSummaries
+       )
+       -> ScheduleSuggestionsView renders suggestions
+       -> Tapping a suggestion navigates to QuestView for that routine
+  -> if .notDetermined:
+       Show CalendarPermissionView (explains value, requests permission)
+  -> if .denied:
+       Show nothing (graceful absence, no nagging)
+```
+
+### Permission UX
+
+**Critical: Calendar access is opt-in and clearly explained.** The player (or parent) must understand why TimeQuest wants calendar access. Use a pre-permission screen before the system dialog:
+
+```
+[Calendar icon]
+"See What's Coming Up"
+
+TimeQuest can check your calendar to suggest
+the right quest at the right time.
+
+"You have soccer at 4 PM -- want to start
+your Activity Prep quest now?"
+
+TimeQuest only reads your calendar.
+It never changes or shares your events.
+
+[Allow Calendar Access]  [Not Now]
+```
+
+**"Not Now" is always available.** Calendar intelligence is an enhancement, not a requirement. The app works perfectly without it.
+
+### No Schema Changes
+
+CalendarService is read-only. It reads EventKit data and produces suggestions. No calendar data is persisted in SwiftData. The `RoutineSummary` value type is computed on-the-fly from existing `Routine` models.
+
+**Future consideration:** If we want to let the parent associate a routine with specific calendar event keywords (e.g., "Soccer" -> "Activity Prep"), that would add an optional `calendarKeywords: [String]?` field to Routine in a future schema version. For v3.0, the keyword matching is automatic and heuristic-based.
+
+---
+
+## Pillar 4: UI/Brand Refresh (Theme System)
+
+### Concept
+
+Replace the current ad-hoc colors (`.tint`, `Color(.systemGray6)`, `Color.orange`, `Color.teal`, `Color.purple`) with a cohesive design token system. Introduce consistent typography, spacing, and iconography. Make the app feel like a polished game, not a prototype.
+
+### Architecture Decision: SwiftUI Environment-Based Theme
+
+**Use a `Theme` struct injected via SwiftUI's `.environment()` modifier at the root level.** This is the same pattern used for `AppDependencies` and `RoleState` -- consistent with existing architecture.
+
+Do NOT use:
+- `@AppStorage` for theme values (too fragile, no type safety)
+- Global singletons (breaks SwiftUI's declarative model)
+- UIKit appearance proxies (SwiftUI-only app, don't mix paradigms)
+
+### New Components
+
+| Component | Layer | Type | File Path |
+|-----------|-------|------|-----------|
+| `Theme` | Design | Struct | `Design/Theme.swift` |
+| `ThemeColors` | Design | Struct | `Design/ThemeColors.swift` |
+| `ThemeTypography` | Design | Struct | `Design/ThemeTypography.swift` |
+| `ThemeSpacing` | Design | Struct | `Design/ThemeSpacing.swift` |
+| `ThemeIcons` | Design | Struct | `Design/ThemeIcons.swift` |
+| `View+Theme` | Design | Extension | `Design/View+Theme.swift` |
+| `ThemedButton` | Design | SwiftUI View | `Design/Components/ThemedButton.swift` |
+| `ThemedCard` | Design | SwiftUI View | `Design/Components/ThemedCard.swift` |
+
+### Theme System Design
+
+```swift
+// Design/Theme.swift
+import SwiftUI
+
+struct Theme: Sendable {
+    let colors: ThemeColors
+    let typography: ThemeTypography
+    let spacing: ThemeSpacing
+    let icons: ThemeIcons
+    let animation: ThemeAnimation
+
+    static let `default` = Theme(
+        colors: .quest,
+        typography: .default,
+        spacing: .default,
+        icons: .default,
+        animation: .default
+    )
+}
+
+// MARK: - Environment Integration
+
+private struct ThemeKey: EnvironmentKey {
+    static let defaultValue = Theme.default
+}
+
+extension EnvironmentValues {
+    var theme: Theme {
+        get { self[ThemeKey.self] }
+        set { self[ThemeKey.self] = newValue }
+    }
+}
+
+extension View {
+    func themed(_ theme: Theme = .default) -> some View {
+        environment(\.theme, theme)
+    }
+}
+```
+
+```swift
+// Design/ThemeColors.swift
+import SwiftUI
+
+struct ThemeColors: Sendable {
+    // MARK: - Semantic Colors (what the color means, not what it looks like)
+
+    let accent: Color                 // Primary brand color
+    let accentSecondary: Color        // Secondary brand color
+
+    // Rating colors (used in AccuracyMeter, reveal, XP)
+    let ratingSpotOn: Color           // Achievement gold
+    let ratingClose: Color            // Positive
+    let ratingOff: Color              // Neutral
+    let ratingWayOff: Color           // Discovery (never "bad")
+
+    // Surface colors
+    let cardBackground: Color         // Quest cards, insight cards
+    let cardBackgroundElevated: Color // Modal cards, sheets
+    let surfacePrimary: Color         // Main background
+    let surfaceSecondary: Color       // Secondary sections
+
+    // Text colors
+    let textPrimary: Color
+    let textSecondary: Color
+    let textTertiary: Color
+
+    // Feedback colors
+    let success: Color
+    let warning: Color
+    let info: Color
+
+    // Difficulty level colors
+    let difficultyLearning: Color
+    let difficultyPracticing: Color
+    let difficultyConfident: Color
+    let difficultyMastering: Color
+
+    // MARK: - Default Theme: "Quest"
+
+    static let quest = ThemeColors(
+        accent: Color("AccentPrimary"),      // Asset catalog for light/dark
+        accentSecondary: Color("AccentSecondary"),
+
+        ratingSpotOn: .orange,               // Keep existing -- gold/achievement
+        ratingClose: .teal,                  // Keep existing -- positive
+        ratingOff: Color(.systemGray3),      // Keep existing -- neutral
+        ratingWayOff: .purple,               // Keep existing -- discovery
+
+        cardBackground: Color(.systemGray6),
+        cardBackgroundElevated: Color(.systemBackground),
+        surfacePrimary: Color(.systemBackground),
+        surfaceSecondary: Color(.secondarySystemBackground),
+
+        textPrimary: .primary,
+        textSecondary: .secondary,
+        textTertiary: Color(.tertiaryLabel),
+
+        success: .green,
+        warning: .orange,
+        info: .blue,
+
+        difficultyLearning: .blue,
+        difficultyPracticing: .teal,
+        difficultyConfident: .orange,
+        difficultyMastering: .purple
+    )
+}
+```
+
+```swift
+// Design/ThemeTypography.swift
+import SwiftUI
+
+struct ThemeTypography: Sendable {
+    let heroTitle: Font        // App name, major headings
+    let sectionTitle: Font     // Section headers
+    let cardTitle: Font        // Quest card titles
+    let body: Font             // Standard text
+    let caption: Font          // Secondary info
+    let metric: Font           // Numbers, stats, XP values
+    let metricLarge: Font      // Big accuracy numbers in reveal
+
+    static let `default` = ThemeTypography(
+        heroTitle: .system(.largeTitle, design: .rounded, weight: .bold),
+        sectionTitle: .system(.title3, design: .rounded, weight: .semibold),
+        cardTitle: .system(.headline, design: .rounded, weight: .semibold),
+        body: .system(.body, design: .rounded),
+        caption: .system(.caption, design: .rounded),
+        metric: .system(.title2, design: .rounded, weight: .bold).monospacedDigit(),
+        metricLarge: .system(.largeTitle, design: .rounded, weight: .heavy).monospacedDigit()
+    )
+}
+```
+
+```swift
+// Design/ThemeSpacing.swift
+import SwiftUI
+
+struct ThemeSpacing: Sendable {
+    let xs: CGFloat    // 4
+    let sm: CGFloat    // 8
+    let md: CGFloat    // 12
+    let lg: CGFloat    // 16
+    let xl: CGFloat    // 24
+    let xxl: CGFloat   // 32
+
+    let cardPadding: CGFloat       // Internal card padding
+    let cardCornerRadius: CGFloat  // Card corner radius
+    let screenPadding: CGFloat     // Horizontal screen margins
+
+    static let `default` = ThemeSpacing(
+        xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32,
+        cardPadding: 16,
+        cardCornerRadius: 12,
+        screenPadding: 24
+    )
+}
+```
+
+### Integration Strategy: Incremental, Not Big-Bang
+
+**Do NOT rewrite all views at once.** Instead:
+
+1. **Phase A:** Create the Design/ folder with Theme, ThemeColors, ThemeTypography, ThemeSpacing, ThemeIcons. Inject `.themed()` at the root level in ContentView.
+2. **Phase B:** Create ThemedCard and ThemedButton reusable components that read `@Environment(\.theme)`.
+3. **Phase C:** Migrate views one at a time. Start with PlayerHomeView (highest visibility), then QuestView, then remaining views. Each migration is a small, testable PR.
+
+This approach avoids a "big bang" refactor that touches every file simultaneously and creates merge conflicts with other pillars being built in parallel.
+
+### View Migration Pattern
+
+Before (current):
+```swift
+// Current: ad-hoc colors and spacing
+HStack {
+    VStack(alignment: .leading, spacing: 4) {
+        Text(routine.displayName)
+            .font(.headline)
+            .foregroundStyle(.primary)
+        Text("\(routine.orderedTasks.count) steps")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+    Spacer()
+    Image(systemName: "chevron.right")
+        .font(.caption)
+        .foregroundStyle(.tertiary)
+}
+.padding(16)
+.background(Color(.systemGray6))
+.clipShape(RoundedRectangle(cornerRadius: 12))
+```
+
+After (themed):
+```swift
+// After: semantic tokens from theme
+@Environment(\.theme) private var theme
+
+HStack {
+    VStack(alignment: .leading, spacing: theme.spacing.xs) {
+        Text(routine.displayName)
+            .font(theme.typography.cardTitle)
+            .foregroundStyle(theme.colors.textPrimary)
+        Text("\(routine.orderedTasks.count) steps")
+            .font(theme.typography.caption)
+            .foregroundStyle(theme.colors.textSecondary)
+    }
+    Spacer()
+    Image(systemName: theme.icons.chevronRight)
+        .font(theme.typography.caption)
+        .foregroundStyle(theme.colors.textTertiary)
+}
+.padding(theme.spacing.cardPadding)
+.background(theme.colors.cardBackground)
+.clipShape(RoundedRectangle(cornerRadius: theme.spacing.cardCornerRadius))
+```
+
+### Integration with Existing Code
+
+| Existing Component | Change | Impact |
+|-------------------|--------|--------|
+| `ContentView` (in TimeQuestApp) | Add `.themed()` modifier | ONE LINE |
+| `AccuracyMeter` | Replace hardcoded `ratingColor` switch with `theme.colors.ratingXxx` | MINOR -- same logic, different color source |
+| `PlayerHomeView` | Replace hardcoded fonts, colors, spacing with theme tokens | MODERATE -- many small replacements |
+| `QuestView` chain (Estimation, Active, Reveal, Summary) | Same treatment as PlayerHomeView | MODERATE |
+| `ParentDashboardView` chain | Same treatment | MODERATE |
+| `XPBarView`, `LevelBadgeView`, `StreakBadgeView` | Replace hardcoded styles | MINOR each |
+| All other views | Incremental migration | MINOR each |
+
+### No Schema Changes
+
+The theme system is entirely a UI-layer concern. Zero model changes, zero migration.
+
+### Asset Catalog Changes
+
+Add to `Assets.xcassets`:
+- `AccentPrimary` (Color Set, light + dark variants)
+- `AccentSecondary` (Color Set, light + dark variants)
+- App icon redesign (if part of brand refresh)
+- Any custom icons or illustrations
+
+---
+
+## SchemaV4 Migration Plan
+
+### All Schema Changes (Combined)
+
+```swift
+// Models/Schemas/TimeQuestSchemaV4.swift
+
+// Changes from SchemaV3:
+
+// GameSession -- 1 new property
+var difficultyLevelRawValue: String = "learning"
+
+// TaskEstimation -- 1 new property
+var accuracyBandMultiplier: Double = 1.0
+
+// Routine -- 2 new optional properties
+var spotifyPlaylistURI: String?
+var spotifyPlaylistName: String?
+```
+
+All additions are either optional or have defaults. This is a **lightweight migration** -- no custom migration logic needed.
+
+```swift
+// Models/Migration/TimeQuestMigrationPlan.swift -- MODIFIED
+enum TimeQuestMigrationPlan: SchemaMigrationPlan {
+    static var schemas: [any VersionedSchema.Type] {
+        [TimeQuestSchemaV1.self, TimeQuestSchemaV2.self,
+         TimeQuestSchemaV3.self, TimeQuestSchemaV4.self]
+    }
+
+    static var stages: [MigrationStage] {
+        [v1ToV2, v2ToV3, v3ToV4]
+    }
+
+    static let v3ToV4 = MigrationStage.lightweight(
+        fromVersion: TimeQuestSchemaV3.self,
+        toVersion: TimeQuestSchemaV4.self
+    )
+    // ... existing stages unchanged
+}
+```
+
+### CloudKit Compatibility
+
+All new fields have defaults or are optional, satisfying CloudKit's requirements. Existing CloudKit-synced records will gain default values for the new fields on next sync.
 
 ---
 
 ## Updated AppDependencies
 
 ```swift
-// App/AppDependencies.swift -- minimal changes
+// App/AppDependencies.swift -- v3.0
 @MainActor
 @Observable
 final class AppDependencies {
+    // Existing (unchanged)
     let routineRepository: RoutineRepositoryProtocol
     let sessionRepository: SessionRepositoryProtocol
     let playerProfileRepository: PlayerProfileRepositoryProtocol
     let soundManager: SoundManager
     let notificationManager: NotificationManager
-    // No new dependencies needed.
-    // InsightEngine, WeeklyReflectionEngine, RoutineTemplates are all static/value types.
-    // ViewModels create them locally.
+    let syncMonitor: CloudKitSyncMonitor
+
+    // NEW for v3.0
+    let spotifyService: SpotifyService
+    let calendarService: CalendarService
+
+    init(modelContext: ModelContext) {
+        // Existing
+        self.routineRepository = SwiftDataRoutineRepository(modelContext: modelContext)
+        self.sessionRepository = SwiftDataSessionRepository(modelContext: modelContext)
+        self.playerProfileRepository = SwiftDataPlayerProfileRepository(modelContext: modelContext)
+        self.soundManager = SoundManager()
+        self.notificationManager = NotificationManager()
+        self.syncMonitor = CloudKitSyncMonitor()
+        syncMonitor.startMonitoring()
+
+        // NEW
+        self.spotifyService = SpotifyService()
+        self.calendarService = CalendarService()
+        calendarService.checkCurrentPermission()
+    }
 }
 ```
 
-**No changes to AppDependencies.** The new domain engines are all stateless (static methods on structs). They don't need to be instantiated or injected. ViewModels call them directly. This is consistent with how existing engines (TimeEstimationScorer, XPEngine, etc.) work.
+**Note:** `AdaptiveDifficultyEngine` is NOT added to AppDependencies. It follows the same pattern as `InsightEngine`, `WeeklyReflectionEngine`, and `TimeEstimationScorer` -- a stateless pure struct with static methods, called directly from ViewModels. Only stateful services (SpotifyService, CalendarService) go in AppDependencies.
 
 ---
 
@@ -775,211 +1173,312 @@ final class AppDependencies {
 ```
 TimeQuest/
   App/
-    TimeQuestApp.swift              # MODIFIED: CloudKit config
-    AppDependencies.swift           # unchanged
+    TimeQuestApp.swift              # MODIFIED: onOpenURL for Spotify callback
+    AppDependencies.swift           # MODIFIED: add SpotifyService, CalendarService
     RoleRouter.swift                # unchanged
-    ContentView (inline)            # unchanged
+    ContentView (inline)            # MODIFIED: add .themed() modifier
 
   Models/
-    Routine.swift                   # MODIFIED: defaults + createdBy
-    RoutineTask.swift               # MODIFIED: defaults
-    GameSession.swift               # MODIFIED: explicit defaults
-    TaskEstimation.swift            # MODIFIED: defaults
-    PlayerProfile.swift             # MODIFIED: lastReflectionViewedDate
-    WeeklyReflectionSummary.swift   # NEW (optional, defer)
+    Routine.swift                   # MODIFIED: spotifyPlaylistURI/Name (SchemaV4)
+    RoutineTask.swift               # unchanged
+    GameSession.swift               # MODIFIED: difficultyLevelRawValue (SchemaV4)
+    TaskEstimation.swift            # MODIFIED: accuracyBandMultiplier (SchemaV4)
+    PlayerProfile.swift             # unchanged
+    EstimationSnapshot.swift        # unchanged
+    WeeklyReflection.swift          # unchanged
+    Schemas/
+      TimeQuestSchemaV1.swift       # unchanged
+      TimeQuestSchemaV2.swift       # unchanged
+      TimeQuestSchemaV3.swift       # unchanged
+      TimeQuestSchemaV4.swift       # NEW: v3.0 schema additions
+    Migration/
+      TimeQuestMigrationPlan.swift  # MODIFIED: add v3ToV4 stage
 
   Repositories/
-    RoutineRepository.swift         # unchanged
+    RoutineRepository.swift         # MINOR: add fetchRoutineSummaries() method
     SessionRepository.swift         # unchanged
     PlayerProfileRepository.swift   # unchanged
-    EstimationSnapshotBridge.swift  # NEW: TaskEstimation -> EstimationSnapshot
 
   Domain/
-    CalibrationTracker.swift        # unchanged
-    FeedbackGenerator.swift         # unchanged
-    LevelCalculator.swift           # unchanged
-    PersonalBestTracker.swift       # unchanged
-    StreakTracker.swift              # unchanged
-    TimeEstimationScorer.swift      # unchanged
-    XPEngine.swift                  # unchanged
-    InsightEngine.swift             # NEW: pattern detection
-    WeeklyReflectionEngine.swift    # NEW: weekly summary computation
-    RoutineTemplates.swift          # NEW: player routine templates
-    RoutineCreator.swift            # NEW: enum for routine ownership
-    EstimationSnapshot.swift        # NEW: shared domain value type
+    # Existing (unchanged)
+    CalibrationTracker.swift
+    FeedbackGenerator.swift
+    LevelCalculator.swift
+    PersonalBestTracker.swift
+    StreakTracker.swift
+    TimeEstimationScorer.swift      # MODIFIED: accept accuracyBandMultiplier param
+    XPEngine.swift                  # unchanged (ViewModel applies xpMultiplier)
+    XPConfiguration.swift           # unchanged
+    InsightEngine.swift             # unchanged
+    WeeklyReflectionEngine.swift    # unchanged
+    RoutineTemplateProvider.swift   # unchanged
+
+    # NEW for v3.0
+    AdaptiveDifficultyEngine.swift  # Pure domain: difficulty computation
+    CalendarEvent.swift             # Value type bridge for EventKit events
+    ScheduleSuggestionEngine.swift  # Pure domain: calendar -> routine suggestions
+    SpotifyConfiguration.swift      # Client ID, redirect URI, scopes
 
   Features/
     Parent/
       ViewModels/
-        RoutineEditorViewModel.swift    # MINOR: set createdBy = "parent"
+        RoutineEditorViewModel.swift    # MINOR: add Spotify playlist selection
+        SpotifyPlaylistViewModel.swift  # NEW: playlist browsing for parent
       Views/
-        (all unchanged)
+        (existing views: minor theme migration)
+        SpotifyConnectView.swift        # NEW: Spotify OAuth flow UI
+        SpotifyPlaylistPickerView.swift # NEW: playlist selection UI
 
     Player/
       ViewModels/
-        GameSessionViewModel.swift      # MINOR: add contextualHint property
+        GameSessionViewModel.swift      # MODIFIED: add difficulty + Spotify playback
         ProgressionViewModel.swift      # unchanged
-        InsightsViewModel.swift         # NEW
-        WeeklyReflectionViewModel.swift # NEW
-        PlayerRoutineEditorViewModel.swift # NEW
+        MyPatternsViewModel.swift       # unchanged
+        WeeklyReflectionViewModel.swift # unchanged
+        PlayerRoutineCreationViewModel.swift # unchanged
       Views/
-        PlayerHomeView.swift            # MODIFIED: add Create Quest + reflection banner
-        MyPatternsView.swift            # NEW
-        WeeklyReflectionView.swift      # NEW
-        PlayerRoutineEditorView.swift   # NEW
-        EstimationInputView.swift       # MINOR: show contextual hint
-        (other views unchanged)
+        PlayerHomeView.swift            # MODIFIED: schedule suggestions + theme
+        QuestView.swift                 # MODIFIED: music banner + theme
+        (all views: incremental theme migration)
+        ScheduleSuggestionsView.swift   # NEW: calendar suggestion cards
+        QuestMusicBannerView.swift      # NEW: now-playing indicator
 
     Shared/
       Components/
-        InsightCardView.swift           # NEW
+        (existing: theme migration)
+        CalendarPermissionView.swift    # NEW: pre-permission explanation
+
+  Design/                              # NEW folder for v3.0
+    Theme.swift                        # Theme struct + environment key
+    ThemeColors.swift                   # Semantic color tokens
+    ThemeTypography.swift              # Typography scale
+    ThemeSpacing.swift                 # Spacing scale
+    ThemeIcons.swift                    # Icon name constants
+    ThemeAnimation.swift               # Animation duration/curve constants
+    View+Theme.swift                   # .themed() modifier
+    Components/
+      ThemedButton.swift               # Reusable themed button
+      ThemedCard.swift                 # Reusable themed card
 
   Services/
-    SoundManager.swift              # unchanged
-    NotificationManager.swift       # MODIFIED: add weekly reflection scheduling
+    SoundManager.swift              # unchanged (no audio session conflict)
+    NotificationManager.swift       # unchanged
+    CloudKitSyncMonitor.swift       # unchanged
+    SpotifyService.swift            # NEW: Spotify OAuth + playback control
+    SpotifyAuthManager.swift        # NEW: token management (Keychain)
+    CalendarService.swift           # NEW: EventKit wrapper
 
   Game/
-    AccuracyRevealScene.swift       # unchanged
-    CelebrationScene.swift          # unchanged
+    AccuracyRevealScene.swift       # MINOR: theme colors
+    CelebrationScene.swift          # MINOR: theme colors
+
+  Tests/
+    AdaptiveDifficultyEngineTests.swift  # NEW
+    ScheduleSuggestionEngineTests.swift  # NEW
 ```
 
-**New file count:** ~12 new files. **Modified file count:** ~8 files. Total codebase grows from 46 to ~58 Swift files.
+**New file count:** ~22 new files.
+**Modified file count:** ~12 files.
+**Total codebase grows from 66 to ~88 Swift files.**
 
 ---
 
 ## Build Order (Dependency-Driven)
 
-The features have this dependency graph:
+### Dependencies Between Pillars
 
 ```
-EstimationSnapshot (shared value type)
-  |
-  +---> InsightEngine (depends on EstimationSnapshot)
-  |       |
-  |       +---> Contextual Insights feature (depends on InsightEngine)
-  |       |
-  |       +---> Weekly Reflections (depends on InsightEngine for insight reuse)
-  |
-  +---> WeeklyReflectionEngine (depends on EstimationSnapshot)
+Pillar 1: Adaptive Difficulty
+  depends on: EstimationSnapshot (exists), InsightEngine thresholds (reference only)
+  blocks: nothing
 
-Routine.createdBy (schema change)
-  |
-  +---> Self-Set Routines (depends on createdBy field)
+Pillar 2: Spotify Integration
+  depends on: Spotify iOS SDK (external dependency)
+  blocks: nothing
+  coordination: SoundManager (minor, no blocking dependency)
 
-CloudKit defaults (schema changes)
-  |
-  +---> iCloud Backup (depends on all models having defaults)
+Pillar 3: Calendar Intelligence
+  depends on: EventKit (system framework), RoutineRepository (exists)
+  blocks: nothing
+
+Pillar 4: UI/Brand Refresh
+  depends on: nothing
+  blocks: nothing (but should go LAST so other pillars' new views use the theme)
+
+SchemaV4 migration
+  depends on: knowing all schema additions (from Pillars 1 + 2)
+  blocks: Pillars 1 and 2 (they need the new fields)
 ```
 
 ### Recommended Build Phases
 
-**Phase 1: Data Foundation + CloudKit**
-1. Add property defaults to all models (CloudKit compatibility)
-2. Add `createdBy` to Routine
-3. Add `lastReflectionViewedDate` to PlayerProfile
-4. Add `EstimationSnapshot` value type + bridge extension
-5. Enable CloudKit in ModelConfiguration
-6. Add iCloud entitlement
-7. Test: verify existing app works with defaults, CloudKit sync works
+**Phase 7: Schema Evolution + Adaptive Difficulty**
+1. Create TimeQuestSchemaV4 with all new fields (from all pillars)
+2. Update TimeQuestMigrationPlan with v3ToV4 stage
+3. Build AdaptiveDifficultyEngine (pure domain, test-first)
+4. Modify TimeEstimationScorer to accept accuracyBandMultiplier
+5. Modify GameSessionViewModel to compute and apply difficulty per task
+6. Update EstimationInputView to conditionally show/hide hints
+7. Update AccuracyRevealView to show difficulty-adjusted feedback
+8. Test: verify difficulty adapts based on player history
 
-**Rationale:** Do schema changes first because everything else depends on them. CloudKit is infrastructure that doesn't affect feature code. Getting it working early means all subsequent data is synced from day one.
+**Rationale:** Schema changes must happen first because both Adaptive Difficulty and Spotify need new fields. Adaptive Difficulty is the most "pure" pillar -- no external dependencies, no permissions, just domain logic. It follows the exact same pattern as InsightEngine (pure engine consuming EstimationSnapshot). Low risk, high testability.
 
-**Phase 2: Contextual Learning Insights**
-1. Build `InsightEngine` (pure domain, test-first)
-2. Build `InsightsViewModel`
-3. Build `InsightCardView` (shared component)
-4. Build `MyPatternsView`
-5. Add contextual hints to `GameSessionViewModel` + `EstimationInputView`
-6. Add navigation from PlayerHomeView/PlayerStatsView to MyPatternsView
-7. Test: verify insights generate correctly from real estimation data
+**Phase 8: Calendar Intelligence**
+1. Build CalendarService (EventKit wrapper)
+2. Build CalendarEvent value type + bridge
+3. Build ScheduleSuggestionEngine (pure domain, test-first)
+4. Build CalendarPermissionView
+5. Build ScheduleSuggestionsView
+6. Integrate into PlayerHomeView
+7. Test: verify calendar events produce correct suggestions, permission flow works
 
-**Rationale:** InsightEngine is a prerequisite for Weekly Reflections (which reuses insights). Building it first unlocks both features. The pattern detection logic is the most complex new domain code and benefits from early testing.
+**Rationale:** Calendar Intelligence is a system-framework integration (EventKit) with well-established patterns. No external third-party dependency. The permission flow is the main UX challenge but is a well-solved problem. Lower risk than Spotify.
 
-**Phase 3: Self-Set Routines**
-1. Build `RoutineTemplates` (static data)
-2. Build `RoutineCreator` enum
-3. Build `PlayerRoutineEditorViewModel`
-4. Build `PlayerRoutineEditorView`
-5. Add "Create Quest" button to PlayerHomeView
-6. Update `RoutineEditorViewModel` to set `createdBy = "parent"`
-7. Test: player can create routine from template, routine appears in quest list
+**Phase 9: Spotify Integration**
+1. Add SpotifyiOS SDK dependency (Swift Package Manager)
+2. Build SpotifyConfiguration
+3. Build SpotifyAuthManager (Keychain-backed token storage)
+4. Build SpotifyService (OAuth + playback control)
+5. Build SpotifyConnectView (parent dashboard)
+6. Build SpotifyPlaylistPickerView (parent dashboard)
+7. Build QuestMusicBannerView (player quest view)
+8. Integrate into GameSessionViewModel (play on quest start, pause on finish)
+9. Handle onOpenURL in TimeQuestApp for OAuth callback
+10. Test: verify OAuth flow, playlist selection, playback during quest
 
-**Rationale:** Self-set routines depend on the `createdBy` schema change (done in Phase 1) but are otherwise independent of insights. Could be built in parallel with Phase 2 if resources allow.
+**Rationale:** Spotify is the highest-risk pillar. It introduces the project's first external third-party dependency, requires OAuth configuration in the Spotify Developer Dashboard, requires the Spotify app to be installed, and has the most complex error states (not installed, not logged in, token expired, playback failed). Build it after the two simpler pillars to avoid blocking progress on external dependency issues.
 
-**Phase 4: Weekly Reflections**
-1. Build `WeeklyReflectionEngine` (pure domain, test-first)
-2. Build `WeeklyReflectionViewModel`
-3. Build `WeeklyReflectionView`
-4. Add reflection banner to PlayerHomeView
-5. Add weekly notification scheduling to NotificationManager
-6. Test: weekly summary renders correctly, notification fires on schedule
+**Phase 10: UI/Brand Refresh**
+1. Create Design/ folder with Theme system
+2. Build ThemeColors, ThemeTypography, ThemeSpacing, ThemeIcons, ThemeAnimation
+3. Build ThemedCard and ThemedButton reusable components
+4. Add `.themed()` to ContentView root
+5. Migrate PlayerHomeView (highest visibility)
+6. Migrate QuestView chain (Estimation, Active, Reveal, Summary)
+7. Migrate ParentDashboardView chain
+8. Migrate remaining views
+9. Update AccuracyRevealScene and CelebrationScene colors
+10. Test: visual regression check across all screens
 
-**Rationale:** Depends on InsightEngine (reuses insight types). Must come after Phase 2. Weekly reflections are the least critical feature and benefit from having more estimation data to summarize.
+**Rationale:** The theme system should be built LAST because (a) it has zero functional impact -- it is purely visual, (b) building it last means all new views from Phases 7-9 exist and can be themed in a single pass, and (c) doing theme migration while other pillars are being built would create constant merge conflicts. The incremental migration strategy (one view at a time) makes this safe to do in a focused sweep at the end.
 
 ---
 
-## Anti-Patterns to Avoid (v2.0-Specific)
+## Anti-Patterns to Avoid (v3.0-Specific)
 
-### Anti-Pattern: Domain Engines Importing SwiftData
+### Anti-Pattern: AdaptiveDifficultyEngine Importing SwiftData
 
-**What:** InsightEngine or WeeklyReflectionEngine directly accepting `[TaskEstimation]` (SwiftData @Model).
+**What:** Making the difficulty engine accept `[TaskEstimation]` or `[GameSession]` directly.
 
-**Why bad:** Breaks the pure-domain-engine pattern. Makes engines untestable without ModelContainer. Creates hidden MainActor requirements.
+**Why bad:** Breaks the pure-domain-engine pattern established by InsightEngine and WeeklyReflectionEngine. Creates hidden MainActor requirements. Makes the engine untestable without ModelContainer.
 
-**Instead:** Use EstimationSnapshot value type. The ViewModel bridges between SwiftData and domain.
+**Instead:** Accept `[EstimationSnapshot]` -- the same bridge type every other domain engine uses.
 
-### Anti-Pattern: Storing Computed Insights as @Model
+### Anti-Pattern: Storing Spotify Tokens in UserDefaults
 
-**What:** Creating an `@Model Insight` class to persist detected patterns.
+**What:** Saving the OAuth access token and refresh token in UserDefaults.
 
-**Why bad:** Insights are computed from underlying data that changes every session. Persisted insights go stale. Creates cache invalidation headaches. Adds CloudKit sync overhead for derived data.
+**Why bad:** UserDefaults is not encrypted. OAuth tokens are credentials. If the device is compromised or backed up to an unencrypted iTunes backup, tokens are exposed.
 
-**Instead:** Compute insights fresh each time from TaskEstimation data. It's fast (tens to hundreds of records, simple aggregation).
+**Instead:** Use the iOS Keychain via `Security.framework`. The Keychain is encrypted at rest and protected by the device passcode.
 
-### Anti-Pattern: Modifying Existing Inits for CloudKit Defaults
+### Anti-Pattern: Requesting Calendar Permission on First Launch
 
-**What:** Changing existing `init()` methods to use default parameter values instead of adding property-level defaults.
+**What:** Showing the EventKit permission dialog immediately when the app opens for the first time.
 
-**Why bad:** CloudKit requires defaults at the stored property declaration level (`var name: String = ""`), not in the init. CloudKit initializes records by setting properties directly, bypassing custom inits.
+**Why bad:** Users deny permissions they do not understand. The system dialog gives no context about why the app wants calendar access. Once denied, the user must go to Settings to re-enable.
 
-**Instead:** Add defaults at the property declaration level. Keep existing inits unchanged.
+**Instead:** Show a custom pre-permission screen that explains the value ("See what's coming up so you can start the right quest at the right time"). Only trigger the system dialog after the user taps "Allow" on the custom screen. If the user taps "Not Now", remember their choice and do not ask again for 7 days.
 
-### Anti-Pattern: Using CloudKit Shared Database
+### Anti-Pattern: Global Theme Singleton
 
-**What:** Configuring SwiftData with `.shared` CloudKit database for family sharing.
+**What:** Creating a `ThemeManager.shared` singleton that views read from.
 
-**Why bad:** Shared databases require CKShare management, participant invitations, and complex permission handling. Massive scope creep for a single-user backup feature. Also leaks parent-configured data to the player's iCloud account in a visible way.
+**Why bad:** Singletons break SwiftUI's declarative environment-based architecture. They make previews difficult (can't override the singleton per preview). They create hidden dependencies that are not visible in the view's init.
 
-**Instead:** Use `.private` (the default). Each iCloud account gets its own synced copy. If family sharing is needed later, it's a separate feature.
+**Instead:** Use `@Environment(\.theme)` -- the same pattern as `@Environment(\.colorScheme)`, `@Environment(\.dynamicTypeSize)`, and every other SwiftUI environment value.
 
-### Anti-Pattern: Player Editor Reusing Parent Editor Views
+### Anti-Pattern: Big-Bang Theme Migration
 
-**What:** Showing the parent's RoutineEditorView to the player with minor conditionals.
+**What:** Rewriting every view to use the new theme system in a single PR.
 
-**Why bad:** The parent editor has `name`/`displayName` dual fields, setup-oriented language, and no templates. Conditionally hiding fields creates a confusing view with lots of `if isPlayerMode` branches.
+**Why bad:** Touches every file in the codebase. Creates massive merge conflicts if any other work is happening. Makes it impossible to review the PR meaningfully. One bug in the theme system breaks every view.
 
-**Instead:** Separate view (PlayerRoutineEditorView) reusing the same RoutineEditState struct and save logic. Different views, shared data types.
+**Instead:** Incremental migration. Create the theme system first. Then migrate one view at a time. Each migration is a small, reviewable, revertible change.
+
+### Anti-Pattern: Spotify Playback Without Fallback
+
+**What:** Assuming Spotify is always available and crashing or showing errors when it is not.
+
+**Why bad:** Spotify requires the app to be installed. Not every user has Spotify. The auth token can expire. The Spotify app can be backgrounded and killed by iOS.
+
+**Instead:** Every Spotify integration point must have a graceful fallback. Quest works without music. Parent dashboard shows "Connect Spotify" only when the app is installed. Playback failures are silently logged, not shown to the 13-year-old player.
 
 ---
 
 ## Scalability Considerations
 
-| Concern | Current (v1.0) | After v2.0 | Future Risk |
-|---------|----------------|------------|-------------|
-| InsightEngine performance | N/A | Processes all TaskEstimations. At 100 sessions x 5 tasks = 500 records. Trivial. | At 1000+ sessions, add date-range filtering (last 90 days). |
-| CloudKit sync volume | N/A | All records sync. ~500 records initial upload. | At 10K+ records, consider archiving old sessions to reduce sync payload. |
-| Weekly reflection computation | N/A | Processes ~1 week of data. Trivial. | No scaling concern. Always bounded to 7 days. |
-| Player-created routines | 0 routines | 2-5 routines. Same as parent routines. | No scaling concern. Routines are metadata, not high-volume data. |
-| EstimationSnapshot mapping | N/A | Maps SwiftData models to value types. Linear O(n). | Marginal cost. Could cache snapshots if profiling shows concern. |
+| Concern | At Current Scale (66 files) | After v3.0 (~88 files) | At 150+ files |
+|---------|----------------------------|------------------------|---------------|
+| AdaptiveDifficultyEngine | N/A | Processes same EstimationSnapshot data as InsightEngine. Trivial. | No concern -- bounded by per-task window (last 10 sessions). |
+| SpotifyService | N/A | Singleton service, one active connection. | No concern -- Spotify handles all streaming complexity. |
+| CalendarService | N/A | Reads today's events (typically 5-20). Trivial. | No concern -- bounded to single-day event count. |
+| ScheduleSuggestionEngine | N/A | O(events x routines) matching. At 20 events x 10 routines = 200 comparisons. | No concern at any realistic scale. |
+| Theme system | Ad-hoc colors (26 views) | Environment-based tokens (38 views). | Environment reads are O(1). Scales to any number of views. |
+| SchemaV4 migration | V1->V2->V3 chain | V1->V2->V3->V4 chain. Lightweight. | At V8+ consider collapsing old schemas (remove V1/V2 support). |
+| generate-xcodeproj.js | Registers 66 files | Registers ~88 files | File registration is O(n). No concern. |
+| CloudKit sync | ~6K records | Same records + 4 new fields per record | CloudKit handles field additions gracefully. No concern. |
+
+---
+
+## Cross-Cutting Concerns
+
+### Error Handling Strategy
+
+Each new service has distinct failure modes:
+
+| Service | Failure | User Impact | Handling |
+|---------|---------|-------------|----------|
+| SpotifyService | Not installed | No music in quests | Hide Spotify UI entirely |
+| SpotifyService | Auth expired | Music stops mid-quest | Silent re-auth attempt, graceful silence |
+| SpotifyService | Playback failed | No music | Log error, continue quest without music |
+| CalendarService | Permission denied | No suggestions | Hide suggestion UI, never nag |
+| CalendarService | No events today | No suggestions | Show nothing (not "no events found") |
+| AdaptiveDifficultyEngine | Insufficient data | Default to "learning" | Built into engine (< 5 sessions = learning) |
+
+**Principle: No error from a v3.0 feature should ever block the core quest gameplay.** All new features are enhancements layered on top of the existing game loop. If Spotify fails, the quest continues. If the calendar is unavailable, quests still work. If adaptive difficulty has insufficient data, it defaults to the generous "learning" parameters.
+
+### Concurrency Model
+
+- **SpotifyService:** `@MainActor` (UI state updates, SPTAppRemote callbacks)
+- **CalendarService:** `@MainActor` (EKEventStore operations, UI state updates)
+- **AdaptiveDifficultyEngine:** Sendable struct, static methods, no actor isolation needed (same as InsightEngine)
+- **ScheduleSuggestionEngine:** Sendable struct, static methods, no actor isolation needed
+- **Theme:** Sendable struct, injected via environment, read-only after creation
+
+### Privacy Considerations
+
+| Feature | Data Accessed | Stored? | Shared? |
+|---------|--------------|---------|---------|
+| Calendar | User's calendar events | NO -- read on-demand, never persisted | NO |
+| Spotify | Playlist names, playback state | Playlist URI/name stored on Routine (CloudKit synced) | Within user's own iCloud only |
+| Adaptive Difficulty | Estimation history (already stored) | Difficulty level on GameSession (CloudKit synced) | Within user's own iCloud only |
+
+**Calendar data never leaves the device.** Event titles and times are read from EventKit, used to generate suggestions in memory, and discarded. No calendar data is written to SwiftData or synced to CloudKit.
+
+**Spotify data is minimal.** Only the playlist URI and display name are stored (on the Routine model). No track history, listening habits, or Spotify profile data is persisted.
 
 ---
 
 ## Sources
 
-- **Existing codebase analysis**: All 46 Swift files read and analyzed directly from `/Users/davezabihaylo/Desktop/Claude Cowork/GSD/TimeQuest/`
-- **SwiftData + CloudKit constraints**: Training data knowledge of WWDC 2023/2024 SwiftData sessions, Apple documentation on CloudKit compatibility requirements. MEDIUM confidence -- constraints are well-documented but exact API syntax should be verified against current Xcode SDK.
-- **SwiftData migration behavior**: Training data knowledge of lightweight migration support in SwiftData (additive changes auto-migrated). MEDIUM confidence.
-- **ModelConfiguration API**: Training data knowledge of `cloudKitDatabase` parameter options (`.automatic`, `.private`, `.none`). MEDIUM confidence -- verify exact parameter names in current SDK.
-- **Architecture patterns**: Direct observation of existing codebase patterns (pure domain engines, value-type editing, repository protocols, composition root). HIGH confidence -- these are the actual shipped patterns.
+- **Existing codebase analysis**: All 66 Swift files read and analyzed directly from `/Users/davezabihaylo/Desktop/Claude Cowork/GSD/TimeQuest/`
+- **Spotify iOS SDK**: Training data knowledge of SpotifyiOS SDK (SPTSessionManager, SPTAppRemote, SPTPlayerAPI). MEDIUM confidence -- SDK has been stable since 2019 but may have received updates post-May 2025. Verify current SDK version and API surface before implementation.
+- **EventKit**: Training data knowledge of EKEventStore, EKEvent, authorization model. HIGH confidence -- EventKit API has been stable since iOS 6. iOS 17 added `requestFullAccessToEvents()` (vs. legacy `requestAccess(to:)`) which is reflected above.
+- **SwiftUI Environment pattern**: Training data knowledge of `EnvironmentKey`, `EnvironmentValues` extension pattern. HIGH confidence -- this is core SwiftUI, unchanged since iOS 13.
+- **Adaptive difficulty algorithms**: Training data knowledge of game design patterns for difficulty adaptation (dynamic difficulty adjustment / DDA). HIGH confidence -- the implementation is custom domain logic, not dependent on any framework.
+- **SwiftData migration**: Training data knowledge of lightweight migration for additive schema changes. MEDIUM confidence -- verified against existing TimeQuest V1->V2->V3 migration chain which uses the same pattern.
+- **Architecture patterns**: Direct observation of existing codebase patterns (pure domain engines, EstimationSnapshot bridge, repository protocols, composition root, XPConfiguration). HIGH confidence -- these are the actual shipped patterns.
 
-**Confidence note:** Web search and Context7 were unavailable during this session. All CloudKit-specific claims are based on training data through May 2025. The SwiftData + CloudKit integration API was stable by that point (introduced WWDC 2023, refined WWDC 2024), but exact syntax should be verified against current Xcode documentation during implementation. The property-default requirements for CloudKit compatibility are well-established and unlikely to have changed.
+**Confidence note:** Web search and Context7 were unavailable during this session. The Spotify iOS SDK claims should be verified against current documentation at https://developer.spotify.com/documentation/ios before implementation. The EventKit API surface is mature and unlikely to have changed materially. The adaptive difficulty engine and theme system are custom implementations with no external dependency risk.
