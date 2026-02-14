@@ -77,6 +77,9 @@ const sourceFiles = [
   { name: 'MyPatternsViewModel.swift', path: 'Features/Player/ViewModels/MyPatternsViewModel.swift' },
   { name: 'PlayerRoutineCreationViewModel.swift', path: 'Features/Player/ViewModels/PlayerRoutineCreationViewModel.swift' },
   { name: 'TimeQuestSchemaV3.swift', path: 'Models/Schemas/TimeQuestSchemaV3.swift' },
+  { name: 'WeeklyReflection.swift', path: 'Models/WeeklyReflection.swift' },
+  { name: 'WeeklyReflectionEngine.swift', path: 'Domain/WeeklyReflectionEngine.swift' },
+  { name: 'WeeklyReflectionViewModel.swift', path: 'Features/Player/ViewModels/WeeklyReflectionViewModel.swift' },
 ];
 
 // Sound resource files
@@ -91,18 +94,18 @@ const soundFiles = [
 // Groups
 const groups = [
   { name: 'App', path: 'App', files: ['TimeQuestApp.swift', 'AppDependencies.swift', 'RoleRouter.swift'] },
-  { name: 'Models', path: 'Models', files: ['Routine.swift', 'RoutineTask.swift', 'GameSession.swift', 'TaskEstimation.swift', 'PlayerProfile.swift', 'EstimationSnapshot.swift'], subgroups: ['Schemas', 'Migration'] },
+  { name: 'Models', path: 'Models', files: ['Routine.swift', 'RoutineTask.swift', 'GameSession.swift', 'TaskEstimation.swift', 'PlayerProfile.swift', 'EstimationSnapshot.swift', 'WeeklyReflection.swift'], subgroups: ['Schemas', 'Migration'] },
   { name: 'Schemas', path: 'Schemas', files: ['TimeQuestSchemaV1.swift', 'TimeQuestSchemaV2.swift', 'TimeQuestSchemaV3.swift'] },
   { name: 'Migration', path: 'Migration', files: ['TimeQuestMigrationPlan.swift'] },
   { name: 'Repositories', path: 'Repositories', files: ['RoutineRepository.swift', 'SessionRepository.swift', 'PlayerProfileRepository.swift'] },
-  { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'XPConfiguration.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift', 'InsightEngine.swift', 'RoutineTemplateProvider.swift'] },
+  { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'XPConfiguration.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift', 'InsightEngine.swift', 'RoutineTemplateProvider.swift', 'WeeklyReflectionEngine.swift'] },
   { name: 'Services', path: 'Services', files: ['SoundManager.swift', 'NotificationManager.swift', 'CloudKitSyncMonitor.swift'] },
   { name: 'Shared', path: 'Shared', subgroups: ['Components', 'SharedViews'] },
   { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift', 'XPBarView.swift', 'StreakBadgeView.swift', 'LevelBadgeView.swift', 'InsightCardView.swift'] },
   { name: 'SharedViews', path: 'Views', files: ['PINEntryView.swift'] },
   { name: 'Player', path: 'Player', subgroups: ['PlayerViews', 'PlayerViewModels'] },
   { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift', 'QuestView.swift', 'EstimationInputView.swift', 'TaskActiveView.swift', 'AccuracyRevealView.swift', 'SessionSummaryView.swift', 'OnboardingView.swift', 'AccuracyTrendChartView.swift', 'PlayerStatsView.swift', 'NotificationSettingsView.swift', 'MyPatternsView.swift', 'PlayerRoutineCreationView.swift'] },
-  { name: 'PlayerViewModels', path: 'ViewModels', files: ['GameSessionViewModel.swift', 'ProgressionViewModel.swift', 'MyPatternsViewModel.swift', 'PlayerRoutineCreationViewModel.swift'] },
+  { name: 'PlayerViewModels', path: 'ViewModels', files: ['GameSessionViewModel.swift', 'ProgressionViewModel.swift', 'MyPatternsViewModel.swift', 'PlayerRoutineCreationViewModel.swift', 'WeeklyReflectionViewModel.swift'] },
   { name: 'Parent', path: 'Parent', subgroups: ['ParentViews', 'ParentViewModels'] },
   { name: 'ParentViews', path: 'Views', files: ['ParentDashboardView.swift', 'RoutineListView.swift', 'RoutineEditorView.swift', 'TaskEditorView.swift', 'SchedulePickerView.swift'] },
   { name: 'ParentViewModels', path: 'ViewModels', files: ['RoutineEditorViewModel.swift'] },
