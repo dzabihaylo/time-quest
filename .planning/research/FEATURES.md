@@ -1,154 +1,159 @@
-# Feature Landscape: v2.0 Advanced Training
+# Feature Landscape: v3.0 Adaptive & Connected
 
-**Domain:** Time-perception training game for teens with time blindness -- contextual insights, self-set routines, weekly reflections, iCloud backup
-**Researched:** 2026-02-13
-**Confidence:** MEDIUM -- Based on training data (cutoff May 2025) covering gamified skill-training app patterns, SwiftData/CloudKit sync capabilities, and ADHD-focused app design. No live web verification was possible. SwiftData+CloudKit specifics should be verified against current Apple documentation before implementation.
+**Domain:** Educational iOS game -- time perception training for teens with time blindness
+**Researched:** 2026-02-14
+**Confidence:** HIGH (feature design) / MEDIUM (Spotify SDK capabilities)
 
 ---
 
-## What Already Exists (v1.0 Foundation)
+## What Already Exists (v2.0 Foundation)
 
-Before categorizing new features, here is what the new features build on top of:
+Before categorizing new features, here is what v3.0 builds on:
 
-| Existing Feature | Data Available | Relevant For |
-|-----------------|----------------|--------------|
-| TaskEstimation model (taskDisplayName, estimatedSeconds, actualSeconds, differenceSeconds, accuracyPercent, rating, recordedAt) | Full per-task estimation history | Contextual insights pattern analysis |
-| GameSession model (routine, startedAt, completedAt, isCalibration, xpEarned, estimations) | Session-level grouping and completion data | Weekly reflection summaries |
-| PlayerProfile (totalXP, currentStreak, lastPlayedDate, preferences) | Player progression state | iCloud backup, weekly reflections |
-| Routine + RoutineTask (name, displayName, activeDays, referenceDurationSeconds, ordering) | Routine structure | Self-set routines (reuse model + editor) |
-| PersonalBestTracker (per-task closest estimate) | Already groups estimations by taskDisplayName | Contextual insights build on same grouping |
-| ProgressionViewModel (chart data, personal bests, daily accuracy averages) | 30-day accuracy trend, per-day grouping | Weekly reflections aggregate from this |
-| FeedbackGenerator (curiosity-framed messages per rating) | Per-estimation feedback | Contextual insights extend this to multi-session patterns |
-| RoutineEditorViewModel + RoutineEditorView (value-type editing pattern) | Full CRUD for routines | Self-set routines reuse this editor |
+| Existing System | Data / Capability Available | Relevant For |
+|----------------|---------------------------|--------------|
+| InsightEngine (bias, trend, consistency per task) | Per-task mean signed difference, linear regression slope, coefficient of variation | Adaptive difficulty -- trend/consistency feed difficulty adjustments |
+| CalibrationTracker (3-session threshold per routine) | Completion count per routine | Adaptive difficulty -- calibration is the "easy mode" seed |
+| TimeEstimationScorer (4-tier rating: spot_on/close/off/way_off) | AccuracyRating with percentage thresholds (10%, 25%, 50%) | Adaptive difficulty -- these thresholds are the knobs to turn |
+| XPConfiguration (tunable constants) | spotOnXP, closeXP, offXP, wayOffXP, completionBonus, levelBaseXP, levelExponent | Adaptive difficulty -- XP rewards scale with difficulty |
+| EstimationSnapshot (value type bridge) | taskDisplayName, estimated/actual/difference seconds, accuracy%, date, routine, isCalibration | Adaptive difficulty -- full history for any analysis |
+| SoundManager (.ambient AVAudioSession) | 5 sound effects, preloaded AVAudioPlayers, mute toggle | Spotify -- must coexist with SoundManager's .ambient category |
+| Routine.activeDays ([Int] weekday values 1-7) | Static day-of-week scheduling | Calendar intelligence -- replace/augment with dynamic calendar-driven activation |
+| SchedulePickerView (weekday toggles + quick-select) | UI for day selection | Calendar intelligence -- augment with calendar-linked option |
+| RoutineRepository.fetchActiveForToday() | Filters by today's weekday against activeDays | Calendar intelligence -- this is the function to extend |
+| PlayerHomeView (quest list, XP bar, streak, reflection card) | Full home screen layout | UI refresh -- complete visual overhaul |
+| AccuracyRevealScene (SpriteKit particles) | Celebration animations | UI refresh -- particle effects need visual update |
+| WeeklyReflectionCardView | Summary card styling | UI refresh -- redesign with new visual language |
 
-**Key insight:** The v1.0 data model already stores everything needed for contextual insights and weekly reflections. No schema changes are required for analysis features -- they are pure read-side computations over existing TaskEstimation and GameSession records. Self-set routines reuse the existing Routine/RoutineTask model. Only iCloud backup requires infrastructure changes, and weekly reflections require one new model for persistence.
+**Key insight:** The difficulty adjustment system has natural anchor points in the existing AccuracyRating thresholds (10%/25%/50%) and the InsightEngine's trend detection. Adaptive difficulty is not starting from scratch -- it is parameterizing what is currently hard-coded.
 
 ---
 
 ## Table Stakes
 
-Features that are expected given v1.0 already exists and the player has been using the app for weeks. Without these, the v2.0 update feels hollow.
+Features users expect. Missing = the v3.0 milestone feels incomplete.
 
-### Data Protection
-
-| Feature | Why Expected | Complexity | Dependencies on v1.0 | Notes |
-|---------|-------------|------------|----------------------|-------|
-| **iCloud backup of progress data** | After weeks of daily play, losing XP/levels/history to a phone swap or reset is devastating. A 13-year-old who loses weeks of progress will not re-engage. | MEDIUM | All SwiftData models (PlayerProfile, GameSession, TaskEstimation, Routine, RoutineTask) | SwiftData + CloudKit via `ModelConfiguration(cloudKitDatabase: .automatic)`. Existing models mostly comply with CloudKit requirements (optional relationships, default values). Verify `Routine.activeDays` array compatibility. See STACK.md and PITFALLS.md for details. |
-| **Backup status indicator** | Player should see that her data is safe. Reduces anxiety about data loss. | LOW | iCloud backup feature | Simple "Synced" / "Last backed up: [date]" in settings. Not a full sync status dashboard -- keep it simple. |
-
-**Age-appropriate note:** A 13-year-old does not think about backup proactively. This feature is invisible until it matters (phone swap, data corruption). The value is parent peace-of-mind and disaster recovery, not daily user engagement.
-
-### Production Polish
-
-| Feature | Why Expected | Complexity | Dependencies on v1.0 | Notes |
-|---------|-------------|------------|----------------------|-------|
-| **Real sound assets** | v1.0 shipped with placeholder .wav files (all 8,864 bytes -- identical size, clearly generated). Placeholder audio feels broken, not unfinished. | LOW | SoundManager already loads and plays named sounds | Drop-in replacement of 5 .wav files. Zero code changes. Source from freesound.org (CC0 filter) or Pixabay. See STACK.md for specifications. |
-| **XP curve tuning** | After weeks of play, the concave curve (baseXP * level^1.5) may feel too fast or too slow. Requires actual play data. | LOW | XPEngine, LevelCalculator | Constants change, not a feature build. Expose tunable values. Pending playtesting data. |
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| Difficulty-aware accuracy thresholds | If game "adapts," the most visible adaptation is whether spot_on/close/off bands shift | Medium | Per-task difficulty level stored alongside task. Levels widen or narrow existing thresholds. |
+| Automatic difficulty progression | Game must adjust without player choosing a setting. She should never see "Easy/Medium/Hard." | Medium | EMA of recent accuracy per task. Improve = tighten. Struggle = loosen. |
+| Difficulty floor (never punishing) | 3+ consecutive off/way_off at current level triggers step down. ADHD-critical. | Medium | Frustration spiral prevention. Difficulty never drops below baseline (v2.0 thresholds). |
+| Spotify account connection | One-time OAuth link to her Spotify account. No re-auth every session. | Medium | SpotifyiOS SDK handles native SSO. Keychain for token persistence. |
+| Music during active task phase | Playlist plays while she does real-world tasks. Core Spotify value prop. | Medium | SPTAppRemote controls Spotify app. Pauses on task complete or app background. |
+| Duration-matched playlist | Playlist length approximates total routine length. Music = audible time cue. | Medium | Greedy algorithm: fill target duration from her tracks within 30s tolerance. |
+| Calendar permission request | Graceful, non-scary prompt with clear explanation. Parent grants this. | Low | EventKit requestFullAccessToEvents() on iOS 17+. |
+| School day detection | Know whether today is a school day from calendar events. | Medium | Keyword matching against calendar event titles. Parent configures keywords. |
+| Routine auto-surfacing | Show school morning routine on school days, skip on holidays/summer. | Medium | CalendarIntelligenceEngine determines ScheduleContext, filters routines. |
+| Visual refresh of home screen | First impression must look 2026-modern. | Medium | New color palette, typography, card styling, animations. |
+| Visual refresh of quest flow | Core gameplay loop needs to feel fresh. | High | Estimation input, active task, accuracy reveal, session summary. |
+| Graceful degradation everywhere | Spotify not installed? Calendar denied? Everything works without them. | Low | Every new feature has a "without" path. No forced connections. |
 
 ---
 
 ## Differentiators
 
-Features that transform TimeQuest from a training tool into a self-awareness platform. These are what make the player feel like she is *understanding* her time sense, not just exercising it.
+Features that set the product apart. Not expected, but high value.
 
-### Contextual Learning Insights
-
-**What it is:** The app analyzes per-task estimation history and surfaces patterns like "You always underestimate packing by 4 minutes" or "Your shower estimates are getting more accurate every week."
-
-| Feature | Value Proposition | Complexity | Dependencies on v1.0 | Notes |
-|---------|-------------------|------------|----------------------|-------|
-| **Per-task bias detection** | Tells her WHICH tasks she misjudges and in WHICH direction. More actionable than aggregate accuracy. "You underestimate packing" is something she can act on. | MEDIUM | TaskEstimation.taskDisplayName + differenceSeconds history | Pure computation: group estimations by taskDisplayName, compute mean signed difference. Positive mean = chronic overestimation, negative = chronic underestimation. Minimum 5 estimations per task before showing insight. |
-| **Trend detection per task** | Shows whether her estimates for a specific task are improving, stagnating, or getting worse. | LOW | TaskEstimation history ordered by date | Compare recent 5 estimates vs previous 5 estimates. Improving = absolute difference shrinking. Simple windowed comparison. |
-| **In-gameplay contextual nudge** | Before estimating a task she consistently misjudges, show a subtle hint: "Last 5 times, this actually took around 12 minutes." Not a correction -- a data point. | MEDIUM | Per-task bias detection + estimation input flow | Show DURING the estimation phase, not after. The player still makes her own estimate. This aligns with prospective timing research: reference information before estimation improves accuracy. |
-| **"My Patterns" dedicated screen** | Standalone view showing all per-task insights, sortable by routine. Accessible from PlayerHomeView. | MEDIUM | All per-task analysis computations | Shows: (1) tasks ranked by chronic bias size, (2) improving vs stagnating vs regressing, (3) over/under estimation tendency per task. Visual bias bars, not dense tables. |
-| **Consistency score per task** | How stable (or volatile) estimates are. High consistency + high accuracy = mastered. High consistency + low accuracy = systematic bias (actionable). Low consistency = still calibrating. | LOW | Standard deviation on existing data | PatternAnalyzer computes this alongside bias. |
-
-**Age-appropriate note:** Insights must be framed as discoveries, not criticisms. "Interesting -- packing usually takes 4 minutes longer than you think" not "You always get packing wrong." Match the curiosity framing in FeedbackGenerator.
-
-**Anti-feature boundary:** Do NOT show insights as pre-estimation corrections ("your estimate is probably wrong, try adding 4 minutes"). That externalizes the calibration. Show the data, let her adjust.
-
-### Self-Set Routines
-
-**What it is:** The player can create her own routines alongside parent-configured ones. This is the ownership transfer milestone.
-
-| Feature | Value Proposition | Complexity | Dependencies on v1.0 | Notes |
-|---------|-------------------|------------|----------------------|-------|
-| **Player-created routines** | She wants to practice time estimation for things the parent did not set up. Transfers ownership from "parent's tool" to "my tool." | LOW | Routine + RoutineTask model (reuse), RoutineEditorViewModel (reuse) | Add player entry point, visual distinction (createdByPlayer flag), simplified flow. |
-| **Guided creation with templates** | A blank form will be abandoned. Templates give starting points: "Getting ready for a friend's house," "Homework time," "Packing for [activity]." | LOW | New template data + modified editor flow | Pre-populates RoutineEditState. She can edit/add/remove. Templates are scaffolding; customization is ownership. |
-| **Player vs parent routine distinction** | She needs to know which she created. But this must not reveal parent routines as "parent-assigned." | LOW | New boolean flag on Routine model | Subtle visual distinction: star or "Created by you" badge. Parent routines show nothing special. Never label "assigned by parent." |
-
-### Weekly Reflection Summary
-
-**What it is:** A brief weekly digest showing progress, patterns, and achievements from the past 7 days.
-
-| Feature | Value Proposition | Complexity | Dependencies on v1.0 | Notes |
-|---------|-------------------|------------|----------------------|-------|
-| **Weekly summary card** | Creates a rhythm of meta-awareness. "This week I did 6 quests and my accuracy went up 8%." | MEDIUM | GameSession, TaskEstimation, PlayerProfile | Aggregate past 7 days. Show: quests completed, average accuracy, accuracy change, best estimate, streak. New WeeklyReflection model to persist. |
-| **Pattern highlight** | Surface the most interesting per-task insight: "Biggest improvement: shower estimates got 30% closer this week." | MEDIUM | Per-task trend detection | Reuses PatternAnalyzer. Pick the single most noteworthy finding. One highlight, not a wall of data. |
-| **Delivery mechanism** | Card at top of PlayerHomeView on first launch of new week. Dismissible. Accessible from stats if missed. | LOW | PlayerHomeView, PlayerProfile.lastReflectionDate | Do NOT send push notification for this. Regular quest notification brings her into the app. |
-| **Streak context** | "You played 5 out of 7 days. Streak: 12 days." Frame positively. | LOW | StreakTracker | Always celebrate: "5 out of 7 days" not "you missed 2 days." |
-
-**Age-appropriate note:** Must be SHORT. Target 15 seconds to absorb. One screen, no scrolling. Numbers and visuals, not paragraphs. "Sports score card" not "quarterly business review."
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| Songs as time anchors | Song transitions align with expected task transitions. She hears where she "should" be without checking a screen. | Medium | Order playlist tracks so song boundaries approximate task boundaries. |
+| Post-routine song count | "You got through 4.5 songs. Last time it was 5." Songs as intuitive time unit. | Low | Track count during playback. Show in SessionSummaryView. |
+| XP scaling with difficulty | Higher difficulty = more XP per accurate estimate. Rewards improvement. | Low | Multiply base XP by difficulty tier multiplier (0.8x to 1.5x). |
+| Difficulty-aware reflections | Weekly card shows "3 tasks leveled up this week" as accomplishment. | Low | Count difficulty increases in reflection computation. |
+| Mastery badges per task | Quiet checkmark when task reaches Level 5 and sustains. Not loud, not childish. | Low | Visible on My Patterns screen only. Subtle visual indicator. |
+| Activity season detection | Auto-activate "Roller Derby Prep" during derby season from calendar events. | High | Scan 14-day calendar window for recurring event patterns. |
+| Holiday awareness | No "School Morning" on Christmas. Detect all-day holiday events. | Low | Apple's calendar subscriptions include public holidays. |
+| Parent schedule preview | 7-day preview in parent dashboard confirming auto-scheduling works. | Low | Simple list view showing which routines activate each day. |
+| Animated breathing dot upgrade | Subtle gradient orb replacing plain circle in TaskActiveView. The brand element. | Medium | SwiftUI Canvas rendering with gentle morphing animation. |
+| Dark mode as primary | Design dark mode first. She uses her phone at night and in dim rooms. | Low | Dark-first color palette with light mode fallback. |
+| SF Rounded typography | .fontDesign(.rounded) for friendly-modern feel without custom font. | Low | Zero bundle size impact. Automatic Dynamic Type support. |
 
 ---
 
 ## Anti-Features
 
-| Anti-Feature | Why Tempting | Why Avoid | What to Do Instead |
-|--------------|-------------|-----------|-------------------|
-| **AI-generated coaching messages** | Per-task data enables "Great job improving packing!" | Teens detect and despise inauthentic positivity. PROJECT.md forbids this. | Show data: "Packing: 4m12s bias (down from 6m30s)." Facts, not cheerleading. |
-| **Comparison to "normal" time** | referenceDurationSeconds exists on RoutineTask | Introduces external judgment. Reveals parent's reference, breaking invisible-parent contract. | Compare only to her own history. Never surface referenceDurationSeconds. |
-| **Parent insight reports** | Rich per-task data could give parents detailed analytics | Surveillance. Trust breaks if she discovers parents see "you underestimate packing by 4 minutes." | Parent sees aggregate only: "Routine X played Y times this month." |
-| **Mandatory weekly reflection** | Force reading before playing | Makes app feel like school. Instant resentment. | Optional, dismissible card. Data is there when she is curious. |
-| **Achievement badges system** | Common gamification pattern | Scope creep. Requires design, assets, unlock logic. XP/levels already provide progression. | Keep level system. Personal bests serve as per-task achievements. |
-| **Full multi-device sync** | CloudKit enables it "for free" | A 13-year-old has one phone. Multi-device adds merge conflicts and debugging burden for a non-existent use case. | CloudKit for backup/restore only. New phone = data restores automatically. |
-| **Streak multipliers** | Reward longer streaks | Creates anxiety. v1.0 streak design is "pause, never reset" to avoid guilt. Multipliers = implicit punishment for breaks. | Streaks as passive milestone. No mechanical benefit. |
-| **Goal-setting in reflections** | "Try to improve packing by 10% this week" | Goals = pressure = homework feel. | Reflection is a mirror, not a coach. |
-| **Home screen widget** | Show streaks on home screen | Widget extension adds target, App Group, build complexity | Defer to v3.0. |
+Features to explicitly NOT build.
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| Visible difficulty level display | Externalizes difficulty. "Level 4 -- Expert!" creates anxiety for ADHD. | Difficulty is invisible. She experiences growing precision, not a label. |
+| Player-selectable difficulty | She will choose Easy to maximize XP, or feel pressured to choose Hard. | Fully automatic. The algorithm reads her data and adjusts. |
+| Sudden difficulty jumps | Jump from Level 2 to Level 5 feels punishing even if data supports it. | Max 1 level change per adjustment window. Gradual always. |
+| Music during estimation phase | Music distracts from the cognitive estimation task. | Play during ACTIVE task phase only (real-world task execution). |
+| Spotify Premium gate | Features requiring Premium exclude free-tier users. | Design for free tier. Note Premium benefits without pressure. |
+| Forced Spotify connection | "Connect Spotify to continue" blocks gameplay. | Music is always optional. Quest flow works identically without it. |
+| Calendar write access | Adding events feels like parent surveillance. | Read-only. Never write to the user's calendar. |
+| Auto-create playlists without consent | Creating playlists on her account without asking. | Always confirm: "Create a morning playlist?" with track preview. |
+| Built-in music player | Building a music player is a product, not a feature. | Spotify only. Without Spotify, app works as v2.0. |
+| Focus music curation | "We will pick the best ADHD focus beats" is patronizing. | Her music, her library, her taste. App just handles timing. |
+| Full calendar display | TimeQuest is not a calendar app. | Use calendar data invisibly to filter routines. |
+| AI schedule prediction | Calendar already contains the schedule. Prediction is unnecessary. | Read the actual calendar. Do not predict. |
+| Customizable themes | Complex, most users never change defaults. Get the ONE default right. | One great dark-first theme. |
+| Avatar system | Massive scope, not core to time perception training. | Identity = level, stats, mastery badges. Not a cartoon character. |
+| Animated backgrounds | Battery drain. ADHD players need calm backgrounds. | Static dark with subtle gradient. Motion on interactions only. |
+| Skeuomorphic gamification | Treasure chests, coins, gems read as "kids game." | Clean, minimal XP/level system. Restraint IS the design. |
+| Spotify login on first launch | Too early. Login fatigue. She does not know the app yet. | Offer after 3+ completed routines, or discoverable in settings. |
+| Time pressure challenges | Speed pressure is opposite of time blindness treatment. | Difficulty adjusts accuracy thresholds only, never time pressure. |
 
 ---
 
 ## Feature Dependencies
 
 ```
-EXISTING v1.0 (already built)
-  |
-  +--- TaskEstimation history
-  |      |
-  |      +---> PatternAnalyzer engine (pure computation) [BUILD FIRST]
-  |      |      |
-  |      |      +---> "My Patterns" screen (display)
-  |      |      |
-  |      |      +---> In-gameplay contextual nudge (modify estimation flow)
-  |      |      |
-  |      |      +---> Pattern highlight in weekly summary
-  |      |
-  |      +---> Weekly reflection computation (aggregate)
-  |             |
-  |             +---> Weekly summary card (display)
-  |             +---> Streak context
-  |
-  +--- Routine + RoutineTask model
-  |      |
-  |      +---> RoutineTemplateProvider (static data)
-  |             |
-  |             +---> Player routine creator (reuses RoutineEditorViewModel)
-  |             +---> createdByPlayer flag on Routine model
-  |
-  +--- All SwiftData models
-         |
-         +---> iCloud backup via CloudKit (ModelConfiguration change)
-                |
-                +---> Backup status indicator (simple UI)
+ADAPTIVE DIFFICULTY (pure domain, no external deps):
+CalibrationTracker (existing) -> AdaptiveDifficultyEngine (NEW)
+InsightEngine (existing)      -> AdaptiveDifficultyEngine (trend data)
+TimeEstimationScorer (existing) -> Parameterized thresholds (MODIFY)
+                                -> Difficulty-scaled XP (MODIFY XPEngine)
 
-INDEPENDENT (no dependencies on other v2.0 features):
-  Real sound assets (asset replacement)
-  XP curve tuning (constants change)
+SPOTIFY (external dependency):
+SpotifyiOS SDK -> SpotifyAuthService -> SpotifyMusicService
+                                     -> Web API track search
+                                     -> Playlist assembly
+Routine duration estimate (existing data) -> RoutinePlaylistEngine (NEW)
+
+CALENDAR (Apple framework):
+EventKit -> CalendarService (NEW)
+         -> CalendarIntelligenceEngine (NEW, pure domain)
+         -> RoutineRepository.fetchActiveForToday() (MODIFY)
+
+UI REFRESH (independent, touches everything):
+Design system tokens -> All views
+Dark-first palette -> All color references
+Typography tokens -> All text styles
+
+CROSS-PILLAR:
+  UI tokens MUST be established before any view work.
+  Pillars 1, 2, 3 can proceed in parallel after tokens.
 ```
 
-**Critical path:** PatternAnalyzer is the dependency root for 3 downstream features. Build it first.
+**Critical path:** Design system tokens first, then adaptive difficulty (lowest risk, highest value), then calendar (medium risk, stable framework), then Spotify (highest risk, external dependency). UI refresh pass applies to all views after features are built.
 
-**Parallel work:** iCloud backup, real sound assets, and self-set routines are independent of each other and of the insights chain.
+---
+
+## MVP Recommendation
+
+### Must Ship
+
+1. **Design system tokens** -- Color palette, typography, card style. Foundation for everything.
+2. **Adaptive difficulty engine** -- Pure domain logic, highest value for player skill development.
+3. **Calendar intelligence** -- EventKit integration, school/holiday detection, routine auto-surfacing.
+4. **UI refresh of all views** -- Apply new design to home, quest flow, patterns, reflections.
+5. **Spotify basic flow** -- Connect, play during quest, graceful without it.
+
+### Defer
+
+- **Batch estimation mode** (High complexity, unlocks only at max difficulty. v4.0.)
+- **Activity season awareness** (Requires weeks of calendar data analysis. Ship day-by-day detection first.)
+- **Music taste learning** (Speculative. Need data on whether music affects accuracy.)
+- **Per-routine music preferences** (Nice-to-have overlay on basic Spotify. v3.1.)
+- **Smart notification timing from calendar** (Complex. v3.1.)
+- **Name refresh** (Branding decision, do not block engineering.)
+- **Challenge mode for mastered tasks** (v4.0 stretch goal.)
+
+### If Scope Pressure
+
+Cut Spotify entirely. Pillars 1 (adaptive), 3 (calendar), and 4 (UI) deliver a complete v3.0. Spotify can be a standalone v3.1 release.
 
 ---
 
@@ -156,41 +161,24 @@ INDEPENDENT (no dependencies on other v2.0 features):
 
 | Feature | New Files | Modified Files | LOC Estimate | Risk |
 |---------|-----------|----------------|--------------|------|
-| Real sound assets | 0 (asset swap) | 0 | 0 | LOW |
-| PatternAnalyzer engine | 1 | 0 | ~80 | LOW |
-| My Patterns view + VM | 2 | 1 (PlayerHomeView) | ~200 | LOW |
-| In-gameplay insights | 0 | 2 (GameSessionVM, AccuracyRevealView) | ~40 | MEDIUM |
-| Self-set routines (creator + templates) | 3 | 2 (Routine model, PlayerHomeView) | ~250 | LOW |
-| Weekly reflections (model + engine + view + VM) | 4 | 2 (PlayerProfile, PlayerHomeView) | ~300 | LOW |
-| iCloud backup | 0 | 3 (TimeQuestApp, project.yml, entitlements) | ~20 | HIGH |
-| Backup status indicator | 0 | 1 (settings) | ~30 | LOW |
-| XP curve tuning | 0 | 2 (XPEngine, LevelCalculator) | ~10 | LOW |
-| **Total** | **~10** | **~13** | **~930** | -- |
+| **Adaptive Difficulty** | 3 | 5 | ~330 | LOW |
+| **Spotify Integration** | 4 | 5 | ~680 | HIGH |
+| **Calendar Intelligence** | 3 | 5 | ~470 | MEDIUM |
+| **UI/Brand Refresh** | 7 | 13 | ~1,190 | LOW |
+| **v3.0 TOTAL** | **~17** | **~28** | **~2,670** | |
 
-~25% codebase growth (3,575 -> ~4,505 LOC). Manageable for a solo developer.
-
----
-
-## MVP Recommendation
-
-**Priority order:**
-
-1. **Real sound assets** -- lowest effort, highest perceived polish. Do first.
-2. **PatternAnalyzer engine** -- the dependency root. Unlocks 3 downstream features.
-3. **My Patterns screen** -- first user-facing value from pattern engine.
-4. **In-gameplay contextual insights** -- extends AccuracyRevealView with pattern data.
-5. **Self-set routines with templates** -- ownership transition. Independent of insights.
-6. **Weekly reflections** -- capstone feature tying patterns + sessions together.
-7. **iCloud backup** -- safety net. Highest risk. Ship last after all model changes finalized.
-8. **XP curve tuning** -- data-dependent. Tune after playtesting.
-
-**If scope pressure, cut:** XP curve tuning (just expose constants) and backup status indicator (backup works silently anyway).
+Estimated codebase growth: 6,211 LOC -> ~8,880 LOC (+43%).
 
 ---
 
 ## Sources
 
-- TimeQuest v1.0 codebase (46 files, fully analyzed)
-- PROJECT.md v2.0 target features
-- Training data: SwiftData + CloudKit (WWDC 2023-2024), gamified learning patterns (Duolingo, Headspace), time perception research (Zakay & Block), ADHD-friendly design (CHADD, ADDitude)
-- **Confidence caveat:** SwiftData + CloudKit model constraints should be verified against current Apple documentation before implementation.
+- TimeQuest v2.0 codebase analysis (66 files, 6,211 LOC)
+- PROJECT.md player context and constraints
+- Existing InsightEngine, CalibrationTracker, and WeeklyReflectionEngine patterns
+- Game design: adaptive difficulty for neurodivergent players (flow channel theory, invisible adjustment)
+- ADHD-friendly design principles (no time pressure, graceful failure, positive framing)
+
+---
+*Feature landscape for: TimeQuest v3.0 -- Adaptive & Connected*
+*Researched: 2026-02-14*
