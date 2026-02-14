@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
-**Current focus:** v2.0 Advanced Training -- Phase 6 planned, ready for execution
+**Current focus:** v2.0 Advanced Training -- Phase 6 in progress (Plan 1 of 2 complete)
 
 ## Current Position
 
 Milestone: v2.0 Advanced Training
-Phase: 5 of 6 complete (Self-Set Routines + Production Audio)
-Plan: Phase 6 planned (2 plans: 06-01, 06-02)
-Status: Phase 6 planned -- ready for /gsd:execute-phase 6
-Last activity: 2026-02-14 -- Planned Phase 6 (research + 2 plans + checker PASSED)
+Phase: 6 of 6 in progress (Weekly Reflection Summaries)
+Plan: 1 of 2 complete in Phase 6
+Status: Phase 6 Plan 1 complete -- executing Plan 2 next
+Last activity: 2026-02-14 -- Completed 06-01 (WeeklyReflection data layer)
 
-Progress: [########################......] 86% (12/14 plans -- v1.0: 6/6, v2.0: 6/8)
+Progress: [###########################...] 93% (13/14 plans -- v1.0: 6/6, v2.0: 7/8)
 
 ## Performance Metrics
 
@@ -26,8 +26,8 @@ Progress: [########################......] 86% (12/14 plans -- v1.0: 6/6, v2.0: 
 
 **v2.0 Advanced Training:**
 - Phases: 4 (Phases 3-6), Plans: 8
-- Status: Phase 5 complete
-- Codebase: 62 Swift files, 5,612 LOC
+- Status: Phase 6 Plan 1 complete
+- Codebase: 65 Swift files, ~5,870 LOC
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -37,6 +37,7 @@ Progress: [########################......] 86% (12/14 plans -- v1.0: 6/6, v2.0: 
 | 04-02 | Insight UI: My Patterns + Hints | 12min | 3 | 8 |
 | 05-01 | Self-Set Routines | ~15min | 3 | 10 |
 | 05-02 | Production Audio + XP Tunables | ~10min | 2 | 9 |
+| 06-01 | Weekly Reflection Data Layer | 3min | 2 | 4 |
 
 ## Accumulated Context
 
@@ -71,9 +72,16 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 - XPConfiguration struct extracting 7 tunable constants from XPEngine + LevelCalculator
 - Sound effects generated via Python synthesis (real audio, not silent placeholders)
 
+**Phase 6 decisions:**
+- ReflectionDefaults uses ISO 8601 week identifiers (YYYY-WNN) for UserDefaults storage
+- Quest count uses GameSession query, not snapshot counting
+- Most improved task requires 2+ estimations per week per task in both weeks
+- Pattern highlight priority: improving trend > notable bias > very consistent
+- completedAt Date? filter done in-memory (SwiftData #Predicate limitation with optional Dates)
+
 ### Pending Todos
 
-- Execute Phase 6 (Weekly Reflection Summaries) -- NEXT
+- Execute Phase 6 Plan 2 (Reflection Card UI + PlayerHome integration) -- NEXT
 - Complete v2.0 milestone
 
 ### Blockers/Concerns
@@ -85,5 +93,5 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Phase 6 planned -- ready for /gsd:execute-phase 6
+Stopped at: Completed 06-01-PLAN.md (Weekly Reflection Data Layer)
 Resume file: None
