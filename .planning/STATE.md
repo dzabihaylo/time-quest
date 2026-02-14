@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-13)
 
 **Core value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
-**Current focus:** v2.0 Advanced Training -- Phase 6 in progress (Plan 1 of 2 complete)
+**Current focus:** v2.0 Advanced Training -- COMPLETE (all 14 plans delivered)
 
 ## Current Position
 
 Milestone: v2.0 Advanced Training
-Phase: 6 of 6 in progress (Weekly Reflection Summaries)
-Plan: 1 of 2 complete in Phase 6
-Status: Phase 6 Plan 1 complete -- executing Plan 2 next
-Last activity: 2026-02-14 -- Completed 06-01 (WeeklyReflection data layer)
+Phase: 6 of 6 complete (Weekly Reflection Summaries)
+Plan: 2 of 2 complete in Phase 6
+Status: v2.0 Advanced Training milestone COMPLETE
+Last activity: 2026-02-14 -- Completed 06-02 (Reflection Card UI + PlayerHome integration)
 
-Progress: [###########################...] 93% (13/14 plans -- v1.0: 6/6, v2.0: 7/8)
+Progress: [##############################] 100% (14/14 plans -- v1.0: 6/6, v2.0: 8/8)
 
 ## Performance Metrics
 
@@ -26,8 +26,8 @@ Progress: [###########################...] 93% (13/14 plans -- v1.0: 6/6, v2.0: 
 
 **v2.0 Advanced Training:**
 - Phases: 4 (Phases 3-6), Plans: 8
-- Status: Phase 6 Plan 1 complete
-- Codebase: 65 Swift files, ~5,870 LOC
+- Status: COMPLETE (all 8 plans delivered)
+- Codebase: 66 Swift files, ~5,990 LOC
 
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
@@ -38,6 +38,7 @@ Progress: [###########################...] 93% (13/14 plans -- v1.0: 6/6, v2.0: 
 | 05-01 | Self-Set Routines | ~15min | 3 | 10 |
 | 05-02 | Production Audio + XP Tunables | ~10min | 2 | 9 |
 | 06-01 | Weekly Reflection Data Layer | 3min | 2 | 4 |
+| 06-02 | Reflection Card UI + Integration | 2min | 2 | 5 |
 
 ## Accumulated Context
 
@@ -78,11 +79,13 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 - Most improved task requires 2+ estimations per week per task in both weeks
 - Pattern highlight priority: improving trend > notable bias > very consistent
 - completedAt Date? filter done in-memory (SwiftData #Predicate limitation with optional Dates)
+- Card uses stat pills (large numbers + small labels) for instant absorption, not text paragraphs
+- Highlight chips use capsule background with color.opacity(0.1) for visual distinction
+- PlayerStatsView reflectionHistory parameter defaults to empty array for backward compatibility
 
 ### Pending Todos
 
-- Execute Phase 6 Plan 2 (Reflection Card UI + PlayerHome integration) -- NEXT
-- Complete v2.0 milestone
+- v2.0 Advanced Training milestone complete -- no remaining plans
 
 ### Blockers/Concerns
 
@@ -93,5 +96,5 @@ See .planning/PROJECT.md Key Decisions table for full list with outcomes.
 ## Session Continuity
 
 Last session: 2026-02-14
-Stopped at: Completed 06-01-PLAN.md (Weekly Reflection Data Layer)
+Stopped at: Completed 06-02-PLAN.md (Reflection Card UI + Integration) -- v2.0 milestone complete
 Resume file: None
