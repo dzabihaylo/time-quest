@@ -93,6 +93,8 @@ const sourceFiles = [
   { name: 'CalendarService.swift', path: 'Services/CalendarService.swift' },
   { name: 'CalendarSettingsView.swift', path: 'Features/Parent/Views/CalendarSettingsView.swift' },
   { name: 'CalendarChooserView.swift', path: 'Features/Parent/Views/CalendarChooserView.swift' },
+  { name: 'SpotifyModels.swift', path: 'Models/SpotifyModels.swift' },
+  { name: 'SpotifyPlaylistMatcher.swift', path: 'Domain/SpotifyPlaylistMatcher.swift' },
 ];
 
 // Sound resource files
@@ -107,11 +109,11 @@ const soundFiles = [
 // Groups
 const groups = [
   { name: 'App', path: 'App', files: ['TimeQuestApp.swift', 'AppDependencies.swift', 'RoleRouter.swift'] },
-  { name: 'Models', path: 'Models', files: ['Routine.swift', 'RoutineTask.swift', 'GameSession.swift', 'TaskEstimation.swift', 'PlayerProfile.swift', 'EstimationSnapshot.swift', 'TaskDifficultyState.swift', 'DifficultySnapshot.swift', 'WeeklyReflection.swift'], subgroups: ['Schemas', 'Migration'] },
+  { name: 'Models', path: 'Models', files: ['Routine.swift', 'RoutineTask.swift', 'GameSession.swift', 'TaskEstimation.swift', 'PlayerProfile.swift', 'EstimationSnapshot.swift', 'TaskDifficultyState.swift', 'DifficultySnapshot.swift', 'WeeklyReflection.swift', 'SpotifyModels.swift'], subgroups: ['Schemas', 'Migration'] },
   { name: 'Schemas', path: 'Schemas', files: ['TimeQuestSchemaV1.swift', 'TimeQuestSchemaV2.swift', 'TimeQuestSchemaV3.swift', 'TimeQuestSchemaV4.swift', 'TimeQuestSchemaV5.swift', 'TimeQuestSchemaV6.swift'] },
   { name: 'Migration', path: 'Migration', files: ['TimeQuestMigrationPlan.swift'] },
   { name: 'Repositories', path: 'Repositories', files: ['RoutineRepository.swift', 'SessionRepository.swift', 'PlayerProfileRepository.swift'] },
-  { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'XPConfiguration.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift', 'InsightEngine.swift', 'RoutineTemplateProvider.swift', 'WeeklyReflectionEngine.swift', 'DifficultyConfiguration.swift', 'AdaptiveDifficultyEngine.swift', 'DayContext.swift', 'CalendarContextEngine.swift'] },
+  { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'XPConfiguration.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift', 'InsightEngine.swift', 'RoutineTemplateProvider.swift', 'WeeklyReflectionEngine.swift', 'DifficultyConfiguration.swift', 'AdaptiveDifficultyEngine.swift', 'DayContext.swift', 'CalendarContextEngine.swift', 'SpotifyPlaylistMatcher.swift'] },
   { name: 'Services', path: 'Services', files: ['SoundManager.swift', 'NotificationManager.swift', 'CloudKitSyncMonitor.swift', 'CalendarService.swift'] },
   { name: 'Shared', path: 'Shared', subgroups: ['Components', 'SharedViews'] },
   { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift', 'XPBarView.swift', 'StreakBadgeView.swift', 'LevelBadgeView.swift', 'InsightCardView.swift'] },
