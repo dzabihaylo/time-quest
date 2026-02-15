@@ -4,9 +4,11 @@ import SwiftData
 struct RoutineEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppDependencies.self) private var dependencies
 
     @State private var viewModel: RoutineEditorViewModel
     @State private var editingTaskIndex: Int?
+    @State private var showingPlaylistPicker = false
     @State private var showError = false
     @State private var errorMessage = ""
 
@@ -26,6 +28,9 @@ struct RoutineEditorView: View {
             namesSection
             scheduleSection
             calendarModeSection
+            if dependencies.spotifyAuthManager.isConnected {
+                spotifyPlaylistSection
+            }
             tasksSection
         }
         .navigationTitle(viewModel.isNewRoutine ? "New Routine" : "Edit Routine")
@@ -48,6 +53,12 @@ struct RoutineEditorView: View {
             if index < viewModel.editState.tasks.count {
                 TaskEditorView(task: $viewModel.editState.tasks[index])
             }
+        }
+        .sheet(isPresented: $showingPlaylistPicker) {
+            PlaylistPickerView(
+                selectedPlaylistID: $viewModel.editState.spotifyPlaylistID,
+                selectedPlaylistName: $viewModel.editState.spotifyPlaylistName
+            )
         }
         .alert("Error", isPresented: $showError) {
             Button("OK") {}
@@ -86,6 +97,33 @@ struct RoutineEditorView: View {
             Text("Calendar Mode")
         } footer: {
             Text("Controls when this routine appears based on calendar context")
+        }
+    }
+
+    private var spotifyPlaylistSection: some View {
+        Section {
+            if let playlistName = viewModel.editState.spotifyPlaylistName {
+                HStack(spacing: 8) {
+                    Image(systemName: "music.note")
+                        .foregroundStyle(.secondary)
+                    Text(playlistName)
+                }
+
+                Button("Change Playlist") {
+                    showingPlaylistPicker = true
+                }
+
+                Button("Remove Playlist", role: .destructive) {
+                    viewModel.editState.spotifyPlaylistID = nil
+                    viewModel.editState.spotifyPlaylistName = nil
+                }
+            } else {
+                Button("Link a Playlist") {
+                    showingPlaylistPicker = true
+                }
+            }
+        } header: {
+            Text("Spotify Playlist")
         }
     }
 
