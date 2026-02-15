@@ -98,6 +98,8 @@ const sourceFiles = [
   { name: 'SpotifyAuthManager.swift', path: 'Services/SpotifyAuthManager.swift' },
   { name: 'KeychainHelper.swift', path: 'Services/KeychainHelper.swift' },
   { name: 'SpotifyAPIClient.swift', path: 'Services/SpotifyAPIClient.swift' },
+  { name: 'SpotifySettingsView.swift', path: 'Features/Parent/Views/SpotifySettingsView.swift' },
+  { name: 'PlaylistPickerView.swift', path: 'Features/Parent/Views/PlaylistPickerView.swift' },
 ];
 
 // Sound resource files
@@ -125,7 +127,7 @@ const groups = [
   { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift', 'QuestView.swift', 'EstimationInputView.swift', 'TaskActiveView.swift', 'AccuracyRevealView.swift', 'SessionSummaryView.swift', 'OnboardingView.swift', 'AccuracyTrendChartView.swift', 'PlayerStatsView.swift', 'NotificationSettingsView.swift', 'MyPatternsView.swift', 'PlayerRoutineCreationView.swift', 'WeeklyReflectionCardView.swift'] },
   { name: 'PlayerViewModels', path: 'ViewModels', files: ['GameSessionViewModel.swift', 'ProgressionViewModel.swift', 'MyPatternsViewModel.swift', 'PlayerRoutineCreationViewModel.swift', 'WeeklyReflectionViewModel.swift'] },
   { name: 'Parent', path: 'Parent', subgroups: ['ParentViews', 'ParentViewModels'] },
-  { name: 'ParentViews', path: 'Views', files: ['ParentDashboardView.swift', 'RoutineListView.swift', 'RoutineEditorView.swift', 'TaskEditorView.swift', 'SchedulePickerView.swift', 'CalendarSettingsView.swift', 'CalendarChooserView.swift'] },
+  { name: 'ParentViews', path: 'Views', files: ['ParentDashboardView.swift', 'RoutineListView.swift', 'RoutineEditorView.swift', 'TaskEditorView.swift', 'SchedulePickerView.swift', 'CalendarSettingsView.swift', 'CalendarChooserView.swift', 'SpotifySettingsView.swift', 'PlaylistPickerView.swift'] },
   { name: 'ParentViewModels', path: 'ViewModels', files: ['RoutineEditorViewModel.swift'] },
   { name: 'Features', path: 'Features', subgroups: ['Player', 'Parent', 'Shared'] },
   { name: 'Game', path: 'Game', files: ['AccuracyRevealScene.swift', 'CelebrationScene.swift'] },
