@@ -1,4 +1,4 @@
 import Foundation
 import SwiftData
 
-typealias PlayerProfile = TimeQuestSchemaV3.PlayerProfile
+typealias PlayerProfile = TimeQuestSchemaV4.PlayerProfile

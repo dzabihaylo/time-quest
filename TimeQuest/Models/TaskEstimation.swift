@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-typealias TaskEstimation = TimeQuestSchemaV3.TaskEstimation
+typealias TaskEstimation = TimeQuestSchemaV4.TaskEstimation
 
 extension TaskEstimation {
     /// Computed rating from stored raw value. Falls back to .way_off if invalid.

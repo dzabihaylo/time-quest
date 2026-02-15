@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-typealias Routine = TimeQuestSchemaV3.Routine
+typealias Routine = TimeQuestSchemaV4.Routine
 
 extension Routine {
     /// Always use this for ordered access -- SwiftData does NOT preserve array order.
