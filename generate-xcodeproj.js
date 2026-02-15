@@ -90,6 +90,8 @@ const sourceFiles = [
   { name: 'DayContext.swift', path: 'Domain/DayContext.swift' },
   { name: 'CalendarContextEngine.swift', path: 'Domain/CalendarContextEngine.swift' },
   { name: 'CalendarService.swift', path: 'Services/CalendarService.swift' },
+  { name: 'CalendarSettingsView.swift', path: 'Features/Parent/Views/CalendarSettingsView.swift' },
+  { name: 'CalendarChooserView.swift', path: 'Features/Parent/Views/CalendarChooserView.swift' },
 ];
 
 // Sound resource files
@@ -117,7 +119,7 @@ const groups = [
   { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift', 'QuestView.swift', 'EstimationInputView.swift', 'TaskActiveView.swift', 'AccuracyRevealView.swift', 'SessionSummaryView.swift', 'OnboardingView.swift', 'AccuracyTrendChartView.swift', 'PlayerStatsView.swift', 'NotificationSettingsView.swift', 'MyPatternsView.swift', 'PlayerRoutineCreationView.swift', 'WeeklyReflectionCardView.swift'] },
   { name: 'PlayerViewModels', path: 'ViewModels', files: ['GameSessionViewModel.swift', 'ProgressionViewModel.swift', 'MyPatternsViewModel.swift', 'PlayerRoutineCreationViewModel.swift', 'WeeklyReflectionViewModel.swift'] },
   { name: 'Parent', path: 'Parent', subgroups: ['ParentViews', 'ParentViewModels'] },
-  { name: 'ParentViews', path: 'Views', files: ['ParentDashboardView.swift', 'RoutineListView.swift', 'RoutineEditorView.swift', 'TaskEditorView.swift', 'SchedulePickerView.swift'] },
+  { name: 'ParentViews', path: 'Views', files: ['ParentDashboardView.swift', 'RoutineListView.swift', 'RoutineEditorView.swift', 'TaskEditorView.swift', 'SchedulePickerView.swift', 'CalendarSettingsView.swift', 'CalendarChooserView.swift'] },
   { name: 'ParentViewModels', path: 'ViewModels', files: ['RoutineEditorViewModel.swift'] },
   { name: 'Features', path: 'Features', subgroups: ['Player', 'Parent', 'Shared'] },
   { name: 'Game', path: 'Game', files: ['AccuracyRevealScene.swift', 'CelebrationScene.swift'] },
