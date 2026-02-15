@@ -67,11 +67,12 @@ Plans:
   3. A player who denies calendar permission experiences the app identically to v2.0 -- no broken screens, no nagging prompts, no missing features
   4. Calendar data is never stored in the app's database or synced to iCloud -- it is read fresh each time and used only for immediate context
   5. Any calendar-derived suggestions use passive language ("Free afternoon today") rather than directive language ("Time for a quest!")
-**Plans:** 2 plans
+**Plans:** 3 plans
 
 Plans:
 - [ ] 08-01-PLAN.md -- SchemaV5 (calendarModeRaw on Routine) + CalendarContextEngine pure domain logic
-- [ ] 08-02-PLAN.md -- CalendarService EventKit wrapper + parent calendar settings UI + PlayerHomeView filtering
+- [ ] 08-02-PLAN.md -- CalendarService EventKit wrapper + AppDependencies registration + build settings
+- [ ] 08-03-PLAN.md -- Parent calendar settings UI + calendarMode picker + PlayerHomeView filtering with context chip
 
 ### Phase 9: Spotify Integration
 **Goal**: Music becomes an intuitive time cue -- the player starts a routine, a duration-matched playlist plays in Spotify, and she develops a feel for "how many songs" things take without checking a clock
@@ -119,7 +120,7 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10
 | 5. Self-Set Routines + Production Audio | v2.0 | 2/2 | Complete | 2026-02-14 |
 | 6. Weekly Reflection Summaries | v2.0 | 2/2 | Complete | 2026-02-14 |
 | 7. Schema Evolution + Adaptive Difficulty | v3.0 | 0/TBD | Not started | - |
-| 8. Calendar Intelligence | v3.0 | 0/2 | Planned | - |
+| 8. Calendar Intelligence | v3.0 | 0/3 | Planned | - |
 | 9. Spotify Integration | v3.0 | 0/TBD | Not started | - |
 | 10. UI/Brand Refresh | v3.0 | 0/TBD | Not started | - |
 
