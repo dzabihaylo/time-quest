@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-typealias GameSession = TimeQuestSchemaV3.GameSession
+typealias GameSession = TimeQuestSchemaV4.GameSession
 
 extension GameSession {
     /// Always use this for ordered access -- SwiftData does NOT preserve array order.
