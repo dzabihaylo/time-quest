@@ -100,6 +100,7 @@ const sourceFiles = [
   { name: 'SpotifyAPIClient.swift', path: 'Services/SpotifyAPIClient.swift' },
   { name: 'SpotifySettingsView.swift', path: 'Features/Parent/Views/SpotifySettingsView.swift' },
   { name: 'PlaylistPickerView.swift', path: 'Features/Parent/Views/PlaylistPickerView.swift' },
+  { name: 'NowPlayingIndicator.swift', path: 'Features/Shared/Components/NowPlayingIndicator.swift' },
 ];
 
 // Sound resource files
@@ -121,7 +122,7 @@ const groups = [
   { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'XPConfiguration.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift', 'InsightEngine.swift', 'RoutineTemplateProvider.swift', 'WeeklyReflectionEngine.swift', 'DifficultyConfiguration.swift', 'AdaptiveDifficultyEngine.swift', 'DayContext.swift', 'CalendarContextEngine.swift', 'SpotifyPlaylistMatcher.swift'] },
   { name: 'Services', path: 'Services', files: ['SoundManager.swift', 'NotificationManager.swift', 'CloudKitSyncMonitor.swift', 'CalendarService.swift', 'SpotifyAuthManager.swift', 'KeychainHelper.swift', 'SpotifyAPIClient.swift'] },
   { name: 'Shared', path: 'Shared', subgroups: ['Components', 'SharedViews'] },
-  { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift', 'XPBarView.swift', 'StreakBadgeView.swift', 'LevelBadgeView.swift', 'InsightCardView.swift'] },
+  { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift', 'XPBarView.swift', 'StreakBadgeView.swift', 'LevelBadgeView.swift', 'InsightCardView.swift', 'NowPlayingIndicator.swift'] },
   { name: 'SharedViews', path: 'Views', files: ['PINEntryView.swift'] },
   { name: 'Player', path: 'Player', subgroups: ['PlayerViews', 'PlayerViewModels'] },
   { name: 'PlayerViews', path: 'Views', files: ['PlayerHomeView.swift', 'QuestView.swift', 'EstimationInputView.swift', 'TaskActiveView.swift', 'AccuracyRevealView.swift', 'SessionSummaryView.swift', 'OnboardingView.swift', 'AccuracyTrendChartView.swift', 'PlayerStatsView.swift', 'NotificationSettingsView.swift', 'MyPatternsView.swift', 'PlayerRoutineCreationView.swift', 'WeeklyReflectionCardView.swift'] },

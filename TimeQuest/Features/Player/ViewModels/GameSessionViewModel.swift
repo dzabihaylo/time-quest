@@ -1,5 +1,6 @@
 import Foundation
 import SwiftData
+import UIKit
 
 // MARK: - Quest Phase State Machine
 
@@ -29,6 +30,13 @@ final class GameSessionViewModel {
     private(set) var didLevelUp: Bool = false
     private(set) var previousLevel: Int = 0
     private(set) var contextualHints: [String: String] = [:]
+
+    // MARK: - Spotify State
+    var nowPlayingInfo: NowPlayingInfo?
+    private var nowPlayingPollingTask: Task<Void, Never>?
+    private var trackedSongIDs: [String] = []
+    private var spotifyAPIClient: SpotifyAPIClient?
+    private var spotifyAuthManager: SpotifyAuthManager?
 
     private var taskStartedAt: Date?
     private var sessionMaxDifficultyLevel: Int = 1
@@ -85,6 +93,15 @@ final class GameSessionViewModel {
         UserDefaults.standard.removeObject(forKey: activeTaskKey)
     }
 
+    // MARK: - Spotify Configuration
+
+    /// Configure Spotify dependencies after init (avoids breaking existing init signature).
+    /// Call this from the view before startQuest().
+    func configureSpotify(authManager: SpotifyAuthManager, apiClient: SpotifyAPIClient) {
+        self.spotifyAuthManager = authManager
+        self.spotifyAPIClient = apiClient
+    }
+
     // MARK: - State Transitions
 
     func startQuest() {
@@ -110,6 +127,16 @@ final class GameSessionViewModel {
                     contextualHints[task.displayName] = hint
                 }
             }
+        }
+
+        // MARK: Spotify -- launch playlist and start polling (SPOT-03, SPOT-06)
+        if let playlistID = routine.spotifyPlaylistID,
+           spotifyAuthManager?.isConnected == true {
+            // Open Spotify via Universal Link (avoids iOS confirmation dialog per research)
+            if let url = URL(string: "https://open.spotify.com/playlist/\(playlistID)") {
+                UIApplication.shared.open(url)
+            }
+            startNowPlayingPolling()
         }
 
         phase = .estimating(taskIndex: 0)
@@ -280,6 +307,8 @@ final class GameSessionViewModel {
             phase = .estimating(taskIndex: nextIndex)
         } else {
             // All tasks done
+            stopNowPlayingPolling()
+            persistSongCount()
             session?.completedAt = .now
 
             // Award XP (scaled by max difficulty level across all tasks in session)
@@ -308,6 +337,7 @@ final class GameSessionViewModel {
     }
 
     func finishQuest() {
+        stopNowPlayingPolling()
         routine = nil
         session = nil
         currentResult = nil
@@ -319,7 +349,51 @@ final class GameSessionViewModel {
         didLevelUp = false
         contextualHints = [:]
         sessionMaxDifficultyLevel = 1
+        trackedSongIDs = []
         phase = .selecting
+    }
+
+    // MARK: - Spotify Now Playing Polling
+
+    private func startNowPlayingPolling() {
+        nowPlayingPollingTask?.cancel()
+        nowPlayingPollingTask = Task { [weak self] in
+            while !Task.isCancelled {
+                do {
+                    try await Task.sleep(for: .seconds(10))
+                } catch {
+                    break  // CancellationError
+                }
+                guard !Task.isCancelled else { break }
+
+                do {
+                    let info = try await self?.spotifyAPIClient?.getCurrentlyPlaying()
+                    guard !Task.isCancelled else { break }
+                    self?.nowPlayingInfo = info
+                    // Track unique song by name (track name is sufficient for counting)
+                    if let trackName = info?.trackName, !(self?.trackedSongIDs.contains(trackName) ?? true) {
+                        self?.trackedSongIDs.append(trackName)
+                    }
+                } catch {
+                    // On error (network, auth, etc.) just clear the indicator
+                    self?.nowPlayingInfo = nil
+                }
+            }
+        }
+    }
+
+    private func stopNowPlayingPolling() {
+        nowPlayingPollingTask?.cancel()
+        nowPlayingPollingTask = nil
+        nowPlayingInfo = nil
+    }
+
+    /// Calculate and persist song count on the session when quest completes.
+    private func persistSongCount() {
+        guard !trackedSongIDs.isEmpty, let session else { return }
+        let songCount = Double(trackedSongIDs.count)
+        let label = SpotifyPlaylistMatcher().formatSongCount(songCount)
+        session.spotifySongCount = label
     }
 
     // MARK: - Adaptive Difficulty Helpers
