@@ -85,11 +85,13 @@ Plans:
   4. During an active quest, the player sees a minimal "Now Playing" indicator without leaving the app
   5. After completing a routine, the summary shows song count as a time unit ("You got through 4.5 songs") alongside the standard time display
   6. A player whose family has no Spotify or who uses Spotify Free tier experiences the full game with zero degradation -- Spotify is purely additive
-**Plans**: TBD
+**Plans:** 4 plans
 
 Plans:
-- [ ] 09-01: TBD
-- [ ] 09-02: TBD
+- [ ] 09-01-PLAN.md -- SchemaV6 + SpotifyModels + SpotifyPlaylistMatcher domain engine
+- [ ] 09-02-PLAN.md -- SpotifyAuthManager OAuth PKCE + SpotifyAPIClient service layer
+- [ ] 09-03-PLAN.md -- Parent UI: Spotify settings, playlist picker, routine editor integration
+- [ ] 09-04-PLAN.md -- Player UI: playback launch, Now Playing indicator, song count summary
 
 ### Phase 10: UI/Brand Refresh
 **Goal**: Every player-facing screen uses a cohesive, modern visual language that a teen in 2026 would consider worth having on her phone -- dark-first design, rounded typography, card-based layouts, polished animations
@@ -121,7 +123,7 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10
 | 6. Weekly Reflection Summaries | v2.0 | 2/2 | Complete | 2026-02-14 |
 | 7. Schema Evolution + Adaptive Difficulty | v3.0 | 2/2 | Complete | 2026-02-14 |
 | 8. Calendar Intelligence | v3.0 | 3/3 | Complete | 2026-02-15 |
-| 9. Spotify Integration | v3.0 | 0/TBD | Not started | - |
+| 9. Spotify Integration | v3.0 | 0/4 | Planned | - |
 | 10. UI/Brand Refresh | v3.0 | 0/TBD | Not started | - |
 
 ---
