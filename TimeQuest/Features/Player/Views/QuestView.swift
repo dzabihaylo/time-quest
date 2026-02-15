@@ -52,6 +52,11 @@ struct QuestView: View {
                     playerProfileRepository: profileRepo,
                     modelContext: modelContext
                 )
+                // Configure Spotify before startQuest so it can launch playlist
+                vm.configureSpotify(
+                    authManager: dependencies.spotifyAuthManager,
+                    apiClient: dependencies.spotifyAPIClient
+                )
                 vm.startQuest()
                 viewModel = vm
             }
@@ -68,7 +73,16 @@ struct QuestView: View {
             EstimationInputView(viewModel: vm, soundManager: dependencies.soundManager)
 
         case .active:
-            TaskActiveView(viewModel: vm)
+            ZStack(alignment: .bottom) {
+                TaskActiveView(viewModel: vm)
+
+                if let nowPlaying = vm.nowPlayingInfo {
+                    NowPlayingIndicator(info: nowPlaying)
+                        .padding(.bottom, 100)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+            }
+            .animation(.easeInOut(duration: 0.3), value: vm.nowPlayingInfo != nil)
 
         case .revealing:
             AccuracyRevealView(viewModel: vm, soundManager: dependencies.soundManager)
