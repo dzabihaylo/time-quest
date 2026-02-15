@@ -13,6 +13,7 @@ struct PlayerHomeView: View {
     @State private var showingCreateQuest = false
     @State private var reflectionVM: WeeklyReflectionViewModel?
     @State private var showReflectionCard = false
+    @State private var dayContext: DayContext = .unknown
 
     var body: some View {
         NavigationStack {
@@ -64,6 +65,11 @@ struct PlayerHomeView: View {
                     }
                     .padding(.horizontal, 24)
                     .transition(.move(edge: .top).combined(with: .opacity))
+                }
+
+                // Calendar context chip (passive language only -- CAL-05)
+                if dayContext != .unknown && dependencies.calendarService.hasAccess {
+                    calendarContextChip
                 }
 
                 // Quest list
@@ -220,6 +226,37 @@ struct PlayerHomeView: View {
         .buttonStyle(.plain)
     }
 
+    @ViewBuilder
+    private var calendarContextChip: some View {
+        switch dayContext {
+        case .schoolDay:
+            HStack(spacing: 4) {
+                Image(systemName: "backpack.fill")
+                Text("School day")
+            }
+            .font(.caption)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Color.blue.opacity(0.1))
+            .foregroundStyle(.blue)
+            .clipShape(Capsule())
+        case .freeDay(let reason):
+            HStack(spacing: 4) {
+                Image(systemName: "sun.max.fill")
+                Text(reason ?? "Free day")
+                    .lineLimit(1)
+            }
+            .font(.caption)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Color.orange.opacity(0.1))
+            .foregroundStyle(.orange)
+            .clipShape(Capsule())
+        case .unknown:
+            EmptyView()
+        }
+    }
+
     private var createQuestButton: some View {
         Button { showingCreateQuest = true } label: {
             HStack {
@@ -240,7 +277,19 @@ struct PlayerHomeView: View {
 
     private func loadTodayQuests() {
         let repo = SwiftDataRoutineRepository(modelContext: modelContext)
-        todayQuests = repo.fetchActiveForToday()
+        let allToday = repo.fetchActiveForToday()
+
+        if dependencies.calendarService.hasAccess {
+            let calendarIDs = dependencies.calendarService.selectedCalendarIDs()
+            let events = dependencies.calendarService.fetchTodayEvents(from: calendarIDs)
+            let engine = CalendarContextEngine()
+            let context = engine.determineContext(events: events, date: .now)
+            dayContext = context
+            todayQuests = allToday.filter { engine.shouldShow(calendarMode: $0.calendarModeRaw, in: context) }
+        } else {
+            dayContext = .unknown
+            todayQuests = allToday
+        }
     }
 
     private func loadProgression() {

@@ -10,6 +10,7 @@ struct RoutineEditState {
     var displayName: String
     var activeDays: [Int]  // 1=Sun through 7=Sat
     var isActive: Bool
+    var calendarModeRaw: String
     var tasks: [TaskEditState]
 
     static var `default`: RoutineEditState {
@@ -18,6 +19,7 @@ struct RoutineEditState {
             displayName: "",
             activeDays: [2, 3, 4, 5, 6],  // Weekdays
             isActive: true,
+            calendarModeRaw: "always",
             tasks: []
         )
     }
@@ -78,6 +80,7 @@ final class RoutineEditorViewModel {
                 displayName: routine.displayName,
                 activeDays: routine.activeDays,
                 isActive: routine.isActive,
+                calendarModeRaw: routine.calendarModeRaw,
                 tasks: routine.orderedTasks.map { task in
                     TaskEditState(
                         id: UUID(),
@@ -132,7 +135,8 @@ final class RoutineEditorViewModel {
             name: editState.name.trimmingCharacters(in: .whitespaces),
             displayName: editState.displayName.trimmingCharacters(in: .whitespaces),
             activeDays: editState.activeDays,
-            isActive: editState.isActive
+            isActive: editState.isActive,
+            calendarModeRaw: editState.calendarModeRaw
         )
         // Insert BEFORE relating (SwiftData pitfall)
         modelContext.insert(routine)
@@ -156,6 +160,7 @@ final class RoutineEditorViewModel {
         routine.displayName = editState.displayName.trimmingCharacters(in: .whitespaces)
         routine.activeDays = editState.activeDays
         routine.isActive = editState.isActive
+        routine.calendarModeRaw = editState.calendarModeRaw
         routine.updatedAt = .now
 
         // Remove old tasks

@@ -25,6 +25,7 @@ struct RoutineEditorView: View {
         Form {
             namesSection
             scheduleSection
+            calendarModeSection
             tasksSection
         }
         .navigationTitle(viewModel.isNewRoutine ? "New Routine" : "Edit Routine")
@@ -71,6 +72,20 @@ struct RoutineEditorView: View {
     private var scheduleSection: some View {
         Section("Schedule") {
             SchedulePickerView(activeDays: $viewModel.editState.activeDays)
+        }
+    }
+
+    private var calendarModeSection: some View {
+        Section {
+            Picker("Calendar Mode", selection: $viewModel.editState.calendarModeRaw) {
+                Text("Always").tag("always")
+                Text("School Days Only").tag("schoolDayOnly")
+                Text("Free Days Only").tag("freeDayOnly")
+            }
+        } header: {
+            Text("Calendar Mode")
+        } footer: {
+            Text("Controls when this routine appears based on calendar context")
         }
     }
 
