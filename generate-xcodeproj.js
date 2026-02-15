@@ -89,6 +89,7 @@ const sourceFiles = [
   { name: 'WeeklyReflectionCardView.swift', path: 'Features/Player/Views/WeeklyReflectionCardView.swift' },
   { name: 'DayContext.swift', path: 'Domain/DayContext.swift' },
   { name: 'CalendarContextEngine.swift', path: 'Domain/CalendarContextEngine.swift' },
+  { name: 'CalendarService.swift', path: 'Services/CalendarService.swift' },
 ];
 
 // Sound resource files
@@ -108,7 +109,7 @@ const groups = [
   { name: 'Migration', path: 'Migration', files: ['TimeQuestMigrationPlan.swift'] },
   { name: 'Repositories', path: 'Repositories', files: ['RoutineRepository.swift', 'SessionRepository.swift', 'PlayerProfileRepository.swift'] },
   { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'XPConfiguration.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift', 'InsightEngine.swift', 'RoutineTemplateProvider.swift', 'WeeklyReflectionEngine.swift', 'DifficultyConfiguration.swift', 'AdaptiveDifficultyEngine.swift', 'DayContext.swift', 'CalendarContextEngine.swift'] },
-  { name: 'Services', path: 'Services', files: ['SoundManager.swift', 'NotificationManager.swift', 'CloudKitSyncMonitor.swift'] },
+  { name: 'Services', path: 'Services', files: ['SoundManager.swift', 'NotificationManager.swift', 'CloudKitSyncMonitor.swift', 'CalendarService.swift'] },
   { name: 'Shared', path: 'Shared', subgroups: ['Components', 'SharedViews'] },
   { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift', 'XPBarView.swift', 'StreakBadgeView.swift', 'LevelBadgeView.swift', 'InsightCardView.swift'] },
   { name: 'SharedViews', path: 'Views', files: ['PINEntryView.swift'] },
