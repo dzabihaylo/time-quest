@@ -1,4 +1,4 @@
 import Foundation
 import SwiftData
 
-typealias RoutineTask = TimeQuestSchemaV4.RoutineTask
+typealias RoutineTask = TimeQuestSchemaV5.RoutineTask

@@ -78,6 +78,7 @@ const sourceFiles = [
   { name: 'PlayerRoutineCreationViewModel.swift', path: 'Features/Player/ViewModels/PlayerRoutineCreationViewModel.swift' },
   { name: 'TimeQuestSchemaV3.swift', path: 'Models/Schemas/TimeQuestSchemaV3.swift' },
   { name: 'TimeQuestSchemaV4.swift', path: 'Models/Schemas/TimeQuestSchemaV4.swift' },
+  { name: 'TimeQuestSchemaV5.swift', path: 'Models/Schemas/TimeQuestSchemaV5.swift' },
   { name: 'TaskDifficultyState.swift', path: 'Models/TaskDifficultyState.swift' },
   { name: 'DifficultySnapshot.swift', path: 'Models/DifficultySnapshot.swift' },
   { name: 'DifficultyConfiguration.swift', path: 'Domain/DifficultyConfiguration.swift' },
@@ -101,7 +102,7 @@ const soundFiles = [
 const groups = [
   { name: 'App', path: 'App', files: ['TimeQuestApp.swift', 'AppDependencies.swift', 'RoleRouter.swift'] },
   { name: 'Models', path: 'Models', files: ['Routine.swift', 'RoutineTask.swift', 'GameSession.swift', 'TaskEstimation.swift', 'PlayerProfile.swift', 'EstimationSnapshot.swift', 'TaskDifficultyState.swift', 'DifficultySnapshot.swift', 'WeeklyReflection.swift'], subgroups: ['Schemas', 'Migration'] },
-  { name: 'Schemas', path: 'Schemas', files: ['TimeQuestSchemaV1.swift', 'TimeQuestSchemaV2.swift', 'TimeQuestSchemaV3.swift', 'TimeQuestSchemaV4.swift'] },
+  { name: 'Schemas', path: 'Schemas', files: ['TimeQuestSchemaV1.swift', 'TimeQuestSchemaV2.swift', 'TimeQuestSchemaV3.swift', 'TimeQuestSchemaV4.swift', 'TimeQuestSchemaV5.swift'] },
   { name: 'Migration', path: 'Migration', files: ['TimeQuestMigrationPlan.swift'] },
   { name: 'Repositories', path: 'Repositories', files: ['RoutineRepository.swift', 'SessionRepository.swift', 'PlayerProfileRepository.swift'] },
   { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'XPConfiguration.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift', 'InsightEngine.swift', 'RoutineTemplateProvider.swift', 'WeeklyReflectionEngine.swift', 'DifficultyConfiguration.swift', 'AdaptiveDifficultyEngine.swift'] },
