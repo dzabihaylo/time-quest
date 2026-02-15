@@ -81,6 +81,19 @@ struct SessionSummaryView: View {
                     taskResultsList(session)
                 }
 
+                // Spotify song count (SPOT-05: invisible without Spotify data per SPOT-06)
+                if let songCount = viewModel.session?.spotifySongCount {
+                    HStack(spacing: 4) {
+                        Image(systemName: "music.note")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text("You got through \(songCount)")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.top, 8)
+                }
+
                 Spacer(minLength: 20)
 
                 Button {
