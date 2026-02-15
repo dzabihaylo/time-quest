@@ -11,9 +11,9 @@ See: .planning/PROJECT.md (updated 2026-02-14)
 
 Milestone: v3.0 Adaptive & Connected
 Phase: 8 of 10 (Calendar Intelligence)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: Executing
-Last activity: 2026-02-15 -- Completed 08-01 (SchemaV5 + CalendarContextEngine)
+Last activity: 2026-02-15 -- Completed 08-02 (CalendarService EventKit wrapper)
 
 Progress: [##░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8%
 
@@ -46,6 +46,8 @@ Recent decisions affecting current work:
 - [08-01]: calendarModeRaw defaults to "always" -- existing routines unaffected by V5 migration
 - [08-01]: DayContext.Equatable ignores freeDay reason (informational only)
 - [08-01]: shouldShow() returns true for .unknown context in all modes (backward compatibility)
+- [08-02]: Calendar IDs in UserDefaults (device-local), not SwiftData/CloudKit (device-specific identifiers)
+- [08-02]: Calendar names stored alongside IDs as display fallback for identifier instability
 
 ### Blockers/Concerns
 
@@ -57,5 +59,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 08-01-PLAN.md (SchemaV5 + CalendarContextEngine)
+Stopped at: Completed 08-02-PLAN.md (CalendarService EventKit wrapper)
 Resume file: None
