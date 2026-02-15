@@ -87,6 +87,8 @@ const sourceFiles = [
   { name: 'WeeklyReflectionEngine.swift', path: 'Domain/WeeklyReflectionEngine.swift' },
   { name: 'WeeklyReflectionViewModel.swift', path: 'Features/Player/ViewModels/WeeklyReflectionViewModel.swift' },
   { name: 'WeeklyReflectionCardView.swift', path: 'Features/Player/Views/WeeklyReflectionCardView.swift' },
+  { name: 'DayContext.swift', path: 'Domain/DayContext.swift' },
+  { name: 'CalendarContextEngine.swift', path: 'Domain/CalendarContextEngine.swift' },
 ];
 
 // Sound resource files
@@ -105,7 +107,7 @@ const groups = [
   { name: 'Schemas', path: 'Schemas', files: ['TimeQuestSchemaV1.swift', 'TimeQuestSchemaV2.swift', 'TimeQuestSchemaV3.swift', 'TimeQuestSchemaV4.swift', 'TimeQuestSchemaV5.swift'] },
   { name: 'Migration', path: 'Migration', files: ['TimeQuestMigrationPlan.swift'] },
   { name: 'Repositories', path: 'Repositories', files: ['RoutineRepository.swift', 'SessionRepository.swift', 'PlayerProfileRepository.swift'] },
-  { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'XPConfiguration.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift', 'InsightEngine.swift', 'RoutineTemplateProvider.swift', 'WeeklyReflectionEngine.swift', 'DifficultyConfiguration.swift', 'AdaptiveDifficultyEngine.swift'] },
+  { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'XPConfiguration.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift', 'InsightEngine.swift', 'RoutineTemplateProvider.swift', 'WeeklyReflectionEngine.swift', 'DifficultyConfiguration.swift', 'AdaptiveDifficultyEngine.swift', 'DayContext.swift', 'CalendarContextEngine.swift'] },
   { name: 'Services', path: 'Services', files: ['SoundManager.swift', 'NotificationManager.swift', 'CloudKitSyncMonitor.swift'] },
   { name: 'Shared', path: 'Shared', subgroups: ['Components', 'SharedViews'] },
   { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift', 'XPBarView.swift', 'StreakBadgeView.swift', 'LevelBadgeView.swift', 'InsightCardView.swift'] },
