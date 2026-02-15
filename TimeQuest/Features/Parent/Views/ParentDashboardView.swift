@@ -31,6 +31,13 @@ struct ParentDashboardView: View {
                             Label("Calendar", systemImage: "calendar.badge.clock")
                         }
                     }
+                    ToolbarItem(placement: .bottomBar) {
+                        NavigationLink {
+                            SpotifySettingsView()
+                        } label: {
+                            Label("Spotify", systemImage: "music.note")
+                        }
+                    }
                 }
                 .navigationDestination(for: PersistentIdentifier.self) { routineID in
                     if let routine = fetchRoutine(id: routineID) {

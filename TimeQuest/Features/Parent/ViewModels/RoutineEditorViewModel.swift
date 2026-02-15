@@ -12,6 +12,8 @@ struct RoutineEditState {
     var isActive: Bool
     var calendarModeRaw: String
     var tasks: [TaskEditState]
+    var spotifyPlaylistID: String?
+    var spotifyPlaylistName: String?
 
     static var `default`: RoutineEditState {
         RoutineEditState(
@@ -20,7 +22,9 @@ struct RoutineEditState {
             activeDays: [2, 3, 4, 5, 6],  // Weekdays
             isActive: true,
             calendarModeRaw: "always",
-            tasks: []
+            tasks: [],
+            spotifyPlaylistID: nil,
+            spotifyPlaylistName: nil
         )
     }
 }
@@ -89,7 +93,9 @@ final class RoutineEditorViewModel {
                         referenceDurationSeconds: task.referenceDurationSeconds,
                         orderIndex: task.orderIndex
                     )
-                }
+                },
+                spotifyPlaylistID: routine.spotifyPlaylistID,
+                spotifyPlaylistName: routine.spotifyPlaylistName
             )
         } else {
             self.editState = .default
@@ -141,6 +147,10 @@ final class RoutineEditorViewModel {
         // Insert BEFORE relating (SwiftData pitfall)
         modelContext.insert(routine)
 
+        // Set Spotify playlist fields
+        routine.spotifyPlaylistID = editState.spotifyPlaylistID
+        routine.spotifyPlaylistName = editState.spotifyPlaylistName
+
         for taskState in editState.tasks where !taskState.name.trimmingCharacters(in: .whitespaces).isEmpty {
             let task = RoutineTask(
                 name: taskState.name.trimmingCharacters(in: .whitespaces),
@@ -161,6 +171,8 @@ final class RoutineEditorViewModel {
         routine.activeDays = editState.activeDays
         routine.isActive = editState.isActive
         routine.calendarModeRaw = editState.calendarModeRaw
+        routine.spotifyPlaylistID = editState.spotifyPlaylistID
+        routine.spotifyPlaylistName = editState.spotifyPlaylistName
         routine.updatedAt = .now
 
         // Remove old tasks
