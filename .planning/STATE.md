@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-14)
 
 Milestone: v3.0 Adaptive & Connected
 Phase: 9 of 10 (Spotify Integration)
-Plan: 2 of 4 in current phase
-Status: Executing 09-02
-Last activity: 2026-02-15 -- Completed 09-02 (Spotify OAuth & API Service Layer)
+Plan: 3 of 4 in current phase
+Status: Executing 09-03
+Last activity: 2026-02-15 -- Completed 09-03 (Spotify Parent UI)
 
-Progress: [##################░░░░░░░░░░░░] 58%
+Progress: [####################░░░░░░░░░░] 65%
 
 ## Performance Metrics
 
@@ -59,6 +59,9 @@ Recent decisions affecting current work:
 - [09-02]: prefersEphemeralWebBrowserSession = false for reusing existing Safari Spotify login (family UX)
 - [09-02]: Token refresh uses single in-flight Task to prevent race conditions on concurrent requests
 - [09-02]: @preconcurrency ASWebAuthenticationPresentationContextProviding with nonisolated + MainActor.assumeIsolated
+- [09-03]: Display name restored lazily via .task on SpotifySettingsView (not on SpotifyAuthManager init)
+- [09-03]: Spotify playlist section completely hidden when not connected (SPOT-06 invisible until opt-in)
+- [09-03]: PlaylistPickerView uses ForEach inside List (not List(data:) initializer) to avoid Swift binding inference
 
 ### Blockers/Concerns
 
@@ -69,5 +72,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 09-02-PLAN.md (Spotify OAuth & API Service Layer)
+Stopped at: Completed 09-03-PLAN.md (Spotify Parent UI)
 Resume file: None
