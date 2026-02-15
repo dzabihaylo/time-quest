@@ -11,6 +11,8 @@ final class AppDependencies {
     let notificationManager: NotificationManager
     let calendarService: CalendarService
     let syncMonitor: CloudKitSyncMonitor
+    let spotifyAuthManager: SpotifyAuthManager
+    let spotifyAPIClient: SpotifyAPIClient
 
     init(modelContext: ModelContext) {
         self.routineRepository = SwiftDataRoutineRepository(modelContext: modelContext)
@@ -21,5 +23,7 @@ final class AppDependencies {
         self.calendarService = CalendarService()
         self.syncMonitor = CloudKitSyncMonitor()
         syncMonitor.startMonitoring()
+        self.spotifyAuthManager = SpotifyAuthManager()
+        self.spotifyAPIClient = SpotifyAPIClient(authManager: spotifyAuthManager)
     }
 }
