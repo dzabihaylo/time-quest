@@ -10,12 +10,12 @@ struct TimeQuestApp: App {
         // is unavailable (e.g., simulator without iCloud sign-in, no entitlements,
         // or CloudKit container not yet provisioned).
         if let cloudContainer = try? ModelContainer(
-            for: TimeQuestSchemaV4.Routine.self,
-                 TimeQuestSchemaV4.RoutineTask.self,
-                 TimeQuestSchemaV4.GameSession.self,
-                 TimeQuestSchemaV4.TaskEstimation.self,
-                 TimeQuestSchemaV4.PlayerProfile.self,
-                 TimeQuestSchemaV4.TaskDifficultyState.self,
+            for: TimeQuestSchemaV5.Routine.self,
+                 TimeQuestSchemaV5.RoutineTask.self,
+                 TimeQuestSchemaV5.GameSession.self,
+                 TimeQuestSchemaV5.TaskEstimation.self,
+                 TimeQuestSchemaV5.PlayerProfile.self,
+                 TimeQuestSchemaV5.TaskDifficultyState.self,
             migrationPlan: TimeQuestMigrationPlan.self,
             configurations: ModelConfiguration(cloudKitDatabase: .automatic)
         ) {
@@ -24,12 +24,12 @@ struct TimeQuestApp: App {
             // Fall back to local-only — migration still runs, just no CloudKit sync
             do {
                 container = try ModelContainer(
-                    for: TimeQuestSchemaV4.Routine.self,
-                         TimeQuestSchemaV4.RoutineTask.self,
-                         TimeQuestSchemaV4.GameSession.self,
-                         TimeQuestSchemaV4.TaskEstimation.self,
-                         TimeQuestSchemaV4.PlayerProfile.self,
-                         TimeQuestSchemaV4.TaskDifficultyState.self,
+                    for: TimeQuestSchemaV5.Routine.self,
+                         TimeQuestSchemaV5.RoutineTask.self,
+                         TimeQuestSchemaV5.GameSession.self,
+                         TimeQuestSchemaV5.TaskEstimation.self,
+                         TimeQuestSchemaV5.PlayerProfile.self,
+                         TimeQuestSchemaV5.TaskDifficultyState.self,
                     migrationPlan: TimeQuestMigrationPlan.self,
                     configurations: ModelConfiguration(cloudKitDatabase: .none)
                 )

@@ -3,11 +3,11 @@ import Foundation
 
 enum TimeQuestMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [TimeQuestSchemaV1.self, TimeQuestSchemaV2.self, TimeQuestSchemaV3.self, TimeQuestSchemaV4.self]
+        [TimeQuestSchemaV1.self, TimeQuestSchemaV2.self, TimeQuestSchemaV3.self, TimeQuestSchemaV4.self, TimeQuestSchemaV5.self]
     }
 
     static var stages: [MigrationStage] {
-        [v1ToV2, v2ToV3, v3ToV4]
+        [v1ToV2, v2ToV3, v3ToV4, v4ToV5]
     }
 
     static let v1ToV2 = MigrationStage.lightweight(
@@ -23,5 +23,10 @@ enum TimeQuestMigrationPlan: SchemaMigrationPlan {
     static let v3ToV4 = MigrationStage.lightweight(
         fromVersion: TimeQuestSchemaV3.self,
         toVersion: TimeQuestSchemaV4.self
+    )
+
+    static let v4ToV5 = MigrationStage.lightweight(
+        fromVersion: TimeQuestSchemaV4.self,
+        toVersion: TimeQuestSchemaV5.self
     )
 }
