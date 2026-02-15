@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-14)
 
 Milestone: v3.0 Adaptive & Connected
 Phase: 8 of 10 (Calendar Intelligence)
-Plan: 2 of 3 in current phase
-Status: Executing
-Last activity: 2026-02-15 -- Completed 08-02 (CalendarService EventKit wrapper)
+Plan: 3 of 3 in current phase (PHASE COMPLETE)
+Status: Phase 8 Complete
+Last activity: 2026-02-15 -- Completed 08-03 (Calendar UI)
 
-Progress: [##░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8%
+Progress: [####░░░░░░░░░░░░░░░░░░░░░░░░░░] 13%
 
 ## Performance Metrics
 
@@ -48,6 +48,9 @@ Recent decisions affecting current work:
 - [08-01]: shouldShow() returns true for .unknown context in all modes (backward compatibility)
 - [08-02]: Calendar IDs in UserDefaults (device-local), not SwiftData/CloudKit (device-specific identifiers)
 - [08-02]: Calendar names stored alongside IDs as display fallback for identifier instability
+- [08-03]: nonisolated + MainActor.assumeIsolated pattern for UIKit delegates in Swift 6
+- [08-03]: Context chip uses passive language only ("School day", "Free day") per CAL-05
+- [08-03]: Calendar filtering skipped when hasAccess=false -- identical to v2.0 per CAL-03
 
 ### Blockers/Concerns
 
@@ -59,5 +62,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 08-02-PLAN.md (CalendarService EventKit wrapper)
+Stopped at: Completed 08-03-PLAN.md (Calendar UI) -- Phase 8 complete
 Resume file: None
