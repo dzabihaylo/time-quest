@@ -31,6 +31,7 @@ final class GameSessionViewModel {
     private(set) var contextualHints: [String: String] = [:]
 
     private var taskStartedAt: Date?
+    private var sessionMaxDifficultyLevel: Int = 1
     private let sessionRepository: SessionRepositoryProtocol
     private let routineRepository: RoutineRepositoryProtocol
     private let playerProfileRepository: PlayerProfileRepositoryProtocol
@@ -193,9 +194,14 @@ final class GameSessionViewModel {
         let completedAt = Date.now
         let actualSeconds = completedAt.timeIntervalSince(taskStartedAt)
 
+        // Fetch difficulty state for this task and get level-appropriate thresholds
+        let diffState = fetchOrCreateDifficultyState(for: task.displayName)
+        let thresholds = AdaptiveDifficultyEngine.thresholds(forLevel: diffState.difficultyLevel)
+
         let result = TimeEstimationScorer.score(
             estimated: pendingEstimatedSeconds,
-            actual: actualSeconds
+            actual: actualSeconds,
+            thresholds: thresholds
         )
 
         let feedback = FeedbackGenerator.message(
@@ -215,6 +221,33 @@ final class GameSessionViewModel {
         )
         modelContext.insert(estimation)
         estimation.session = session
+
+        try? modelContext.save()
+
+        // Update difficulty state (skip during calibration sessions)
+        if !isCalibration {
+            let newEMA = AdaptiveDifficultyEngine.updatedEMA(
+                currentAccuracy: result.accuracyPercent,
+                previousEMA: diffState.ema
+            )
+            let totalEstimations = totalEstimationsCount(for: task.displayName)
+            let newLevel = AdaptiveDifficultyEngine.difficultyLevel(
+                ema: newEMA,
+                currentLevel: diffState.difficultyLevel,
+                totalEstimations: totalEstimations
+            )
+
+            diffState.ema = newEMA
+            if newLevel > diffState.difficultyLevel {
+                diffState.difficultyLevel = newLevel
+                diffState.sessionsAtCurrentLevel = 0
+            } else {
+                diffState.sessionsAtCurrentLevel += 1
+            }
+            diffState.lastUpdated = completedAt
+        }
+
+        sessionMaxDifficultyLevel = max(sessionMaxDifficultyLevel, diffState.difficultyLevel)
 
         try? modelContext.save()
 
@@ -249,10 +282,17 @@ final class GameSessionViewModel {
             // All tasks done
             session?.completedAt = .now
 
-            // Award XP
+            // Award XP (scaled by max difficulty level across all tasks in session)
             if let session {
-                let xp = XPEngine.xpForSession(estimations: session.orderedEstimations)
+                let xp = XPEngine.xpForSession(
+                    estimations: session.orderedEstimations,
+                    difficultyLevel: sessionMaxDifficultyLevel
+                )
                 session.xpEarned = xp
+                session.difficultyLevel = sessionMaxDifficultyLevel
+                session.xpMultiplier = AdaptiveDifficultyEngine.xpMultiplier(
+                    forLevel: sessionMaxDifficultyLevel
+                )
 
                 let profile = playerProfileRepository.fetchOrCreate()
                 previousLevel = LevelCalculator.level(fromTotalXP: profile.totalXP)
@@ -278,7 +318,29 @@ final class GameSessionViewModel {
         isNewPersonalBest = false
         didLevelUp = false
         contextualHints = [:]
+        sessionMaxDifficultyLevel = 1
         phase = .selecting
+    }
+
+    // MARK: - Adaptive Difficulty Helpers
+
+    private func fetchOrCreateDifficultyState(for taskDisplayName: String) -> TaskDifficultyState {
+        let descriptor = FetchDescriptor<TaskDifficultyState>(
+            predicate: #Predicate { $0.taskDisplayName == taskDisplayName }
+        )
+        if let existing = (try? modelContext.fetch(descriptor))?.first {
+            return existing
+        }
+        let state = TaskDifficultyState(taskDisplayName: taskDisplayName)
+        modelContext.insert(state)
+        return state
+    }
+
+    private func totalEstimationsCount(for taskDisplayName: String) -> Int {
+        let descriptor = FetchDescriptor<TaskEstimation>(
+            predicate: #Predicate { $0.taskDisplayName == taskDisplayName }
+        )
+        return (try? modelContext.fetchCount(descriptor)) ?? 0
     }
 
     // MARK: - Calibration Helpers
