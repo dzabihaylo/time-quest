@@ -9,6 +9,7 @@ final class AppDependencies {
     let playerProfileRepository: PlayerProfileRepositoryProtocol
     let soundManager: SoundManager
     let notificationManager: NotificationManager
+    let calendarService: CalendarService
     let syncMonitor: CloudKitSyncMonitor
 
     init(modelContext: ModelContext) {
@@ -17,6 +18,7 @@ final class AppDependencies {
         self.playerProfileRepository = SwiftDataPlayerProfileRepository(modelContext: modelContext)
         self.soundManager = SoundManager()
         self.notificationManager = NotificationManager()
+        self.calendarService = CalendarService()
         self.syncMonitor = CloudKitSyncMonitor()
         syncMonitor.startMonitoring()
     }
