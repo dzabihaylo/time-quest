@@ -95,6 +95,9 @@ const sourceFiles = [
   { name: 'CalendarChooserView.swift', path: 'Features/Parent/Views/CalendarChooserView.swift' },
   { name: 'SpotifyModels.swift', path: 'Models/SpotifyModels.swift' },
   { name: 'SpotifyPlaylistMatcher.swift', path: 'Domain/SpotifyPlaylistMatcher.swift' },
+  { name: 'SpotifyAuthManager.swift', path: 'Services/SpotifyAuthManager.swift' },
+  { name: 'KeychainHelper.swift', path: 'Services/KeychainHelper.swift' },
+  { name: 'SpotifyAPIClient.swift', path: 'Services/SpotifyAPIClient.swift' },
 ];
 
 // Sound resource files
@@ -114,7 +117,7 @@ const groups = [
   { name: 'Migration', path: 'Migration', files: ['TimeQuestMigrationPlan.swift'] },
   { name: 'Repositories', path: 'Repositories', files: ['RoutineRepository.swift', 'SessionRepository.swift', 'PlayerProfileRepository.swift'] },
   { name: 'Domain', path: 'Domain', files: ['TimeEstimationScorer.swift', 'FeedbackGenerator.swift', 'CalibrationTracker.swift', 'XPEngine.swift', 'XPConfiguration.swift', 'LevelCalculator.swift', 'StreakTracker.swift', 'PersonalBestTracker.swift', 'InsightEngine.swift', 'RoutineTemplateProvider.swift', 'WeeklyReflectionEngine.swift', 'DifficultyConfiguration.swift', 'AdaptiveDifficultyEngine.swift', 'DayContext.swift', 'CalendarContextEngine.swift', 'SpotifyPlaylistMatcher.swift'] },
-  { name: 'Services', path: 'Services', files: ['SoundManager.swift', 'NotificationManager.swift', 'CloudKitSyncMonitor.swift', 'CalendarService.swift'] },
+  { name: 'Services', path: 'Services', files: ['SoundManager.swift', 'NotificationManager.swift', 'CloudKitSyncMonitor.swift', 'CalendarService.swift', 'SpotifyAuthManager.swift', 'KeychainHelper.swift', 'SpotifyAPIClient.swift'] },
   { name: 'Shared', path: 'Shared', subgroups: ['Components', 'SharedViews'] },
   { name: 'Components', path: 'Components', files: ['TimeFormatting.swift', 'AccuracyMeter.swift', 'XPBarView.swift', 'StreakBadgeView.swift', 'LevelBadgeView.swift', 'InsightCardView.swift'] },
   { name: 'SharedViews', path: 'Views', files: ['PINEntryView.swift'] },
