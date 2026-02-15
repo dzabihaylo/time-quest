@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-14)
 
 **Core value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
-**Current focus:** v3.0 Adaptive & Connected -- Phase 8 (Calendar Intelligence)
+**Current focus:** v3.0 Adaptive & Connected -- Phase 9 (Spotify Integration)
 
 ## Current Position
 
 Milestone: v3.0 Adaptive & Connected
-Phase: 8 of 10 (Calendar Intelligence)
-Plan: 3 of 3 in current phase (PHASE COMPLETE)
-Status: Phase 8 Complete
-Last activity: 2026-02-15 -- Completed 08-03 (Calendar UI)
+Phase: 9 of 10 (Spotify Integration)
+Plan: 1 of 4 in current phase
+Status: Executing 09-01
+Last activity: 2026-02-15 -- Completed 09-01 (Spotify Data Foundation)
 
-Progress: [####░░░░░░░░░░░░░░░░░░░░░░░░░░] 13%
+Progress: [#####░░░░░░░░░░░░░░░░░░░░░░░░░] 16%
 
 ## Performance Metrics
 
@@ -51,6 +51,10 @@ Recent decisions affecting current work:
 - [08-03]: nonisolated + MainActor.assumeIsolated pattern for UIKit delegates in Swift 6
 - [08-03]: Context chip uses passive language only ("School day", "Free day") per CAL-05
 - [08-03]: Calendar filtering skipped when hasAccess=false -- identical to v2.0 per CAL-03
+- [09-01]: All Spotify fields use nil defaults for CloudKit-compatible lightweight migration
+- [09-01]: SpotifyError enum with typed cases for each failure mode (not generic error)
+- [09-01]: NowPlayingInfo is Sendable but NOT Codable -- derived from CurrentlyPlayingResponse at runtime
+- [09-01]: formatSongCount rounds to nearest 0.5 for child-friendly readability
 
 ### Blockers/Concerns
 
@@ -62,5 +66,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 08-03-PLAN.md (Calendar UI) -- Phase 8 complete
+Stopped at: Completed 09-01-PLAN.md (Spotify Data Foundation)
 Resume file: None
