@@ -24,6 +24,13 @@ struct ParentDashboardView: View {
                             Image(systemName: "plus")
                         }
                     }
+                    ToolbarItem(placement: .bottomBar) {
+                        NavigationLink {
+                            CalendarSettingsView()
+                        } label: {
+                            Label("Calendar", systemImage: "calendar.badge.clock")
+                        }
+                    }
                 }
                 .navigationDestination(for: PersistentIdentifier.self) { routineID in
                     if let routine = fetchRoutine(id: routineID) {
