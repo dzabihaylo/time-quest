@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-14)
 
 Milestone: v3.0 Adaptive & Connected
 Phase: 9 of 10 (Spotify Integration)
-Plan: 1 of 4 in current phase
-Status: Executing 09-01
-Last activity: 2026-02-15 -- Completed 09-01 (Spotify Data Foundation)
+Plan: 2 of 4 in current phase
+Status: Executing 09-02
+Last activity: 2026-02-15 -- Completed 09-02 (Spotify OAuth & API Service Layer)
 
-Progress: [#####░░░░░░░░░░░░░░░░░░░░░░░░░] 16%
+Progress: [##################░░░░░░░░░░░░] 58%
 
 ## Performance Metrics
 
@@ -55,16 +55,19 @@ Recent decisions affecting current work:
 - [09-01]: SpotifyError enum with typed cases for each failure mode (not generic error)
 - [09-01]: NowPlayingInfo is Sendable but NOT Codable -- derived from CurrentlyPlayingResponse at runtime
 - [09-01]: formatSongCount rounds to nearest 0.5 for child-friendly readability
+- [09-02]: Hand-rolled ASWebAuthenticationSession + PKCE over spotify/ios-auth SPM (no binary xcframework, Swift 6 safe)
+- [09-02]: prefersEphemeralWebBrowserSession = false for reusing existing Safari Spotify login (family UX)
+- [09-02]: Token refresh uses single in-flight Task to prevent race conditions on concurrent requests
+- [09-02]: @preconcurrency ASWebAuthenticationPresentationContextProviding with nonisolated + MainActor.assumeIsolated
 
 ### Blockers/Concerns
 
 - CloudKit + SwiftData integration needs real-device testing (MEDIUM, carried from v2.0)
 - Test target not wired in generate-xcodeproj.js (tests written but not runnable via xcodebuild)
-- Spotify iOS SDK version and Swift 6 compatibility need verification before Phase 9 (MEDIUM)
-- generate-xcodeproj.js needs SPM support for Spotify package reference (Phase 9 blocker)
+- Spotify Client ID placeholder ("YOUR_SPOTIFY_CLIENT_ID") must be replaced before OAuth flow works
 
 ## Session Continuity
 
 Last session: 2026-02-15
-Stopped at: Completed 09-01-PLAN.md (Spotify Data Foundation)
+Stopped at: Completed 09-02-PLAN.md (Spotify OAuth & API Service Layer)
 Resume file: None
