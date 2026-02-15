@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-14)
 
 **Core value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
-**Current focus:** v3.0 Adaptive & Connected -- Phase 7 (Schema Evolution + Adaptive Difficulty)
+**Current focus:** v3.0 Adaptive & Connected -- Phase 8 (Calendar Intelligence)
 
 ## Current Position
 
 Milestone: v3.0 Adaptive & Connected
-Phase: 7 of 10 (Schema Evolution + Adaptive Difficulty)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-02-14 -- v3.0 roadmap created (4 phases, 23 requirements mapped)
+Phase: 8 of 10 (Calendar Intelligence)
+Plan: 1 of 3 in current phase
+Status: Executing
+Last activity: 2026-02-15 -- Completed 08-01 (SchemaV5 + CalendarContextEngine)
 
-Progress: [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0%
+Progress: [##░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 8%
 
 ## Performance Metrics
 
@@ -43,6 +43,9 @@ Recent decisions affecting current work:
 - [v3.0 roadmap]: Spotify via Web API + PKCE (no iOS SDK playback control) to avoid audio session conflicts with SoundManager
 - [v3.0 roadmap]: SchemaV4 lightweight migration only -- all new fields have defaults
 - [v3.0 roadmap]: UI refresh last (Phase 10) so all new views from Phases 7-9 get themed in one pass
+- [08-01]: calendarModeRaw defaults to "always" -- existing routines unaffected by V5 migration
+- [08-01]: DayContext.Equatable ignores freeDay reason (informational only)
+- [08-01]: shouldShow() returns true for .unknown context in all modes (backward compatibility)
 
 ### Blockers/Concerns
 
@@ -53,6 +56,6 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-02-14
-Stopped at: v3.0 roadmap created -- ready to plan Phase 7
+Last session: 2026-02-15
+Stopped at: Completed 08-01-PLAN.md (SchemaV5 + CalendarContextEngine)
 Resume file: None
