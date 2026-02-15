@@ -1,4 +1,4 @@
 import Foundation
 import SwiftData
 
-typealias TaskDifficultyState = TimeQuestSchemaV5.TaskDifficultyState
+typealias TaskDifficultyState = TimeQuestSchemaV6.TaskDifficultyState
