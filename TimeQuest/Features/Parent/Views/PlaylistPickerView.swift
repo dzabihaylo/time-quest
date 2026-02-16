@@ -82,9 +82,9 @@ struct PlaylistPickerView: View {
                         }
                 }
                 .frame(width: 44, height: 44)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .clipShape(RoundedRectangle(cornerRadius: tokens.cornerRadiusSM))
             } else {
-                RoundedRectangle(cornerRadius: 6)
+                RoundedRectangle(cornerRadius: tokens.cornerRadiusSM)
                     .fill(.quaternary)
                     .frame(width: 44, height: 44)
                     .overlay {
