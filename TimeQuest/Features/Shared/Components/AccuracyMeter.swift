@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct AccuracyMeter: View {
+    @Environment(\.designTokens) private var tokens
+
     let accuracyPercent: Double
     let rating: AccuracyRating
 
@@ -11,7 +13,7 @@ struct AccuracyMeter: View {
             ZStack {
                 // Background track
                 Circle()
-                    .stroke(Color(.systemGray5), lineWidth: 8)
+                    .stroke(tokens.surfaceTertiary, lineWidth: 8)
 
                 // Filled arc
                 Circle()
@@ -22,12 +24,11 @@ struct AccuracyMeter: View {
                 // Center text
                 VStack(spacing: 2) {
                     Text("\(Int(animatedProgress))%")
-                        .font(.title2)
-                        .fontWeight(.bold)
+                        .font(tokens.font(.title2, weight: .bold))
                         .monospacedDigit()
 
                     Text(ratingLabel)
-                        .font(.caption)
+                        .font(tokens.font(.caption))
                         .foregroundStyle(.secondary)
                 }
             }
@@ -44,10 +45,10 @@ struct AccuracyMeter: View {
 
     private var ratingColor: Color {
         switch rating {
-        case .spot_on:  Color.orange          // Gold/accent -- achievement
-        case .close:    Color.teal            // Positive neutral
-        case .off:      Color(.systemGray3)   // Cool neutral
-        case .way_off:  Color.purple          // Discovery color
+        case .spot_on:  tokens.accentSecondary   // Gold/accent -- achievement
+        case .close:    tokens.accent             // Positive neutral
+        case .off:      tokens.textTertiary       // Cool neutral
+        case .way_off:  tokens.discovery          // Discovery color
         }
     }
 

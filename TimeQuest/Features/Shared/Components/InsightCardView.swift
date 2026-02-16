@@ -1,13 +1,15 @@
 import SwiftUI
 
 struct InsightCardView: View {
+    @Environment(\.designTokens) private var tokens
+
     let insight: TaskInsight
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Task name header
             Text(insight.taskDisplayName)
-                .font(.headline)
+                .font(tokens.font(.headline))
 
             // Bias row
             if let bias = insight.bias {
@@ -15,19 +17,19 @@ struct InsightCardView: View {
                 case .overestimates:
                     insightRow(
                         icon: "arrow.up.right",
-                        color: .orange,
+                        color: tokens.accentSecondary,
                         text: "Interesting -- you tend to overestimate by ~\(TimeFormatting.formatDuration(abs(bias.meanDifferenceSeconds)))"
                     )
                 case .underestimates:
                     insightRow(
                         icon: "arrow.down.right",
-                        color: .teal,
+                        color: tokens.accent,
                         text: "Interesting -- you tend to underestimate by ~\(TimeFormatting.formatDuration(abs(bias.meanDifferenceSeconds)))"
                     )
                 case .balanced:
                     insightRow(
                         icon: "checkmark.circle",
-                        color: .green,
+                        color: tokens.positive,
                         text: "Your estimates are well-balanced"
                     )
                 }
@@ -39,19 +41,19 @@ struct InsightCardView: View {
                 case .improving:
                     insightRow(
                         icon: "chart.line.uptrend.xyaxis",
-                        color: .green,
+                        color: tokens.positive,
                         text: "Your estimates are getting closer over time"
                     )
                 case .declining:
                     insightRow(
                         icon: "chart.line.downtrend.xyaxis",
-                        color: .orange,
+                        color: tokens.accentSecondary,
                         text: "This one's been harder to read lately"
                     )
                 case .stable:
                     insightRow(
                         icon: "equal",
-                        color: .secondary,
+                        color: tokens.textSecondary,
                         text: "Steady -- your feel for this hasn't changed much"
                     )
                 }
@@ -63,19 +65,19 @@ struct InsightCardView: View {
                 case .veryConsistent:
                     insightRow(
                         icon: "waveform.path",
-                        color: .green,
+                        color: tokens.positive,
                         text: "You read this one the same way each time"
                     )
                 case .moderate:
                     insightRow(
                         icon: "waveform.path",
-                        color: .secondary,
+                        color: tokens.textSecondary,
                         text: "Your estimates vary a bit from time to time"
                     )
                 case .variable:
                     insightRow(
                         icon: "waveform.path.ecg",
-                        color: .orange,
+                        color: tokens.accentSecondary,
                         text: "This one's unpredictable -- your estimates vary quite a bit"
                     )
                 }
@@ -84,24 +86,22 @@ struct InsightCardView: View {
             // Sample count footer
             if let sampleCount = insight.bias?.sampleCount ?? insight.trend?.sampleCount ?? insight.consistency?.sampleCount {
                 Text("Based on \(sampleCount) sessions")
-                    .font(.caption2)
+                    .font(tokens.font(.caption2))
                     .foregroundStyle(.tertiary)
             }
         }
-        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .tqCard(elevation: .nested)
     }
 
     private func insightRow(icon: String, color: Color, text: String) -> some View {
         HStack(spacing: 8) {
             Image(systemName: icon)
-                .font(.caption)
+                .font(tokens.font(.caption))
                 .foregroundStyle(color)
                 .frame(width: 16)
             Text(text)
-                .font(.subheadline)
+                .font(tokens.font(.subheadline))
                 .foregroundStyle(.primary)
         }
     }
