@@ -5,17 +5,17 @@
 See: .planning/PROJECT.md (updated 2026-02-14)
 
 **Core value:** The player develops an accurate internal sense of time -- the ability to predict how long things take and act on those predictions without external prompting.
-**Current focus:** v3.0 Adaptive & Connected -- Phase 9 (Spotify Integration)
+**Current focus:** v3.0 Adaptive & Connected -- Phase 10 (UI/Brand Refresh)
 
 ## Current Position
 
 Milestone: v3.0 Adaptive & Connected
-Phase: 9 of 10 (Spotify Integration)
-Plan: 4 of 4 in current phase
-Status: Phase 9 execution complete, pending verification
-Last activity: 2026-02-16 -- All 4 plans complete, checkpoint approved (device testing deferred)
+Phase: 10 of 10 (UI/Brand Refresh)
+Plan: 1 of 4 in current phase (complete)
+Status: Executing Phase 10
+Last activity: 2026-02-16 -- Plan 01 complete (Design System Foundation)
 
-Progress: [####################░░░░░░░░░░] 65%
+Progress: [######################░░░░░░░░] 72%
 
 ## Performance Metrics
 
@@ -62,6 +62,10 @@ Recent decisions affecting current work:
 - [09-03]: Display name restored lazily via .task on SpotifySettingsView (not on SpotifyAuthManager init)
 - [09-03]: Spotify playlist section completely hidden when not connected (SPOT-06 invisible until opt-in)
 - [09-03]: PlaylistPickerView uses ForEach inside List (not List(data:) initializer) to avoid Swift binding inference
+- [10-01]: @Observable class (not struct) for DesignTokens to avoid unnecessary SwiftUI redraws
+- [10-01]: @unchecked Sendable on DesignTokens since all properties are immutable let constants
+- [10-01]: UIColor.system* wrapped in Color() for surfaces (auto dark/light adaptation, no asset catalog needed)
+- [10-01]: SpriteKit color helpers as computed vars on DesignTokens (co-located with token definitions)
 
 ### Blockers/Concerns
 
@@ -72,5 +76,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Phase 9 complete -- pending verification and roadmap update
-Resume file: .planning/phases/09-spotify-integration/09-04-SUMMARY.md
+Stopped at: Completed 10-01-PLAN.md (Design System Foundation)
+Resume file: .planning/phases/10-ui-brand-refresh/10-01-SUMMARY.md
