@@ -2,6 +2,8 @@ import SwiftUI
 import SpriteKit
 
 struct AccuracyRevealView: View {
+    @Environment(\.designTokens) private var tokens
+
     let viewModel: GameSessionViewModel
     let soundManager: SoundManager
 
@@ -37,22 +39,20 @@ struct AccuracyRevealView: View {
                 if let result = viewModel.currentResult {
                     VStack(spacing: 4) {
                         Text("You estimated")
-                            .font(.subheadline)
+                            .font(tokens.font(.subheadline))
                             .foregroundStyle(.secondary)
                         Text(TimeFormatting.formatDuration(result.estimatedSeconds))
-                            .font(.system(.title, design: .rounded))
-                            .fontWeight(.bold)
+                            .font(tokens.font(.title, weight: .bold))
                     }
 
                     // Actual time (revealed with delay)
                     if showActual {
                         VStack(spacing: 4) {
                             Text("It actually took")
-                                .font(.subheadline)
+                                .font(tokens.font(.subheadline))
                                 .foregroundStyle(.secondary)
                             Text(TimeFormatting.formatDuration(result.actualSeconds))
-                                .font(.system(.title, design: .rounded))
-                                .fontWeight(.bold)
+                                .font(tokens.font(.title, weight: .bold))
                         }
                         .transition(.opacity.combined(with: .scale(scale: 0.9)))
 
@@ -78,7 +78,7 @@ struct AccuracyRevealView: View {
                     if viewModel.isCalibration, showFeedback {
                         let remaining = viewModel.calibrationSessionsRemaining
                         Text("Calibration: \(remaining) session\(remaining == 1 ? "" : "s") to go")
-                            .font(.caption)
+                            .font(tokens.font(.caption))
                             .foregroundStyle(.secondary)
                             .padding(.top, 4)
                     }
@@ -91,7 +91,7 @@ struct AccuracyRevealView: View {
                     viewModel.advanceToNextTask()
                 } label: {
                     Text(viewModel.currentTaskIndex + 1 < viewModel.totalTasks ? "Next Step" : "See Results")
-                        .font(.headline)
+                        .font(tokens.font(.headline))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
                 }
@@ -140,8 +140,8 @@ struct AccuracyRevealView: View {
     private func differenceView(_ result: EstimationResult) -> some View {
         let direction = result.differenceSeconds > 0 ? "over" : "under"
         let directionColor: Color = result.differenceSeconds > 0
-            ? Color.orange.opacity(0.8)   // Warm for over
-            : Color.teal.opacity(0.8)     // Cool for under
+            ? tokens.caution.opacity(0.8)   // Warm for over
+            : tokens.cool.opacity(0.8)      // Cool for under
 
         return HStack(spacing: 6) {
             Image(systemName: result.differenceSeconds > 0 ? "arrow.up.right" : "arrow.down.right")
@@ -150,27 +150,24 @@ struct AccuracyRevealView: View {
                 .fontWeight(.medium)
                 .foregroundStyle(directionColor)
         }
-        .font(.title3)
+        .font(tokens.font(.title3))
     }
 
     private func feedbackCard(_ feedback: FeedbackMessage) -> some View {
         VStack(spacing: 8) {
             Image(systemName: feedback.emoji)
-                .font(.title)
+                .font(tokens.font(.title))
                 .foregroundStyle(.tint)
 
             Text(feedback.headline)
-                .font(.title3)
-                .fontWeight(.semibold)
+                .font(tokens.font(.title3, weight: .semibold))
 
             Text(feedback.body)
-                .font(.body)
+                .font(tokens.font(.body))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
-        .padding(20)
         .frame(maxWidth: .infinity)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .tqCard()
     }
 }

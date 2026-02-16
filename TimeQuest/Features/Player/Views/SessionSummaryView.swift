@@ -2,6 +2,8 @@ import SwiftUI
 import SpriteKit
 
 struct SessionSummaryView: View {
+    @Environment(\.designTokens) private var tokens
+
     let viewModel: GameSessionViewModel
     let soundManager: SoundManager
     let onFinish: () -> Void
@@ -13,8 +15,7 @@ struct SessionSummaryView: View {
         ScrollView {
             VStack(spacing: 24) {
                 Text("Quest Complete")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
+                    .font(tokens.font(.largeTitle, weight: .bold))
                     .padding(.top, 20)
 
                 // Level-up celebration overlay
@@ -34,41 +35,36 @@ struct SessionSummaryView: View {
                     let remaining = viewModel.calibrationSessionsRemaining
                     VStack(spacing: 4) {
                         Text("Calibration session complete!")
-                            .font(.headline)
+                            .font(tokens.font(.headline))
                         if remaining > 0 {
                             Text("\(remaining) more to go before your baseline is set")
-                                .font(.subheadline)
+                                .font(tokens.font(.subheadline))
                                 .foregroundStyle(.secondary)
                         } else {
                             Text("Baseline established -- game on!")
-                                .font(.subheadline)
+                                .font(tokens.font(.subheadline))
                                 .foregroundStyle(.secondary)
                         }
                     }
-                    .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .tqCard()
                 }
 
                 // XP earned this session
                 if viewModel.sessionXPEarned > 0 {
                     VStack(spacing: 8) {
                         Text("+\(viewModel.sessionXPEarned) XP")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.teal)
+                            .font(tokens.font(.title2, weight: .bold))
+                            .foregroundStyle(tokens.accent)
 
                         if viewModel.didLevelUp {
                             Text("Level Up!")
-                                .font(.headline)
-                                .foregroundStyle(.orange)
+                                .font(tokens.font(.headline))
+                                .foregroundStyle(tokens.accentSecondary)
                         }
                     }
-                    .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .tqCard()
                 }
 
                 // Summary stats
@@ -85,10 +81,10 @@ struct SessionSummaryView: View {
                 if let songCount = viewModel.session?.spotifySongCount {
                     HStack(spacing: 4) {
                         Image(systemName: "music.note")
-                            .font(.caption)
+                            .font(tokens.font(.caption))
                             .foregroundStyle(.secondary)
                         Text("You got through \(songCount)")
-                            .font(.callout)
+                            .font(tokens.font(.callout))
                             .foregroundStyle(.secondary)
                     }
                     .padding(.top, 8)
@@ -100,7 +96,7 @@ struct SessionSummaryView: View {
                     onFinish()
                 } label: {
                     Text("Finish")
-                        .font(.headline)
+                        .font(tokens.font(.headline))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
                 }
@@ -159,10 +155,10 @@ struct SessionSummaryView: View {
             if let best = bestTask {
                 HStack(spacing: 4) {
                     Image(systemName: "star.fill")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
+                        .font(tokens.font(.caption))
+                        .foregroundStyle(tokens.accentSecondary)
                     Text("Best: \(best.taskDisplayName) (\(Int(best.accuracyPercent))%)")
-                        .font(.caption)
+                        .font(tokens.font(.caption))
                         .foregroundStyle(.secondary)
                 }
             }
@@ -172,22 +168,22 @@ struct SessionSummaryView: View {
     private func statCard(value: String, label: String) -> some View {
         VStack(spacing: 4) {
             Text(value)
-                .font(.headline)
+                .font(tokens.font(.headline))
                 .monospacedDigit()
             Text(label)
-                .font(.caption2)
+                .font(tokens.font(.caption2))
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .background(tokens.surfaceTertiary)
+        .clipShape(RoundedRectangle(cornerRadius: tokens.cornerRadiusMD))
     }
 
     private func taskResultsList(_ session: GameSession) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Results")
-                .font(.headline)
+                .font(tokens.font(.headline))
                 .padding(.leading, 4)
 
             ForEach(session.orderedEstimations, id: \.recordedAt) { estimation in
@@ -205,15 +201,14 @@ struct SessionSummaryView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(estimation.taskDisplayName)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+                    .font(tokens.font(.subheadline, weight: .medium))
 
                 HStack(spacing: 8) {
                     Text("Est: \(TimeFormatting.formatDuration(estimation.estimatedSeconds))")
-                        .font(.caption)
+                        .font(tokens.font(.caption))
                         .foregroundStyle(.secondary)
                     Text("Act: \(TimeFormatting.formatDuration(estimation.actualSeconds))")
-                        .font(.caption)
+                        .font(tokens.font(.caption))
                         .foregroundStyle(.secondary)
                 }
             }
@@ -223,14 +218,14 @@ struct SessionSummaryView: View {
             // Difference
             let direction = estimation.differenceSeconds > 0 ? "over" : "under"
             Text("\(TimeFormatting.formatDuration(abs(estimation.differenceSeconds))) \(direction)")
-                .font(.caption)
+                .font(tokens.font(.caption))
                 .foregroundStyle(
-                    estimation.differenceSeconds > 0 ? Color.orange.opacity(0.8) : Color.teal.opacity(0.8)
+                    estimation.differenceSeconds > 0 ? tokens.caution.opacity(0.8) : tokens.cool.opacity(0.8)
                 )
         }
         .padding(12)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .background(tokens.surfaceTertiary)
+        .clipShape(RoundedRectangle(cornerRadius: tokens.cornerRadiusMD))
     }
 
     private func ratingIcon(_ rating: AccuracyRating) -> String {
@@ -244,10 +239,10 @@ struct SessionSummaryView: View {
 
     private func ratingColor(_ rating: AccuracyRating) -> Color {
         switch rating {
-        case .spot_on:  .orange
-        case .close:    .teal
-        case .off:      Color(.systemGray3)
-        case .way_off:  .purple
+        case .spot_on:  tokens.accentSecondary
+        case .close:    tokens.accent
+        case .off:      tokens.textTertiary
+        case .way_off:  tokens.discovery
         }
     }
 }
