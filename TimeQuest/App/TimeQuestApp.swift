@@ -62,6 +62,8 @@ private struct ContentView: View {
                 ProgressView()
             }
         }
+        .preferredColorScheme(.dark)
+        .environment(\.designTokens, DesignTokens())
         .onAppear {
             if dependencies == nil {
                 dependencies = AppDependencies(modelContext: modelContext)

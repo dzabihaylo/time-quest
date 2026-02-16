@@ -20,6 +20,10 @@ const sourceFiles = [
   { name: 'TimeQuestApp.swift', path: 'App/TimeQuestApp.swift' },
   { name: 'AppDependencies.swift', path: 'App/AppDependencies.swift' },
   { name: 'RoleRouter.swift', path: 'App/RoleRouter.swift' },
+  { name: 'DesignTokens.swift', path: 'App/DesignSystem/DesignTokens.swift' },
+  { name: 'CardModifier.swift', path: 'App/DesignSystem/ViewModifiers/CardModifier.swift' },
+  { name: 'ChipModifier.swift', path: 'App/DesignSystem/ViewModifiers/ChipModifier.swift' },
+  { name: 'ButtonModifiers.swift', path: 'App/DesignSystem/ViewModifiers/ButtonModifiers.swift' },
   { name: 'Routine.swift', path: 'Models/Routine.swift' },
   { name: 'RoutineTask.swift', path: 'Models/RoutineTask.swift' },
   { name: 'GameSession.swift', path: 'Models/GameSession.swift' },
@@ -114,7 +118,9 @@ const soundFiles = [
 
 // Groups
 const groups = [
-  { name: 'App', path: 'App', files: ['TimeQuestApp.swift', 'AppDependencies.swift', 'RoleRouter.swift'] },
+  { name: 'App', path: 'App', files: ['TimeQuestApp.swift', 'AppDependencies.swift', 'RoleRouter.swift'], subgroups: ['DesignSystem'] },
+  { name: 'DesignSystem', path: 'DesignSystem', files: ['DesignTokens.swift'], subgroups: ['ViewModifiers'] },
+  { name: 'ViewModifiers', path: 'ViewModifiers', files: ['CardModifier.swift', 'ChipModifier.swift', 'ButtonModifiers.swift'] },
   { name: 'Models', path: 'Models', files: ['Routine.swift', 'RoutineTask.swift', 'GameSession.swift', 'TaskEstimation.swift', 'PlayerProfile.swift', 'EstimationSnapshot.swift', 'TaskDifficultyState.swift', 'DifficultySnapshot.swift', 'WeeklyReflection.swift', 'SpotifyModels.swift'], subgroups: ['Schemas', 'Migration'] },
   { name: 'Schemas', path: 'Schemas', files: ['TimeQuestSchemaV1.swift', 'TimeQuestSchemaV2.swift', 'TimeQuestSchemaV3.swift', 'TimeQuestSchemaV4.swift', 'TimeQuestSchemaV5.swift', 'TimeQuestSchemaV6.swift'] },
   { name: 'Migration', path: 'Migration', files: ['TimeQuestMigrationPlan.swift'] },
