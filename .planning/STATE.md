@@ -11,11 +11,11 @@ See: .planning/PROJECT.md (updated 2026-02-14)
 
 Milestone: v3.0 Adaptive & Connected
 Phase: 10 of 10 (UI/Brand Refresh)
-Plan: 1 of 4 in current phase (complete)
+Plan: 3 of 4 in current phase (complete)
 Status: Executing Phase 10
-Last activity: 2026-02-16 -- Plan 01 complete (Design System Foundation)
+Last activity: 2026-02-16 -- Plan 03 complete (Remaining View Migration)
 
-Progress: [######################░░░░░░░░] 72%
+Progress: [##########################░░░░] 85%
 
 ## Performance Metrics
 
@@ -66,6 +66,9 @@ Recent decisions affecting current work:
 - [10-01]: @unchecked Sendable on DesignTokens since all properties are immutable let constants
 - [10-01]: UIColor.system* wrapped in Color() for surfaces (auto dark/light adaptation, no asset catalog needed)
 - [10-01]: SpriteKit color helpers as computed vars on DesignTokens (co-located with token definitions)
+- [10-03]: DesignTokens() instance (not @Environment) for SpriteKit scenes since SKScene cannot access SwiftUI environment
+- [10-03]: WeeklyReflectionCardView converted to .tqCard() modifier (standard card pattern)
+- [10-03]: NotificationSettingsView statusColor uses semantic tokens (positive/school/negative/caution)
 
 ### Blockers/Concerns
 
@@ -76,5 +79,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 10-01-PLAN.md (Design System Foundation)
-Resume file: .planning/phases/10-ui-brand-refresh/10-01-SUMMARY.md
+Stopped at: Completed 10-03-PLAN.md (Remaining View Migration)
+Resume file: .planning/phases/10-ui-brand-refresh/10-03-SUMMARY.md
