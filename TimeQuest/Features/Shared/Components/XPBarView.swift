@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct XPBarView: View {
+    @Environment(\.designTokens) private var tokens
+
     let currentXP: Int
     let xpForNextLevel: Int
     let progress: Double
@@ -10,11 +12,11 @@ struct XPBarView: View {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     Capsule()
-                        .fill(Color(.systemGray5))
+                        .fill(tokens.surfaceTertiary)
                         .frame(height: 8)
 
                     Capsule()
-                        .fill(Color.teal)
+                        .fill(tokens.accent)
                         .frame(width: max(0, geometry.size.width * progress), height: 8)
                         .animation(.easeInOut(duration: 0.5), value: progress)
                 }
@@ -22,7 +24,7 @@ struct XPBarView: View {
             .frame(height: 8)
 
             Text("XP: \(currentXP)/\(xpForNextLevel)")
-                .font(.caption2)
+                .font(tokens.font(.caption2))
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
         }
