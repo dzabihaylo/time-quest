@@ -3,12 +3,13 @@ import Charts
 
 struct AccuracyTrendChartView: View {
     let dataPoints: [AccuracyDataPoint]
+    @Environment(\.designTokens) private var tokens
 
     var body: some View {
         if dataPoints.isEmpty {
             Text("Complete a few quests to see your accuracy trend")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .font(tokens.font(.subheadline))
+                .foregroundStyle(tokens.textSecondary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 200)
         } else {
@@ -18,13 +19,13 @@ struct AccuracyTrendChartView: View {
                     y: .value("Accuracy", point.averageAccuracy)
                 )
                 .interpolationMethod(.catmullRom)
-                .foregroundStyle(.teal)
+                .foregroundStyle(tokens.accent)
 
                 PointMark(
                     x: .value("Date", point.date, unit: .day),
                     y: .value("Accuracy", point.averageAccuracy)
                 )
-                .foregroundStyle(.teal)
+                .foregroundStyle(tokens.accent)
                 .symbolSize(30)
             }
             .chartXAxis {
