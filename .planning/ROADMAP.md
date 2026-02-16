@@ -36,7 +36,7 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
 
 - [x] **Phase 7: Schema Evolution + Adaptive Difficulty** - Game automatically calibrates challenge level per task based on accuracy history
 - [x] **Phase 8: Calendar Intelligence** - Routines surface and hide based on the player's real-world schedule
-- [ ] **Phase 9: Spotify Integration** - Music serves as an intuitive, hands-free time cue during routines
+- [x] **Phase 9: Spotify Integration** - Music serves as an intuitive, hands-free time cue during routines
 - [ ] **Phase 10: UI/Brand Refresh** - Every screen looks and feels like a modern teen app
 
 ## Phase Details
@@ -88,10 +88,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 09-01-PLAN.md -- SchemaV6 + SpotifyModels + SpotifyPlaylistMatcher domain engine
-- [ ] 09-02-PLAN.md -- SpotifyAuthManager OAuth PKCE + SpotifyAPIClient service layer
-- [ ] 09-03-PLAN.md -- Parent UI: Spotify settings, playlist picker, routine editor integration
-- [ ] 09-04-PLAN.md -- Player UI: playback launch, Now Playing indicator, song count summary
+- [x] 09-01-PLAN.md -- SchemaV6 + SpotifyModels + SpotifyPlaylistMatcher domain engine -- completed 2026-02-15
+- [x] 09-02-PLAN.md -- SpotifyAuthManager OAuth PKCE + SpotifyAPIClient service layer -- completed 2026-02-15
+- [x] 09-03-PLAN.md -- Parent UI: Spotify settings, playlist picker, routine editor integration -- completed 2026-02-15
+- [x] 09-04-PLAN.md -- Player UI: playback launch, Now Playing indicator, song count summary -- completed 2026-02-16
 
 ### Phase 10: UI/Brand Refresh
 **Goal**: Every player-facing screen uses a cohesive, modern visual language that a teen in 2026 would consider worth having on her phone -- dark-first design, rounded typography, card-based layouts, polished animations
@@ -123,7 +123,7 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10
 | 6. Weekly Reflection Summaries | v2.0 | 2/2 | Complete | 2026-02-14 |
 | 7. Schema Evolution + Adaptive Difficulty | v3.0 | 2/2 | Complete | 2026-02-14 |
 | 8. Calendar Intelligence | v3.0 | 3/3 | Complete | 2026-02-15 |
-| 9. Spotify Integration | v3.0 | 0/4 | Planned | - |
+| 9. Spotify Integration | v3.0 | 4/4 | Complete | 2026-02-16 |
 | 10. UI/Brand Refresh | v3.0 | 0/TBD | Not started | - |
 
 ---
