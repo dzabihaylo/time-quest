@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct PlayerStatsView: View {
+    @Environment(\.designTokens) private var tokens
+
     let viewModel: ProgressionViewModel
     var reflectionHistory: [WeeklyReflection] = []
 
@@ -10,29 +12,25 @@ struct PlayerStatsView: View {
                 // Section 1: Accuracy Trend
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Accuracy Trend")
-                        .font(.headline)
+                        .font(tokens.font(.headline))
                         .padding(.leading, 4)
 
                     AccuracyTrendChartView(dataPoints: viewModel.chartDataPoints)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .tqCard()
                 }
 
                 // Section 2: Personal Bests
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Personal Bests")
-                        .font(.headline)
+                        .font(tokens.font(.headline))
                         .padding(.leading, 4)
 
                     if viewModel.personalBests.isEmpty {
                         Text("Complete some quests to see your personal bests here")
-                            .font(.subheadline)
+                            .font(tokens.font(.subheadline))
                             .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .tqCard()
                     } else {
                         ForEach(viewModel.personalBests, id: \.taskDisplayName) { best in
                             personalBestRow(best)
@@ -44,7 +42,7 @@ struct PlayerStatsView: View {
                 if !reflectionHistory.isEmpty {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Weekly Recaps")
-                            .font(.headline)
+                            .font(tokens.font(.headline))
                             .padding(.leading, 4)
 
                         ForEach(reflectionHistory, id: \.weekStartDate) { reflection in
@@ -66,48 +64,46 @@ struct PlayerStatsView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(best.taskDisplayName)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+                    .font(tokens.font(.subheadline, weight: .medium))
 
                 Text("\(TimeFormatting.formatDuration(abs(best.closestDifferenceSeconds))) off")
-                    .font(.caption)
-                    .foregroundStyle(.teal)
+                    .font(tokens.font(.caption))
+                    .foregroundStyle(tokens.accent)
             }
 
             Spacer()
 
             Text(best.date, style: .relative)
-                .font(.caption)
+                .font(tokens.font(.caption))
                 .foregroundStyle(.secondary)
         }
         .padding(12)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background(tokens.surfaceTertiary)
+        .clipShape(RoundedRectangle(cornerRadius: tokens.cornerRadiusMD))
     }
 
     private func miniReflectionRow(_ reflection: WeeklyReflection) -> some View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(reflection.weekStartDate, format: .dateTime.month(.abbreviated).day())
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+                    .font(tokens.font(.subheadline, weight: .medium))
 
                 HStack(spacing: 8) {
                     Label("\(reflection.questsCompleted) quests", systemImage: "checkmark.circle")
                     Label("\(Int(reflection.averageAccuracy))%", systemImage: "target")
                 }
-                .font(.caption)
+                .font(tokens.font(.caption))
                 .foregroundStyle(.secondary)
             }
 
             Spacer()
 
             Text(reflection.streakContextString)
-                .font(.caption)
+                .font(tokens.font(.caption))
                 .foregroundStyle(.secondary)
         }
         .padding(12)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background(tokens.surfaceTertiary)
+        .clipShape(RoundedRectangle(cornerRadius: tokens.cornerRadiusMD))
     }
 }

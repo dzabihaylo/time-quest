@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct PlayerHomeView: View {
+    @Environment(\.designTokens) private var tokens
     @Environment(RoleState.self) private var roleState
     @Environment(\.modelContext) private var modelContext
     @Environment(AppDependencies.self) private var dependencies
@@ -27,8 +28,7 @@ struct PlayerHomeView: View {
                         .foregroundStyle(.tint)
 
                     Text("TimeQuest")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
+                        .font(tokens.font(.largeTitle, weight: .bold))
                 }
                 .onTapGesture(count: 3) {
                     roleState.requestParentAccess()
@@ -89,7 +89,7 @@ struct PlayerHomeView: View {
                                 Text("My Patterns")
                                 Image(systemName: "chevron.right")
                             }
-                            .font(.caption)
+                            .font(tokens.font(.caption))
                             .foregroundStyle(.secondary)
                         }
 
@@ -107,7 +107,7 @@ struct PlayerHomeView: View {
                                 Text("View Your Stats")
                                 Image(systemName: "chevron.right")
                             }
-                            .font(.caption)
+                            .font(tokens.font(.caption))
                             .foregroundStyle(.secondary)
                         }
                     }
@@ -130,7 +130,7 @@ struct PlayerHomeView: View {
                         )
                     } label: {
                         Image(systemName: "gearshape")
-                            .font(.body)
+                            .font(tokens.font(.body))
                             .foregroundStyle(.secondary)
                     }
                 }
@@ -155,11 +155,11 @@ struct PlayerHomeView: View {
         VStack(spacing: 16) {
             VStack(spacing: 8) {
                 Text("No quests today")
-                    .font(.title3)
+                    .font(tokens.font(.title3))
                     .foregroundStyle(.secondary)
 
                 Text("Quests appear on their scheduled days")
-                    .font(.subheadline)
+                    .font(tokens.font(.subheadline))
                     .foregroundStyle(.tertiary)
             }
 
@@ -187,41 +187,33 @@ struct PlayerHomeView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {
                         Text(routine.displayName)
-                            .font(.headline)
+                            .font(tokens.font(.headline))
                             .foregroundStyle(.primary)
 
                         if routine.createdBy == "player" {
                             Image(systemName: "star.fill")
-                                .font(.caption2)
-                                .foregroundStyle(.orange)
+                                .font(tokens.font(.caption2))
+                                .foregroundStyle(tokens.accentSecondary)
                         }
 
                         if isCalibrating(routine) {
                             Text("Calibrating")
-                                .font(.caption2)
-                                .fontWeight(.medium)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.orange.opacity(0.15))
-                                .foregroundStyle(.orange)
-                                .clipShape(Capsule())
+                                .tqChip(color: tokens.accentSecondary)
                         }
                     }
 
                     Text("\(routine.orderedTasks.count) steps")
-                        .font(.caption)
+                        .font(tokens.font(.caption))
                         .foregroundStyle(.secondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.caption)
+                    .font(tokens.font(.caption))
                     .foregroundStyle(.tertiary)
             }
-            .padding(16)
-            .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .tqCard()
         }
         .buttonStyle(.plain)
     }
@@ -234,24 +226,14 @@ struct PlayerHomeView: View {
                 Image(systemName: "backpack.fill")
                 Text("School day")
             }
-            .font(.caption)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(Color.blue.opacity(0.1))
-            .foregroundStyle(.blue)
-            .clipShape(Capsule())
+            .tqChip(color: tokens.school)
         case .freeDay(let reason):
             HStack(spacing: 4) {
                 Image(systemName: "sun.max.fill")
                 Text(reason ?? "Free day")
                     .lineLimit(1)
             }
-            .font(.caption)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(Color.orange.opacity(0.1))
-            .foregroundStyle(.orange)
-            .clipShape(Capsule())
+            .tqChip(color: tokens.accentSecondary)
         case .unknown:
             EmptyView()
         }
@@ -261,16 +243,14 @@ struct PlayerHomeView: View {
         Button { showingCreateQuest = true } label: {
             HStack {
                 Image(systemName: "plus.circle.fill")
-                    .font(.title3)
+                    .font(tokens.font(.title3))
                     .foregroundStyle(.tint)
                 Text("Create Quest")
-                    .font(.headline)
+                    .font(tokens.font(.headline))
                     .foregroundStyle(.tint)
                 Spacer()
             }
-            .padding(16)
-            .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .tqCard()
         }
         .buttonStyle(.plain)
     }

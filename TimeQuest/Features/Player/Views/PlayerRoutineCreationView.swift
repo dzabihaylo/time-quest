@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct PlayerRoutineCreationView: View {
+    @Environment(\.designTokens) private var tokens
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: PlayerRoutineCreationViewModel
     @State private var showError = false
@@ -82,7 +83,7 @@ struct PlayerRoutineCreationView: View {
         HStack(spacing: 8) {
             ForEach(PlayerRoutineCreationViewModel.CreationStep.allCases, id: \.rawValue) { step in
                 Capsule()
-                    .fill(step.rawValue <= viewModel.currentStep.rawValue ? Color.accentColor : Color(.systemGray4))
+                    .fill(step.rawValue <= viewModel.currentStep.rawValue ? tokens.accent : tokens.surfaceTertiary)
                     .frame(height: 4)
             }
         }
@@ -95,12 +96,11 @@ struct PlayerRoutineCreationView: View {
         ScrollView {
             VStack(spacing: 20) {
                 Text("Pick a starter quest")
-                    .font(.title2)
-                    .fontWeight(.bold)
+                    .font(tokens.font(.title2, weight: .bold))
                     .padding(.top, 8)
 
                 Text("Choose a template to start with, or build your own from scratch")
-                    .font(.subheadline)
+                    .font(tokens.font(.subheadline))
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
@@ -116,30 +116,28 @@ struct PlayerRoutineCreationView: View {
                     } label: {
                         HStack(spacing: 12) {
                             Image(systemName: "sparkles")
-                                .font(.title3)
-                                .foregroundStyle(.purple)
+                                .font(tokens.font(.title3))
+                                .foregroundStyle(tokens.discovery)
                                 .frame(width: 40, height: 40)
-                                .background(Color.purple.opacity(0.1))
+                                .background(tokens.discovery.opacity(0.1))
                                 .clipShape(Circle())
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("Custom Quest")
-                                    .font(.headline)
+                                    .font(tokens.font(.headline))
                                     .foregroundStyle(.primary)
                                 Text("Start from scratch")
-                                    .font(.caption)
+                                    .font(tokens.font(.caption))
                                     .foregroundStyle(.secondary)
                             }
 
                             Spacer()
 
                             Image(systemName: "chevron.right")
-                                .font(.caption)
+                                .font(tokens.font(.caption))
                                 .foregroundStyle(.tertiary)
                         }
-                        .padding(16)
-                        .background(Color(.systemGray6))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .tqCard()
                     }
                     .buttonStyle(.plain)
                 }
@@ -155,30 +153,28 @@ struct PlayerRoutineCreationView: View {
         } label: {
             HStack(spacing: 12) {
                 Image(systemName: templateIcon(for: template.name))
-                    .font(.title3)
+                    .font(tokens.font(.title3))
                     .foregroundStyle(.tint)
                     .frame(width: 40, height: 40)
-                    .background(Color.accentColor.opacity(0.1))
+                    .background(tokens.accent.opacity(0.1))
                     .clipShape(Circle())
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(template.displayName)
-                        .font(.headline)
+                        .font(tokens.font(.headline))
                         .foregroundStyle(.primary)
                     Text("\(template.suggestedTasks.count) steps")
-                        .font(.caption)
+                        .font(tokens.font(.caption))
                         .foregroundStyle(.secondary)
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.caption)
+                    .font(tokens.font(.caption))
                     .foregroundStyle(.tertiary)
             }
-            .padding(16)
-            .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .tqCard()
         }
         .buttonStyle(.plain)
     }
@@ -199,15 +195,14 @@ struct PlayerRoutineCreationView: View {
             Spacer()
 
             Text("Name your quest")
-                .font(.title2)
-                .fontWeight(.bold)
+                .font(tokens.font(.title2, weight: .bold))
 
             Text("Pick a name that makes you excited to start")
-                .font(.subheadline)
+                .font(tokens.font(.subheadline))
                 .foregroundStyle(.secondary)
 
             TextField("Quest name", text: $viewModel.editState.displayName)
-                .font(.title3)
+                .font(tokens.font(.title3))
                 .multilineTextAlignment(.center)
                 .textFieldStyle(.roundedBorder)
                 .padding(.horizontal, 40)
@@ -222,12 +217,11 @@ struct PlayerRoutineCreationView: View {
     private var tasksStep: some View {
         VStack(spacing: 16) {
             Text("Add your steps")
-                .font(.title2)
-                .fontWeight(.bold)
+                .font(tokens.font(.title2, weight: .bold))
                 .padding(.top, 8)
 
             Text("What do you need to do? You can add up to 10 steps.")
-                .font(.subheadline)
+                .font(tokens.font(.subheadline))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)
@@ -236,11 +230,10 @@ struct PlayerRoutineCreationView: View {
                 ForEach(viewModel.editState.tasks.indices, id: \.self) { index in
                     HStack(spacing: 12) {
                         Text("\(index + 1)")
-                            .font(.caption)
-                            .fontWeight(.bold)
+                            .font(tokens.font(.caption, weight: .bold))
                             .foregroundStyle(.white)
                             .frame(width: 24, height: 24)
-                            .background(Color.accentColor)
+                            .background(tokens.accent)
                             .clipShape(Circle())
 
                         TextField("Step name", text: $viewModel.editState.tasks[index].displayName)
@@ -270,11 +263,10 @@ struct PlayerRoutineCreationView: View {
             Spacer()
 
             Text("Pick your days")
-                .font(.title2)
-                .fontWeight(.bold)
+                .font(tokens.font(.title2, weight: .bold))
 
             Text("Which days do you want to do this quest?")
-                .font(.subheadline)
+                .font(tokens.font(.subheadline))
                 .foregroundStyle(.secondary)
 
             SchedulePickerView(activeDays: $viewModel.editState.activeDays)
@@ -291,26 +283,23 @@ struct PlayerRoutineCreationView: View {
         ScrollView {
             VStack(spacing: 20) {
                 Text("Ready to go!")
-                    .font(.title2)
-                    .fontWeight(.bold)
+                    .font(tokens.font(.title2, weight: .bold))
                     .padding(.top, 8)
 
                 // Quest name
                 VStack(spacing: 8) {
                     HStack {
                         Image(systemName: "star.fill")
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(tokens.accentSecondary)
                         Text(viewModel.editState.displayName)
-                            .font(.title3)
-                            .fontWeight(.semibold)
+                            .font(tokens.font(.title3, weight: .semibold))
                     }
                 }
 
                 // Tasks summary
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Steps")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
+                        .font(tokens.font(.subheadline, weight: .medium))
                         .foregroundStyle(.secondary)
 
                     ForEach(viewModel.editState.tasks.indices, id: \.self) { index in
@@ -318,39 +307,33 @@ struct PlayerRoutineCreationView: View {
                         if !task.displayName.trimmingCharacters(in: .whitespaces).isEmpty {
                             HStack(spacing: 10) {
                                 Text("\(index + 1)")
-                                    .font(.caption2)
-                                    .fontWeight(.bold)
+                                    .font(tokens.font(.caption2, weight: .bold))
                                     .foregroundStyle(.white)
                                     .frame(width: 20, height: 20)
-                                    .background(Color.accentColor)
+                                    .background(tokens.accent)
                                     .clipShape(Circle())
 
                                 Text(task.displayName)
-                                    .font(.body)
+                                    .font(tokens.font(.body))
                             }
                         }
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(16)
-                .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .tqCard()
                 .padding(.horizontal, 24)
 
                 // Days summary
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Days")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
+                        .font(tokens.font(.subheadline, weight: .medium))
                         .foregroundStyle(.secondary)
 
                     Text(formatActiveDays(viewModel.editState.activeDays))
-                        .font(.body)
+                        .font(tokens.font(.body))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(16)
-                .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .tqCard()
                 .padding(.horizontal, 24)
             }
             .padding(.bottom, 24)
@@ -368,12 +351,12 @@ struct PlayerRoutineCreationView: View {
             }
         } label: {
             Text(viewModel.currentStep == .review ? "Create Quest!" : "Next")
-                .font(.headline)
+                .font(tokens.font(.headline))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 14)
-                .background(viewModel.canProceed ? Color.accentColor : Color(.systemGray3))
-                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .background(viewModel.canProceed ? tokens.accent : tokens.textTertiary)
+                .clipShape(RoundedRectangle(cornerRadius: tokens.cornerRadiusLG))
         }
         .disabled(!viewModel.canProceed)
     }
