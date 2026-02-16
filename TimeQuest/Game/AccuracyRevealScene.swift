@@ -4,6 +4,8 @@ import SpriteKit
 /// Displays a burst of particles from center that expand and fade.
 final class AccuracyRevealScene: SKScene {
 
+    private let tokens = DesignTokens()
+
     override func didMove(to view: SKView) {
         backgroundColor = .clear
         scaleMode = .resizeFill
@@ -46,12 +48,6 @@ final class AccuracyRevealScene: SKScene {
     }
 
     private func randomGoldColor() -> SKColor {
-        let colors: [SKColor] = [
-            SKColor(red: 1.0, green: 0.84, blue: 0.0, alpha: 1.0),    // Gold
-            SKColor(red: 1.0, green: 0.65, blue: 0.0, alpha: 1.0),    // Orange
-            SKColor(red: 1.0, green: 0.75, blue: 0.3, alpha: 1.0),    // Light gold
-            SKColor(red: 0.95, green: 0.55, blue: 0.1, alpha: 1.0),   // Deep gold
-        ]
-        return colors.randomElement() ?? .yellow
+        tokens.celebrationGolds.randomElement() ?? .yellow
     }
 }

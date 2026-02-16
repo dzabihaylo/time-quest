@@ -6,6 +6,7 @@ struct PlaylistPickerView: View {
 
     @Environment(AppDependencies.self) private var dependencies
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.designTokens) private var tokens
 
     @State private var playlists: [SpotifyPlaylist] = []
     @State private var isLoading = true
@@ -95,12 +96,12 @@ struct PlaylistPickerView: View {
             // Name and track count
             VStack(alignment: .leading, spacing: 2) {
                 Text(playlist.name)
-                    .font(.body)
-                    .foregroundStyle(.primary)
+                    .font(tokens.font(.body))
+                    .foregroundStyle(tokens.textPrimary)
 
                 Text("\(playlist.tracks.total) tracks")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(tokens.font(.caption))
+                    .foregroundStyle(tokens.textSecondary)
             }
 
             Spacer()
@@ -115,13 +116,13 @@ struct PlaylistPickerView: View {
     }
 
     private func errorView(message: String) -> some View {
-        VStack(spacing: 16) {
+        VStack(spacing: tokens.spacingLG) {
             Image(systemName: "exclamationmark.triangle")
-                .font(.largeTitle)
-                .foregroundStyle(.secondary)
+                .font(tokens.font(.largeTitle))
+                .foregroundStyle(tokens.textSecondary)
             Text(message)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .font(tokens.font(.subheadline))
+                .foregroundStyle(tokens.textSecondary)
                 .multilineTextAlignment(.center)
             Button("Retry") {
                 Task {

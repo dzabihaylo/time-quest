@@ -5,6 +5,7 @@ struct RoutineEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @Environment(AppDependencies.self) private var dependencies
+    @Environment(\.designTokens) private var tokens
 
     @State private var viewModel: RoutineEditorViewModel
     @State private var editingTaskIndex: Int?
@@ -146,7 +147,7 @@ struct RoutineEditorView: View {
                 Text("Tasks")
                 Spacer()
                 EditButton()
-                    .font(.caption)
+                    .font(tokens.font(.caption))
             }
         } footer: {
             if viewModel.editState.tasks.isEmpty {
@@ -163,25 +164,25 @@ struct RoutineEditorView: View {
                 let task = viewModel.editState.tasks[index]
                 if !task.displayName.isEmpty {
                     Text(task.displayName)
-                        .font(.body)
-                        .foregroundStyle(.primary)
+                        .font(tokens.font(.body))
+                        .foregroundStyle(tokens.textPrimary)
                 } else {
                     Text("Untitled step")
-                        .font(.body)
-                        .foregroundStyle(.secondary)
+                        .font(tokens.font(.body))
+                        .foregroundStyle(tokens.textSecondary)
                         .italic()
                 }
 
                 if !task.name.isEmpty {
                     Text(task.name)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(tokens.font(.caption))
+                        .foregroundStyle(tokens.textSecondary)
                 }
 
                 if let duration = task.referenceDurationSeconds {
                     Text("~\(TimeFormatting.formatDuration(TimeInterval(duration)))")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                        .font(tokens.font(.caption2))
+                        .foregroundStyle(tokens.textTertiary)
                 }
             }
         }

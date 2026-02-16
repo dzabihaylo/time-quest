@@ -3,6 +3,7 @@ import EventKit
 
 struct CalendarSettingsView: View {
     @Environment(AppDependencies.self) private var dependencies
+    @Environment(\.designTokens) private var tokens
 
     @State private var hasAccess: Bool = false
     @State private var selectedCalendarIDs: [String] = []
@@ -41,7 +42,7 @@ struct CalendarSettingsView: View {
             if hasAccess {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(tokens.positive)
                     Text("Calendar access granted")
                 }
             } else {
@@ -84,8 +85,8 @@ struct CalendarSettingsView: View {
     private var howItWorksSection: some View {
         Section {
             Text("TimeQuest looks for events like \"No School\", \"Holiday\", or \"Break\" in your calendar. On those days, school-only routines are hidden automatically.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .font(tokens.font(.subheadline))
+                .foregroundStyle(tokens.textSecondary)
         } header: {
             Text("How It Works")
         }

@@ -5,6 +5,7 @@ struct RoutineListView: View {
     @Query(filter: #Predicate<Routine> { $0.createdBy == "parent" }, sort: \Routine.createdAt)
     private var routines: [Routine]
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.designTokens) private var tokens
 
     var body: some View {
         Group {
@@ -39,20 +40,20 @@ struct RoutineListView: View {
         HStack {
             VStack(alignment: .leading, spacing: 4) {
                 Text(routine.displayName)
-                    .font(.headline)
+                    .font(tokens.font(.headline))
 
                 Text(routine.name)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(tokens.font(.caption))
+                    .foregroundStyle(tokens.textSecondary)
 
-                HStack(spacing: 8) {
+                HStack(spacing: tokens.spacingSM) {
                     Text(formatActiveDays(routine.activeDays))
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .font(tokens.font(.caption2))
+                        .foregroundStyle(tokens.textSecondary)
 
                     Text("\(routine.orderedTasks.count) tasks")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .font(tokens.font(.caption2))
+                        .foregroundStyle(tokens.textSecondary)
                 }
             }
 

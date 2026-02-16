@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SpotifySettingsView: View {
     @Environment(AppDependencies.self) private var dependencies
+    @Environment(\.designTokens) private var tokens
 
     @State private var showError = false
     @State private var errorMessage = ""
@@ -42,7 +43,7 @@ struct SpotifySettingsView: View {
             Section {
                 HStack(spacing: 8) {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(tokens.positive)
                     if let displayName = dependencies.spotifyAuthManager.userDisplayName {
                         Text("Connected as \(displayName)")
                     } else {
@@ -66,8 +67,8 @@ struct SpotifySettingsView: View {
     private var disconnectedSection: some View {
         Section {
             Text("Connect Spotify to pair playlists with routines. Music plays in the Spotify app during quests.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .font(tokens.font(.subheadline))
+                .foregroundStyle(tokens.textSecondary)
 
             if dependencies.spotifyAuthManager.isAuthenticating {
                 HStack {

@@ -11,6 +11,7 @@ final class CelebrationScene: SKScene {
     }
 
     var celebrationType: CelebrationType = .levelUp
+    private let tokens = DesignTokens()
 
     override func didMove(to view: SKView) {
         backgroundColor = .clear
@@ -67,34 +68,21 @@ final class CelebrationScene: SKScene {
                 particleCount: 60,
                 radiusRange: 60...150,
                 durationRange: 1.0...2.0,
-                colors: [
-                    SKColor(red: 1.0, green: 0.84, blue: 0.0, alpha: 1.0),    // Gold
-                    SKColor(red: 0.0, green: 0.75, blue: 0.75, alpha: 1.0),   // Teal
-                    SKColor.white,
-                    SKColor(red: 1.0, green: 0.75, blue: 0.3, alpha: 1.0),    // Light gold
-                ]
+                colors: tokens.celebrationGolds
             )
         case .personalBest:
             return BurstConfig(
                 particleCount: 40,
                 radiusRange: 40...120,
                 durationRange: 0.8...1.6,
-                colors: [
-                    SKColor(red: 0.0, green: 0.75, blue: 0.75, alpha: 1.0),   // Teal
-                    SKColor(red: 0.0, green: 0.85, blue: 1.0, alpha: 1.0),    // Cyan
-                    SKColor.white,
-                ]
+                colors: tokens.celebrationTeals
             )
         case .streak:
             return BurstConfig(
                 particleCount: 30,
                 radiusRange: 40...100,
                 durationRange: 0.6...1.4,
-                colors: [
-                    SKColor(red: 1.0, green: 0.55, blue: 0.0, alpha: 1.0),    // Orange
-                    SKColor(red: 1.0, green: 0.35, blue: 0.1, alpha: 1.0),    // Red-orange
-                    SKColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0),     // Yellow
-                ]
+                colors: tokens.celebrationStreaks
             )
         }
     }
