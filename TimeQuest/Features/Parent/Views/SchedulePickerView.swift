@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SchedulePickerView: View {
     @Binding var activeDays: [Int]
+    @Environment(\.designTokens) private var tokens
 
     /// Weekday symbols: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     private let weekdaySymbols = Calendar.current.shortWeekdaySymbols
@@ -23,7 +24,7 @@ struct SchedulePickerView: View {
                 quickSelectButton("Weekend", days: [1, 7])
                 quickSelectButton("Every day", days: Array(1...7))
             }
-            .font(.caption)
+            .font(tokens.font(.caption))
         }
     }
 
@@ -32,11 +33,10 @@ struct SchedulePickerView: View {
             toggleDay(day)
         } label: {
             Text(symbol)
-                .font(.caption)
-                .fontWeight(.medium)
+                .font(tokens.font(.caption, weight: .medium))
                 .frame(width: 40, height: 40)
                 .background(
-                    activeDays.contains(day) ? Color.accentColor : Color(.systemGray5)
+                    activeDays.contains(day) ? tokens.accent : tokens.surfaceTertiary
                 )
                 .foregroundStyle(
                     activeDays.contains(day) ? .white : .primary
