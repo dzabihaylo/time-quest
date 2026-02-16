@@ -69,6 +69,9 @@ Recent decisions affecting current work:
 - [10-03]: DesignTokens() instance (not @Environment) for SpriteKit scenes since SKScene cannot access SwiftUI environment
 - [10-03]: WeeklyReflectionCardView converted to .tqCard() modifier (standard card pattern)
 - [10-03]: NotificationSettingsView statusColor uses semantic tokens (positive/school/negative/caution)
+- [Phase 10-02]: InsightCardView uses .tqCard(elevation: .nested) since it appears inside other containers
+- [Phase 10-02]: statCard/taskResultRow use surfaceTertiary+cornerRadiusMD directly (not .tqCard) to preserve compact padding
+- [Phase 10-02]: Rating color mapping: spot_on->accentSecondary, close->accent, off->textTertiary, way_off->discovery
 
 ### Blockers/Concerns
 
@@ -79,5 +82,5 @@ Recent decisions affecting current work:
 ## Session Continuity
 
 Last session: 2026-02-16
-Stopped at: Completed 10-03-PLAN.md (Remaining View Migration)
-Resume file: .planning/phases/10-ui-brand-refresh/10-03-SUMMARY.md
+Stopped at: Completed 10-02-PLAN.md (Player Views & Shared Components Migration)
+Resume file: .planning/phases/10-ui-brand-refresh/10-02-SUMMARY.md
