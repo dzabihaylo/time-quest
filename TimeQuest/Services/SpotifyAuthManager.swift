@@ -34,7 +34,7 @@ final class SpotifyAuthManager: NSObject {
 
     // MARK: - Constants
 
-    private let clientID = "YOUR_SPOTIFY_CLIENT_ID"
+    private let clientID = "b3ac760a017d461a87397ac9a39d4527"
     private let redirectURI = "timequest://spotify-callback"
     private let tokenEndpoint = "https://accounts.spotify.com/api/token"
     private let authorizeEndpoint = "https://accounts.spotify.com/authorize"
