@@ -5,6 +5,7 @@ struct PINEntryView: View {
     let onSuccess: () -> Void
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.designTokens) private var tokens
     @State private var enteredDigits: [Int] = []
     @State private var confirmDigits: [Int] = []
     @State private var isConfirming = false
@@ -31,13 +32,12 @@ struct PINEntryView: View {
                 Spacer()
 
                 Text(promptText)
-                    .font(.title2)
-                    .fontWeight(.medium)
+                    .font(tokens.font(.title2, weight: .medium))
 
                 if let errorMessage {
                     Text(errorMessage)
-                        .font(.caption)
-                        .foregroundStyle(.red)
+                        .font(tokens.font(.caption))
+                        .foregroundStyle(tokens.negative)
                         .transition(.opacity)
                 }
 
@@ -95,9 +95,9 @@ struct PINEntryView: View {
                     }
                 } label: {
                     Image(systemName: "delete.backward")
-                        .font(.title2)
+                        .font(tokens.font(.title2))
                         .frame(width: 72, height: 72)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(tokens.textPrimary)
                 }
             }
         }
@@ -108,12 +108,11 @@ struct PINEntryView: View {
             digitTapped(digit)
         } label: {
             Text("\(digit)")
-                .font(.title)
-                .fontWeight(.medium)
+                .font(tokens.font(.title, weight: .medium))
                 .frame(width: 72, height: 72)
-                .background(Color(.systemGray6))
+                .background(tokens.surfaceSecondary)
                 .clipShape(Circle())
-                .foregroundStyle(.primary)
+                .foregroundStyle(tokens.textPrimary)
         }
     }
 

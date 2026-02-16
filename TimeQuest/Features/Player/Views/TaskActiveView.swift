@@ -6,6 +6,7 @@ import SwiftUI
 /// The player relies entirely on her internal sense of time.
 struct TaskActiveView: View {
     let viewModel: GameSessionViewModel
+    @Environment(\.designTokens) private var tokens
 
     @State private var breatheScale: CGFloat = 1.0
 
@@ -15,7 +16,7 @@ struct TaskActiveView: View {
 
             // Ambient breathing dot -- indicates app is alive without showing time
             Circle()
-                .fill(Color.accentColor.opacity(0.3))
+                .fill(tokens.accent.opacity(0.3))
                 .frame(width: 12, height: 12)
                 .scaleEffect(breatheScale)
                 .onAppear {
@@ -29,14 +30,13 @@ struct TaskActiveView: View {
 
             // Task name
             Text(viewModel.currentTask?.displayName ?? "")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+                .font(tokens.font(.largeTitle, weight: .bold))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
             Text("Go!")
-                .font(.title2)
-                .foregroundStyle(.secondary)
+                .font(tokens.font(.title2))
+                .foregroundStyle(tokens.textSecondary)
 
             Spacer()
             Spacer()
@@ -46,7 +46,7 @@ struct TaskActiveView: View {
                 viewModel.completeActiveTask()
             } label: {
                 Text("I'm Done")
-                    .font(.headline)
+                    .font(tokens.font(.headline))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
             }

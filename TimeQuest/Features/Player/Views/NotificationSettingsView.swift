@@ -5,6 +5,7 @@ struct NotificationSettingsView: View {
     let notificationManager: NotificationManager
     let syncMonitor: CloudKitSyncMonitor
     let routines: [Routine]
+    @Environment(\.designTokens) private var tokens
 
     @State private var notificationsEnabled = true
     @State private var soundEnabled = true
@@ -14,11 +15,11 @@ struct NotificationSettingsView: View {
 
     private var statusColor: Color {
         switch syncMonitor.status {
-        case .synced: return .green
-        case .syncing: return .blue
-        case .error: return .red
-        case .noAccount: return .orange
-        case .notStarted: return .gray
+        case .synced: return tokens.positive
+        case .syncing: return tokens.school
+        case .error: return tokens.negative
+        case .noAccount: return tokens.caution
+        case .notStarted: return Color.gray
         }
     }
 
@@ -31,10 +32,10 @@ struct NotificationSettingsView: View {
                         .imageScale(.large)
                     VStack(alignment: .leading, spacing: 2) {
                         Text("iCloud Backup")
-                            .font(.body)
+                            .font(tokens.font(.body))
                         Text(syncMonitor.status.displayText)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(tokens.font(.caption))
+                            .foregroundStyle(tokens.textSecondary)
                     }
                     Spacer()
                 }
@@ -50,8 +51,8 @@ struct NotificationSettingsView: View {
                 if authorizationDenied {
                     HStack {
                         Text("Notifications are disabled in Settings")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(tokens.font(.caption))
+                            .foregroundStyle(tokens.textSecondary)
 
                         Spacer()
 
@@ -60,7 +61,7 @@ struct NotificationSettingsView: View {
                                 UIApplication.shared.open(url)
                             }
                         }
-                        .font(.caption)
+                        .font(tokens.font(.caption))
                     }
                 }
 

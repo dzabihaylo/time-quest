@@ -2,6 +2,7 @@ import SwiftUI
 
 struct OnboardingView: View {
     let onComplete: () -> Void
+    @Environment(\.designTokens) private var tokens
 
     @State private var currentPage = 0
 
@@ -57,9 +58,9 @@ struct OnboardingView: View {
                         completeOnboarding()
                     } label: {
                         Text("Let's go")
-                            .font(.headline)
-                            .padding(.horizontal, 32)
-                            .padding(.vertical, 12)
+                            .font(tokens.font(.headline))
+                            .padding(.horizontal, tokens.spacingXXL)
+                            .padding(.vertical, tokens.spacingMD)
                     }
                     .buttonStyle(.borderedProminent)
 
@@ -76,18 +77,17 @@ struct OnboardingView: View {
             Spacer()
 
             Image(systemName: icon)
-                .font(.system(size: 72))
-                .foregroundStyle(.tint)
+                .font(.system(size: 72, design: .rounded))
+                .foregroundStyle(tokens.accent)
 
             Text(title)
-                .font(.largeTitle)
-                .fontWeight(.bold)
+                .font(tokens.font(.largeTitle, weight: .bold))
 
             Text(body)
-                .font(.body)
-                .foregroundStyle(.secondary)
+                .font(tokens.font(.body))
+                .foregroundStyle(tokens.textSecondary)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
+                .padding(.horizontal, tokens.spacingXXL)
 
             Spacer()
             Spacer()

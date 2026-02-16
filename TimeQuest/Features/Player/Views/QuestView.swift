@@ -7,6 +7,7 @@ struct QuestView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(AppDependencies.self) private var dependencies
 
+    @Environment(\.designTokens) private var tokens
     @State private var viewModel: GameSessionViewModel?
     @State private var showAbandonConfirm = false
 
@@ -27,8 +28,8 @@ struct QuestView: View {
                     showAbandonConfirm = true
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(tokens.font(.caption))
+                        .foregroundStyle(tokens.textSecondary)
                 }
             }
         }

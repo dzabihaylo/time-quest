@@ -3,21 +3,22 @@ import SwiftUI
 struct WeeklyReflectionCardView: View {
     let reflection: WeeklyReflection
     let onDismiss: () -> Void
+    @Environment(\.designTokens) private var tokens
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: tokens.spacingMD) {
             // 1. Header row
             HStack {
                 Label("Last Week", systemImage: "calendar")
-                    .font(.subheadline.bold())
-                    .foregroundStyle(.teal)
+                    .font(tokens.font(.subheadline, weight: .bold))
+                    .foregroundStyle(tokens.accent)
 
                 Spacer()
 
                 Button(action: onDismiss) {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
-                        .font(.title3)
+                        .foregroundStyle(tokens.textSecondary)
+                        .font(tokens.font(.title3))
                 }
                 .buttonStyle(.plain)
             }
@@ -27,13 +28,13 @@ struct WeeklyReflectionCardView: View {
                 statPill(
                     value: "\(reflection.questsCompleted)",
                     label: "Quests",
-                    valueColor: .primary
+                    valueColor: tokens.textPrimary
                 )
 
                 statPill(
                     value: "\(Int(reflection.averageAccuracy))%",
                     label: "Accuracy",
-                    valueColor: .primary
+                    valueColor: tokens.textPrimary
                 )
 
                 if let change = reflection.accuracyChangeVsPriorWeek,
@@ -41,19 +42,19 @@ struct WeeklyReflectionCardView: View {
                     statPill(
                         value: formatted,
                         label: "vs Last Week",
-                        valueColor: change >= 0 ? .green : .orange
+                        valueColor: change >= 0 ? tokens.positive : tokens.caution
                     )
                 }
             }
 
             // 3. Highlights row (only if at least one highlight exists)
             if reflection.bestEstimateTaskName != nil || reflection.mostImprovedTaskName != nil {
-                HStack(spacing: 8) {
+                HStack(spacing: tokens.spacingSM) {
                     if let bestName = reflection.bestEstimateTaskName,
                        let bestAcc = reflection.bestEstimateAccuracy {
                         highlightChip(
                             icon: "star.fill",
-                            color: .orange,
+                            color: tokens.accentSecondary,
                             text: "\(bestName) \(Int(bestAcc))%"
                         )
                     }
@@ -61,7 +62,7 @@ struct WeeklyReflectionCardView: View {
                     if let improvedName = reflection.mostImprovedTaskName {
                         highlightChip(
                             icon: "arrow.up.right",
-                            color: .green,
+                            color: tokens.positive,
                             text: improvedName
                         )
                     }
@@ -71,22 +72,20 @@ struct WeeklyReflectionCardView: View {
             // 4. Footer row
             HStack {
                 Label(reflection.streakContextString, systemImage: "flame.fill")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .font(tokens.font(.caption))
+                    .foregroundStyle(tokens.textSecondary)
 
                 Spacer()
 
                 if let highlight = reflection.patternHighlight {
                     Text(highlight)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(tokens.font(.caption))
+                        .foregroundStyle(tokens.textSecondary)
                         .lineLimit(1)
                 }
             }
         }
-        .padding(16)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .tqCard()
     }
 
     // MARK: - Private Helpers
@@ -94,26 +93,26 @@ struct WeeklyReflectionCardView: View {
     private func statPill(value: String, label: String, valueColor: Color) -> some View {
         VStack(spacing: 2) {
             Text(value)
-                .font(.title2.bold())
+                .font(tokens.font(.title2, weight: .bold))
                 .foregroundStyle(valueColor)
 
             Text(label)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(tokens.font(.caption))
+                .foregroundStyle(tokens.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }
 
     private func highlightChip(icon: String, color: Color, text: String) -> some View {
-        HStack(spacing: 4) {
+        HStack(spacing: tokens.spacingXS) {
             Image(systemName: icon)
                 .foregroundStyle(color)
             Text(text)
                 .lineLimit(1)
         }
-        .font(.caption)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
+        .font(tokens.font(.caption))
+        .padding(.horizontal, tokens.spacingSM)
+        .padding(.vertical, tokens.spacingXS)
         .background(color.opacity(0.1))
         .clipShape(Capsule())
     }
