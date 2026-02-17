@@ -38,3 +38,20 @@
 **Delivered:** Self-awareness layer for time perception training — the player now sees her estimation patterns, creates her own quests, and absorbs weekly progress digests, transforming TimeQuest from "parent's tool" into "my game" with iCloud-backed data and production-quality audio.
 
 ---
+
+## v3.0 Adaptive & Connected (Shipped: 2026-02-17)
+
+**Phases completed:** 4 phases (7-10), 13 plans
+**Timeline:** 3 days (2026-02-14 → 2026-02-17)
+**Codebase:** 91 Swift files, ~8,900 LOC (+25 files, +2,689 LOC from v2.0)
+
+**Key accomplishments:**
+1. Invisible adaptive difficulty system -- game automatically calibrates per-task accuracy thresholds based on accuracy history, difficulty only progresses or holds (never decreases), XP scales with difficulty level, no UI indication that difficulty exists
+2. Calendar intelligence -- CalendarContextEngine + EventKit wrapper auto-surfaces routines based on school day vs free day detection, calendar data read-only and never persisted, passive language only, graceful fallback when permission denied
+3. Full Spotify integration -- PKCE OAuth via ASWebAuthenticationSession, SpotifyAPIClient service layer, parent playlist picker, duration-matched playlist launch, Now Playing polling indicator, song count as time unit in post-routine summary, zero degradation for non-users
+4. Design system with semantic tokens -- DesignTokens @Observable class with colors, SF Rounded typography, spacing, and icon tokens injected via SwiftUI environment, dark-first design with light mode fallback, card-based layouts, zero hardcoded styles across all player-facing screens
+
+**Delivered:** TimeQuest adapts to the player's skill level, integrates with her real schedule and music, and looks like a modern teen app -- invisible difficulty calibration keeps the game challenging without labeling it, calendar intelligence auto-surfaces the right routines on the right days, Spotify playlists serve as hands-free time cues, and a cohesive design system ensures every screen feels intentionally designed for a teen in 2026.
+
+---
+

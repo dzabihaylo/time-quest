@@ -2,7 +2,7 @@
 
 ## What This Is
 
-An iOS game that trains time perception in a 13-year-old who struggles with estimating how long things take. Disguised as a quest game, it teaches the player to accurately estimate how long real-life tasks take, building an internal clock through repeated estimation-feedback cycles. A parent sets up routines behind the scenes; the player experiences it as her own game with XP, levels, streaks, accuracy milestones, learning insights, self-created quests, and weekly progress reflections.
+An iOS game that trains time perception in a 13-year-old who struggles with estimating how long things take. Disguised as a quest game, it teaches the player to accurately estimate how long real-life tasks take, building an internal clock through repeated estimation-feedback cycles. A parent sets up routines behind the scenes; the player experiences it as her own game with XP, levels, streaks, accuracy milestones, learning insights, self-created quests, and weekly progress reflections. The game invisibly adapts difficulty based on accuracy history, integrates with the player's real calendar to auto-surface relevant routines, links Spotify playlists as hands-free time cues, and presents everything through a modern dark-first design system with semantic tokens and SF Rounded typography.
 
 ## Core Value
 
@@ -30,18 +30,21 @@ The player develops an accurate internal sense of time — the ability to predic
 - ✓ Production audio that mixes with background music and respects silent switch — v2.0
 - ✓ XP curve constants exposed as tunable values — v2.0
 - ✓ Weekly reflection summaries absorbable in 15 seconds — v2.0
-
-### Active
-
-#### Current Milestone: v3.0 Adaptive & Connected
-
-**Goal:** Make TimeQuest a daily-use app that adapts to the player's skill level, integrates with her real schedule and music, and looks like something a teen in 2026 would actually want on her phone.
-
-**Target features:**
-- Adaptive difficulty that evolves challenge level based on accuracy trends
-- Spotify-powered routine playlists that serve as audible time cues (hands-free)
-- Calendar-aware routines that know school vs. summer, activity seasons, holidays
-- Modern teen-friendly UI/brand refresh with updated visual identity and naming
+- ✓ Adaptive difficulty that invisibly calibrates per-task accuracy thresholds based on accuracy history — v3.0
+- ✓ Difficulty only progresses or holds, never decreases — v3.0
+- ✓ XP rewards scale with difficulty level — v3.0
+- ✓ Calendar intelligence auto-surfacing routines based on school day vs free day detection — v3.0
+- ✓ Calendar permission optional with graceful fallback to v2.0 behavior — v3.0
+- ✓ Calendar data read-only, never persisted or synced — v3.0
+- ✓ Spotify OAuth PKCE integration for parent-managed playlist linking — v3.0
+- ✓ Duration-matched playlist launch when player starts a routine — v3.0
+- ✓ Now Playing indicator during active quests — v3.0
+- ✓ Song count as intuitive time unit in post-routine summary — v3.0
+- ✓ Spotify completely optional with zero degradation for non-users — v3.0
+- ✓ Design system with semantic color, typography, spacing, and icon tokens — v3.0
+- ✓ Dark-first design with correct light mode fallback — v3.0
+- ✓ SF Rounded typography and card-based layouts across all player-facing screens — v3.0
+- ✓ Updated celebration and accuracy reveal animations using design tokens — v3.0
 
 ### Out of Scope
 
@@ -57,12 +60,12 @@ The player develops an accurate internal sense of time — the ability to predic
 
 ## Context
 
-Shipped v2.0 Advanced Training with 6,211 LOC across 66 Swift files. Starting v3.0 Adaptive & Connected.
-Tech stack: SwiftUI + SwiftData + SpriteKit + Swift Charts + CloudKit, iOS 17.0+, Swift 6.0, Xcode 16.2.
-New for v3.0: Spotify Web API (or iOS SDK), EventKit (Calendar/Reminders), adaptive algorithms.
+Shipped v3.0 Adaptive & Connected with ~8,900 LOC across 91 Swift files.
+Tech stack: SwiftUI + SwiftData + SpriteKit + Swift Charts + CloudKit + EventKit + Spotify Web API, iOS 17.0+, Swift 6.0, Xcode 16.2.
 Build system: generate-xcodeproj.js (Node script) for pbxproj generation.
 Architecture: Feature-sliced MVVM, pure domain engines, @Observable ViewModels, value-type editing.
-Schema: V1→V2→V3 with lightweight migrations, CloudKit-backed with local fallback.
+Schema: V1→V2→V3→V4→V5→V6 with lightweight migrations, CloudKit-backed with local fallback.
+Design system: DesignTokens @Observable class with semantic colors, SF Rounded typography, spacing, injected via SwiftUI environment.
 
 - The player is a 13-year-old girl who struggles with time perception — she can't accurately estimate how long things take, including things she enjoys
 - She values independence and feeling grown up / in control
@@ -101,6 +104,16 @@ Schema: V1→V2→V3 with lightweight migrations, CloudKit-backed with local fal
 | UserDefaults for reflection state | No schema change needed for week tracking; avoids V4 migration | ✓ Good |
 | Player routine creation as separate view | Simpler than sharing parent RoutineEditorView; different validation and UX needs | ✓ Good |
 | Sports score card format for reflections | Quick, scannable, visual — absorbs in 15 seconds without scrolling | ✓ Good |
+| Invisible adaptive difficulty (no UI) | Difficulty labels create anxiety; invisible calibration preserves game feel | ✓ Good |
+| Difficulty never decreases | Prevents regression feelings; holds steady on rough streaks | ✓ Good |
+| Spotify Web API + PKCE (no iOS SDK) | Avoids audio session conflicts with SoundManager; Swift 6 safe | ✓ Good |
+| prefersEphemeralWebBrowserSession = false | Reuses existing Safari Spotify login for family UX | ✓ Good |
+| Calendar data read-only, never persisted | Privacy-first; read fresh each time for immediate context only | ✓ Good |
+| calendarModeRaw defaults to "always" | Existing routines unaffected by V5 migration | ✓ Good |
+| @Observable DesignTokens (not struct) | Avoids unnecessary SwiftUI redraws; immutable let constants | ✓ Good |
+| DesignTokens() instance for SpriteKit | SKScene cannot access SwiftUI environment; direct instantiation | ✓ Good |
+| UI refresh last (Phase 10) | All new views from Phases 7-9 get themed in one pass | ✓ Good |
+| SchemaV4-V6 lightweight migrations only | All new fields have defaults; no custom migration code needed | ✓ Good |
 
 ---
-*Last updated: 2026-02-14 after v3.0 milestone started*
+*Last updated: 2026-02-17 after v3.0 milestone*
