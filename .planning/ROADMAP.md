@@ -37,7 +37,7 @@ Full details: `.planning/milestones/v2.0-ROADMAP.md`
 - [x] **Phase 7: Schema Evolution + Adaptive Difficulty** - Game automatically calibrates challenge level per task based on accuracy history
 - [x] **Phase 8: Calendar Intelligence** - Routines surface and hide based on the player's real-world schedule
 - [x] **Phase 9: Spotify Integration** - Music serves as an intuitive, hands-free time cue during routines
-- [ ] **Phase 10: UI/Brand Refresh** - Every screen looks and feels like a modern teen app
+- [x] **Phase 10: UI/Brand Refresh** - Every screen looks and feels like a modern teen app
 
 ## Phase Details
 
@@ -102,13 +102,13 @@ Plans:
   2. The app defaults to dark mode and looks intentionally designed in dark mode (not just inverted light mode), with a correct light mode fallback
   3. All player-facing screens -- home, quest flow, stats, reflections, settings, and any new screens from Phases 7-9 -- use the updated visual language consistently
   4. Celebration animations and accuracy reveal effects use the new design tokens and feel cohesive with the refreshed screens
-**Plans:** 4 plans
+**Plans:** 4 plans -- completed 2026-02-16
 
 Plans:
-- [ ] 10-01-PLAN.md -- Design system foundation: DesignTokens, ViewModifiers, app root injection
-- [ ] 10-02-PLAN.md -- Migrate high-priority player views and shared components to design tokens
-- [ ] 10-03-PLAN.md -- Migrate remaining views, parent views, and SpriteKit scenes
-- [ ] 10-04-PLAN.md -- Codebase audit and visual verification checkpoint
+- [x] 10-01-PLAN.md -- Design system foundation: DesignTokens, ViewModifiers, app root injection -- completed 2026-02-16
+- [x] 10-02-PLAN.md -- Migrate high-priority player views and shared components to design tokens -- completed 2026-02-16
+- [x] 10-03-PLAN.md -- Migrate remaining views, parent views, and SpriteKit scenes -- completed 2026-02-16
+- [x] 10-04-PLAN.md -- Codebase audit and visual verification checkpoint -- completed 2026-02-16
 
 ## Progress
 
@@ -126,7 +126,7 @@ Phases execute in numeric order: 7 -> 8 -> 9 -> 10
 | 7. Schema Evolution + Adaptive Difficulty | v3.0 | 2/2 | Complete | 2026-02-14 |
 | 8. Calendar Intelligence | v3.0 | 3/3 | Complete | 2026-02-15 |
 | 9. Spotify Integration | v3.0 | 4/4 | Complete | 2026-02-16 |
-| 10. UI/Brand Refresh | v3.0 | 0/4 | Not started | - |
+| 10. UI/Brand Refresh | v3.0 | 4/4 | Complete | 2026-02-16 |
 
 ---
 *Roadmap created: 2026-02-12*
