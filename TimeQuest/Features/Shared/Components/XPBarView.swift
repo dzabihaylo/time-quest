@@ -8,25 +8,39 @@ struct XPBarView: View {
     let progress: Double
 
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 6) {
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
+                    // Track
                     Capsule()
                         .fill(tokens.surfaceTertiary)
-                        .frame(height: 8)
+                        .frame(height: 12)
+                        .overlay(
+                            Capsule()
+                                .strokeBorder(Color.white.opacity(0.06), lineWidth: 1)
+                        )
 
+                    // Fill — gradient bar with glow
                     Capsule()
-                        .fill(tokens.accent)
-                        .frame(width: max(0, geometry.size.width * progress), height: 8)
+                        .fill(tokens.accentGradient)
+                        .frame(width: max(0, geometry.size.width * progress), height: 12)
+                        .shadow(color: tokens.accent.opacity(0.5), radius: 4, y: 0)
                         .animation(.easeInOut(duration: 0.5), value: progress)
                 }
             }
-            .frame(height: 8)
+            .frame(height: 12)
 
-            Text("XP: \(currentXP)/\(xpForNextLevel)")
-                .font(tokens.font(.caption2))
-                .foregroundStyle(.secondary)
-                .monospacedDigit()
+            HStack {
+                Text("\(currentXP) XP")
+                    .font(.system(.caption, design: .rounded, weight: .bold))
+                    .foregroundStyle(tokens.accent)
+
+                Spacer()
+
+                Text("\(xpForNextLevel) to level up")
+                    .font(.system(.caption2, design: .rounded, weight: .medium))
+                    .foregroundStyle(tokens.textTertiary)
+            }
         }
     }
 }

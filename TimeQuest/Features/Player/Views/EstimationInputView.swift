@@ -80,13 +80,10 @@ struct EstimationInputView: View {
                 minutes = 0
                 seconds = 0
             } label: {
-                Text("Lock It In")
-                    .font(tokens.font(.headline))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
+                Text("LOCK IT IN")
+                    .tqPrimaryButton()
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
+            .buttonStyle(.plain)
             .disabled(minutes == 0 && seconds == 0)
             .padding(.horizontal, tokens.spacingXXL)
             .padding(.bottom, tokens.spacingXXL)

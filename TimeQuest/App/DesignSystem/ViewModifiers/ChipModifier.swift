@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Capsule badge/tag ViewModifier for status chips and labels.
+/// Roblox-style chip/badge: bright color with slight fill, bold rounded text.
 struct TQChipModifier: ViewModifier {
     @Environment(\.designTokens) private var tokens
 
@@ -8,17 +8,20 @@ struct TQChipModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .font(.system(.caption, design: .rounded, weight: .medium))
+            .font(.system(.caption, design: .rounded, weight: .bold))
             .padding(.horizontal, tokens.spacingMD)
-            .padding(.vertical, tokens.spacingSM - 2)
-            .background(color.opacity(0.15))
+            .padding(.vertical, tokens.spacingSM - 1)
+            .background(color.opacity(0.18))
             .foregroundStyle(color)
             .clipShape(Capsule())
+            .overlay(
+                Capsule()
+                    .strokeBorder(color.opacity(0.3), lineWidth: 1)
+            )
     }
 }
 
 extension View {
-    /// Applies TimeQuest capsule chip styling with the given accent color.
     func tqChip(color: Color) -> some View {
         modifier(TQChipModifier(color: color))
     }

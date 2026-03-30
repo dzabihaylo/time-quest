@@ -14,8 +14,9 @@ struct SessionSummaryView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                Text("Quest Complete")
-                    .font(tokens.font(.largeTitle, weight: .bold))
+                Text("QUEST COMPLETE")
+                    .font(.system(.largeTitle, design: .rounded, weight: .black))
+                    .foregroundStyle(tokens.accentSecondary)
                     .padding(.top, 20)
 
                 // Level-up celebration overlay
@@ -54,8 +55,9 @@ struct SessionSummaryView: View {
                 if viewModel.sessionXPEarned > 0 {
                     VStack(spacing: 8) {
                         Text("+\(viewModel.sessionXPEarned) XP")
-                            .font(tokens.font(.title2, weight: .bold))
+                            .font(.system(.title, design: .rounded, weight: .black))
                             .foregroundStyle(tokens.accent)
+                            .shadow(color: tokens.accent.opacity(0.4), radius: 8, y: 0)
 
                         if viewModel.didLevelUp {
                             Text("Level Up!")
@@ -95,15 +97,12 @@ struct SessionSummaryView: View {
                 Button {
                     onFinish()
                 } label: {
-                    Text("Finish")
-                        .font(tokens.font(.headline))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
+                    Text("NICE")
+                        .tqPrimaryButton()
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .padding(.horizontal, 32)
-                .padding(.bottom, 32)
+                .buttonStyle(.plain)
+                .padding(.horizontal, tokens.spacingXXL)
+                .padding(.bottom, tokens.spacingXXL)
             }
             .padding(.horizontal)
             .sensoryFeedback(.success, trigger: summaryAppearTrigger)

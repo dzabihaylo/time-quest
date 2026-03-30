@@ -9,51 +9,64 @@ struct TaskActiveView: View {
     @Environment(\.designTokens) private var tokens
 
     @State private var breatheScale: CGFloat = 1.0
+    @State private var glowOpacity: Double = 0.2
 
     var body: some View {
         VStack(spacing: 32) {
+            // Now Playing indicator if routine has linked playlist
+            if let routine = viewModel.routine,
+               let playlistName = routine.spotifyPlaylistName, !playlistName.isEmpty {
+                NowPlayingIndicator()
+                    .padding(.top, 8)
+            }
+
             Spacer()
 
-            // Ambient breathing dot -- indicates app is alive without showing time
-            Circle()
-                .fill(tokens.accent.opacity(0.3))
-                .frame(width: 12, height: 12)
-                .scaleEffect(breatheScale)
-                .onAppear {
-                    withAnimation(
-                        .easeInOut(duration: 2.0)
-                        .repeatForever(autoreverses: true)
-                    ) {
-                        breatheScale = 1.8
-                    }
+            // Ambient breathing ring — game-UI style pulsing circle
+            ZStack {
+                Circle()
+                    .fill(tokens.accent.opacity(glowOpacity))
+                    .frame(width: 60, height: 60)
+                    .blur(radius: 20)
+
+                Circle()
+                    .fill(tokens.accent.opacity(0.4))
+                    .frame(width: 16, height: 16)
+                    .scaleEffect(breatheScale)
+            }
+            .onAppear {
+                withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true)) {
+                    breatheScale = 1.8
+                    glowOpacity = 0.5
                 }
+            }
 
             // Task name
             Text(viewModel.currentTask?.displayName ?? "")
-                .font(tokens.font(.largeTitle, weight: .bold))
+                .font(.system(.largeTitle, design: .rounded, weight: .black))
+                .foregroundStyle(tokens.textPrimary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
-            Text("Go!")
-                .font(tokens.font(.title2))
-                .foregroundStyle(tokens.textSecondary)
+            Text("GO!")
+                .font(.system(.title, design: .rounded, weight: .black))
+                .foregroundStyle(tokens.accent)
+                .tracking(4)
 
             Spacer()
             Spacer()
 
-            // Done button
+            // Done button — big chunky 3D green
             Button {
                 viewModel.completeActiveTask()
             } label: {
-                Text("I'm Done")
-                    .font(tokens.font(.headline))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
+                Text("I'M DONE")
+                    .tqPrimaryButton()
             }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .padding(.horizontal, 32)
+            .buttonStyle(.plain)
+            .padding(.horizontal, tokens.spacingXXL)
             .padding(.bottom, 40)
         }
+        .background(tokens.surfacePrimary)
     }
 }

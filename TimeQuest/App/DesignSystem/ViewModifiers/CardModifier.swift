@@ -1,17 +1,14 @@
 import SwiftUI
 
-/// Card-style ViewModifier that applies consistent background, corner radius,
-/// and elevation treatment (shadow in light mode, border in dark mode).
+/// Roblox-inspired card modifier: dark raised panels with subtle bright border
+/// and bottom shadow for depth. Game-UI feel without being toy-like.
 struct TQCardModifier: ViewModifier {
     @Environment(\.designTokens) private var tokens
-    @Environment(\.colorScheme) private var colorScheme
 
     var elevation: CardElevation = .standard
 
     enum CardElevation {
-        /// surfaceSecondary background -- top-level cards
         case standard
-        /// surfaceTertiary background -- card inside card
         case nested
     }
 
@@ -19,26 +16,32 @@ struct TQCardModifier: ViewModifier {
         content
             .padding(tokens.spacingLG)
             .background(
-                elevation == .standard ? tokens.surfaceSecondary : tokens.surfaceTertiary
+                ZStack {
+                    // Main fill
+                    RoundedRectangle(cornerRadius: tokens.cornerRadiusMD)
+                        .fill(elevation == .standard ? tokens.surfaceSecondary : tokens.surfaceTertiary)
+
+                    // Top highlight edge — subtle light gradient at top for raised feel
+                    RoundedRectangle(cornerRadius: tokens.cornerRadiusMD)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.white.opacity(0.06), .clear],
+                                startPoint: .top,
+                                endPoint: .center
+                            )
+                        )
+                }
             )
             .clipShape(RoundedRectangle(cornerRadius: tokens.cornerRadiusMD))
             .overlay(
                 RoundedRectangle(cornerRadius: tokens.cornerRadiusMD)
-                    .strokeBorder(
-                        Color.white.opacity(colorScheme == .dark ? 0.06 : 0),
-                        lineWidth: 1
-                    )
+                    .strokeBorder(tokens.cardBorderColor, lineWidth: tokens.cardBorderWidth)
             )
-            .shadow(
-                color: colorScheme == .dark ? .clear : tokens.shadowColor,
-                radius: tokens.shadowRadius,
-                y: tokens.shadowY
-            )
+            .shadow(color: .black.opacity(0.5), radius: 1, y: 2)
     }
 }
 
 extension View {
-    /// Applies TimeQuest card styling with dark-mode-aware borders and light-mode shadows.
     func tqCard(elevation: TQCardModifier.CardElevation = .standard) -> some View {
         modifier(TQCardModifier(elevation: elevation))
     }

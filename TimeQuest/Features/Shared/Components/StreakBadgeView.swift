@@ -7,13 +7,28 @@ struct StreakBadgeView: View {
     let isActive: Bool
 
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 6) {
             Image(systemName: "flame.fill")
-                .foregroundStyle(isActive ? tokens.accentSecondary : tokens.textTertiary)
+                .font(.system(.body, design: .rounded, weight: .bold))
+                .foregroundStyle(isActive ? tokens.streakGradient : LinearGradient(colors: [tokens.textTertiary], startPoint: .top, endPoint: .bottom))
 
-            Text("\(streak) day streak")
-                .foregroundStyle(isActive ? .primary : .secondary)
+            Text("\(streak)")
+                .font(.system(.title3, design: .rounded, weight: .black))
+                .foregroundStyle(isActive ? tokens.textPrimary : tokens.textTertiary)
+
+            Text("day streak")
+                .font(.system(.caption, design: .rounded, weight: .bold))
+                .foregroundStyle(isActive ? tokens.textSecondary : tokens.textTertiary)
         }
-        .font(tokens.font(.callout, weight: .medium))
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(
+            Capsule()
+                .fill(isActive ? tokens.caution.opacity(0.12) : tokens.surfaceTertiary)
+        )
+        .overlay(
+            Capsule()
+                .strokeBorder(isActive ? tokens.caution.opacity(0.3) : .clear, lineWidth: 1)
+        )
     }
 }

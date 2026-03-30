@@ -24,11 +24,14 @@ struct PlayerHomeView: View {
                 // App logo area -- triple-tap triggers hidden access
                 VStack(spacing: 8) {
                     Image(systemName: "clock.badge.questionmark")
-                        .font(.system(size: 64))
-                        .foregroundStyle(.tint)
+                        .font(.system(size: 56, design: .rounded, weight: .bold))
+                        .foregroundStyle(tokens.accent)
+                        .shadow(color: tokens.accent.opacity(0.3), radius: 10, y: 0)
 
-                    Text("TimeQuest")
-                        .font(tokens.font(.largeTitle, weight: .bold))
+                    Text("TIMEQUEST")
+                        .font(.system(.largeTitle, design: .rounded, weight: .black))
+                        .foregroundStyle(tokens.textPrimary)
+                        .tracking(2)
                 }
                 .onTapGesture(count: 3) {
                     roleState.requestParentAccess()
