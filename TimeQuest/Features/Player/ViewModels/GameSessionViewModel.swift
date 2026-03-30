@@ -219,7 +219,12 @@ final class GameSessionViewModel {
               let task = currentTask else { return }
 
         let completedAt = Date.now
-        let actualSeconds = completedAt.timeIntervalSince(taskStartedAt)
+        var actualSeconds = completedAt.timeIntervalSince(taskStartedAt)
+
+        // Integrity check: clamp implausible durations to prevent clock manipulation
+        if actualSeconds < SessionIntegrityChecker.minimumPlausibleSeconds {
+            actualSeconds = SessionIntegrityChecker.minimumPlausibleSeconds
+        }
 
         // Fetch difficulty state for this task and get level-appropriate thresholds
         let diffState = fetchOrCreateDifficultyState(for: task.displayName)
