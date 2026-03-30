@@ -9,13 +9,13 @@ struct PlayerStatsView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
-                // Section 1: Accuracy Trend
+                // Section 1: Activity Heatmap
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Accuracy Trend")
+                    Text("Your Activity")
                         .font(tokens.font(.headline))
                         .padding(.leading, 4)
 
-                    AccuracyTrendChartView(dataPoints: viewModel.chartDataPoints)
+                    ActivityHeatmapView(dailyData: viewModel.heatmapData)
                         .tqCard()
                 }
 

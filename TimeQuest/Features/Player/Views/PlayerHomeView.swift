@@ -53,6 +53,12 @@ struct PlayerHomeView: View {
                     }
                 }
 
+                // Compact activity heatmap (last 6 weeks)
+                if let vm = progressionVM, !vm.heatmapData.isEmpty {
+                    ActivityHeatmapView(dailyData: vm.heatmapData, weeksToShow: 6)
+                        .padding(.horizontal, 24)
+                }
+
                 Spacer()
 
                 // Weekly reflection card (REQ-039)

@@ -22,6 +22,7 @@ final class ProgressionViewModel {
     var isStreakActive: Bool = false
     var personalBests: [PersonalBestTracker.PersonalBest] = []
     var chartDataPoints: [AccuracyDataPoint] = []
+    var heatmapData: [Date: DayActivity] = [:]
 
     private let playerProfileRepository: PlayerProfileRepositoryProtocol
     private let sessionRepository: SessionRepositoryProtocol
@@ -91,9 +92,55 @@ final class ProgressionViewModel {
             .sorted { $0.date < $1.date }
     }
 
+    func loadHeatmapData() {
+        let allSessions = sessionRepository.fetchAllSessions()
+        let completedSessions = allSessions.filter { $0.completedAt != nil }
+
+        let calendar = Calendar.current
+        var dailyMap: [Date: (quests: Int, accuracies: [Double], ratings: [AccuracyRating])] = [:]
+
+        for session in completedSessions {
+            guard let completedAt = session.completedAt else { continue }
+            let dayStart = calendar.startOfDay(for: completedAt)
+
+            var entry = dailyMap[dayStart] ?? (quests: 0, accuracies: [], ratings: [])
+            entry.quests += 1
+            for estimation in session.orderedEstimations {
+                entry.accuracies.append(estimation.accuracyPercent)
+                entry.ratings.append(estimation.rating)
+            }
+            dailyMap[dayStart] = entry
+        }
+
+        heatmapData = dailyMap.reduce(into: [:]) { result, pair in
+            let (date, data) = pair
+            let avgAccuracy = data.accuracies.isEmpty ? 0.0 :
+                data.accuracies.reduce(0.0, +) / Double(data.accuracies.count)
+
+            // Best rating: spot_on > close > off > way_off
+            let bestRating = data.ratings.min { ratingOrder($0) < ratingOrder($1) } ?? .way_off
+
+            result[date] = DayActivity(
+                questsCompleted: data.quests,
+                averageAccuracy: avgAccuracy,
+                bestRating: bestRating
+            )
+        }
+    }
+
+    private func ratingOrder(_ rating: AccuracyRating) -> Int {
+        switch rating {
+        case .spot_on: return 0
+        case .close: return 1
+        case .off: return 2
+        case .way_off: return 3
+        }
+    }
+
     func refresh() {
         loadProfile()
         loadPersonalBests()
         loadChartData()
+        loadHeatmapData()
     }
 }
