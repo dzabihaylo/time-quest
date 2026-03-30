@@ -13,13 +13,6 @@ struct TaskActiveView: View {
 
     var body: some View {
         VStack(spacing: 32) {
-            // Now Playing indicator if routine has linked playlist
-            if let routine = viewModel.routine,
-               let playlistName = routine.spotifyPlaylistName, !playlistName.isEmpty {
-                NowPlayingIndicator()
-                    .padding(.top, 8)
-            }
-
             Spacer()
 
             // Ambient breathing ring — game-UI style pulsing circle
@@ -67,6 +60,5 @@ struct TaskActiveView: View {
             .padding(.horizontal, tokens.spacingXXL)
             .padding(.bottom, 40)
         }
-        .background(tokens.surfacePrimary)
     }
 }

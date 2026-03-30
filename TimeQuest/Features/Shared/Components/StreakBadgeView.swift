@@ -10,7 +10,7 @@ struct StreakBadgeView: View {
         HStack(spacing: 6) {
             Image(systemName: "flame.fill")
                 .font(.system(.body, design: .rounded, weight: .bold))
-                .foregroundStyle(isActive ? tokens.streakGradient : LinearGradient(colors: [tokens.textTertiary], startPoint: .top, endPoint: .bottom))
+                .foregroundStyle(isActive ? tokens.caution : tokens.textTertiary)
 
             Text("\(streak)")
                 .font(.system(.title3, design: .rounded, weight: .black))
@@ -28,7 +28,7 @@ struct StreakBadgeView: View {
         )
         .overlay(
             Capsule()
-                .strokeBorder(isActive ? tokens.caution.opacity(0.3) : .clear, lineWidth: 1)
+                .strokeBorder(isActive ? tokens.caution.opacity(0.3) : Color.clear, lineWidth: 1)
         )
     }
 }

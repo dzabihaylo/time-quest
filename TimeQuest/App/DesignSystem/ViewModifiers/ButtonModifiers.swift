@@ -4,7 +4,6 @@ import SwiftUI
 /// The bottom shadow gives the chunky, tactile "press me" feel that game UIs have.
 struct TQPrimaryButtonModifier: ViewModifier {
     @Environment(\.designTokens) private var tokens
-    @Environment(\.isEnabled) private var isEnabled
 
     func body(content: Content) -> some View {
         content
@@ -25,7 +24,6 @@ struct TQPrimaryButtonModifier: ViewModifier {
                 }
             )
             .clipShape(RoundedRectangle(cornerRadius: tokens.cornerRadiusMD))
-            .opacity(isEnabled ? 1.0 : 0.4)
     }
 }
 
