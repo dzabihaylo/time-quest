@@ -4,6 +4,7 @@ struct NotificationSettingsView: View {
     let playerProfileRepository: PlayerProfileRepositoryProtocol
     let notificationManager: NotificationManager
     let syncMonitor: CloudKitSyncMonitor
+    let calendarService: CalendarService
     let routines: [Routine]
     @Environment(\.designTokens) private var tokens
 
@@ -127,7 +128,8 @@ struct NotificationSettingsView: View {
                     notificationManager.rescheduleAll(
                         routines: routines,
                         hour: components.hour ?? 7,
-                        minute: components.minute ?? 30
+                        minute: components.minute ?? 30,
+                        calendarService: calendarService
                     )
                 } else {
                     authorizationDenied = true
@@ -161,7 +163,8 @@ struct NotificationSettingsView: View {
             notificationManager.rescheduleAll(
                 routines: routines,
                 hour: hour,
-                minute: minute
+                minute: minute,
+                calendarService: calendarService
             )
         }
     }

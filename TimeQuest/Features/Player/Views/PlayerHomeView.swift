@@ -126,6 +126,7 @@ struct PlayerHomeView: View {
                             playerProfileRepository: dependencies.playerProfileRepository,
                             notificationManager: dependencies.notificationManager,
                             syncMonitor: dependencies.syncMonitor,
+                            calendarService: dependencies.calendarService,
                             routines: todayQuests
                         )
                     } label: {
@@ -140,6 +141,7 @@ struct PlayerHomeView: View {
             loadTodayQuests()
             loadProgression()
             loadReflection()
+            refreshNotifications()
         }
         .sheet(isPresented: $showingCreateQuest, onDismiss: { loadTodayQuests() }) {
             PlayerRoutineCreationView(modelContext: modelContext)
@@ -295,6 +297,20 @@ struct PlayerHomeView: View {
             .filter { $0.completedAt != nil }
             .count
         return CalibrationTracker.isCalibrationSession(completedSessionCount: completedCount)
+    }
+
+    /// Re-evaluate notifications with today's calendar context on each app open.
+    private func refreshNotifications() {
+        let profile = dependencies.playerProfileRepository.fetchOrCreate()
+        guard profile.notificationsEnabled else { return }
+        let repo = SwiftDataRoutineRepository(modelContext: modelContext)
+        let allRoutines = repo.fetchAll().filter { $0.isActive }
+        dependencies.notificationManager.rescheduleAll(
+            routines: allRoutines,
+            hour: profile.notificationHour,
+            minute: profile.notificationMinute,
+            calendarService: dependencies.calendarService
+        )
     }
 }
 
