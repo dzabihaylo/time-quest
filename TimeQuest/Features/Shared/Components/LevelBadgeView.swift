@@ -15,23 +15,23 @@ struct LevelBadgeView: View {
                     .shadow(color: tokens.accentSecondary.opacity(0.4), radius: 4, y: 0)
 
                 Text("\(max(level, 1))")
-                    .font(.system(.callout, design: .rounded, weight: .black))
+                    .font(.system(.callout, weight: .black, design: .rounded))
                     .foregroundStyle(.black)
             }
 
             VStack(alignment: .leading, spacing: 1) {
                 Text("TIME SENSE")
-                    .font(.system(size: 10, design: .rounded, weight: .bold))
+                    .font(.system(size: 10, weight: .bold, design: .rounded))
                     .foregroundStyle(tokens.textTertiary)
                     .tracking(1.5)
 
                 if level == 0 {
                     Text("New Player")
-                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        .font(.system(.subheadline, weight: .bold, design: .rounded))
                         .foregroundStyle(tokens.textPrimary)
                 } else {
                     Text("Level \(level)")
-                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        .font(.system(.subheadline, weight: .bold, design: .rounded))
                         .foregroundStyle(tokens.textPrimary)
                 }
             }

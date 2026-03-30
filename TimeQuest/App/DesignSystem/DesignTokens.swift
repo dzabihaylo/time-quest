@@ -105,7 +105,7 @@ final class DesignTokens: @unchecked Sendable {
 
     /// Returns an SF Rounded font. Default weight is .semibold (bolder than standard apps).
     func font(_ style: Font.TextStyle, weight: Font.Weight = .semibold) -> Font {
-        .system(style, design: .rounded, weight: weight)
+        .system(style, weight: weight, design: .rounded)
     }
 
     // MARK: - Spacing

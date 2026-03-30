@@ -15,7 +15,7 @@ struct SessionSummaryView: View {
         ScrollView {
             VStack(spacing: 24) {
                 Text("QUEST COMPLETE")
-                    .font(.system(.largeTitle, design: .rounded, weight: .black))
+                    .font(.system(.largeTitle, weight: .black, design: .rounded))
                     .foregroundStyle(tokens.accentSecondary)
                     .padding(.top, 20)
 
@@ -55,7 +55,7 @@ struct SessionSummaryView: View {
                 if viewModel.sessionXPEarned > 0 {
                     VStack(spacing: 8) {
                         Text("+\(viewModel.sessionXPEarned) XP")
-                            .font(.system(.title, design: .rounded, weight: .black))
+                            .font(.system(.title, weight: .black, design: .rounded))
                             .foregroundStyle(tokens.accent)
                             .shadow(color: tokens.accent.opacity(0.4), radius: 8, y: 0)
 

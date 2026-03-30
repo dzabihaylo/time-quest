@@ -24,12 +24,12 @@ struct PlayerHomeView: View {
                 // App logo area -- triple-tap triggers hidden access
                 VStack(spacing: 8) {
                     Image(systemName: "clock.badge.questionmark")
-                        .font(.system(size: 56, design: .rounded, weight: .bold))
+                        .font(.system(size: 56, weight: .bold, design: .rounded))
                         .foregroundStyle(tokens.accent)
                         .shadow(color: tokens.accent.opacity(0.3), radius: 10, y: 0)
 
                     Text("TIMEQUEST")
-                        .font(.system(.largeTitle, design: .rounded, weight: .black))
+                        .font(.system(.largeTitle, weight: .black, design: .rounded))
                         .foregroundStyle(tokens.textPrimary)
                         .tracking(2)
                 }
