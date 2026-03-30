@@ -36,13 +36,13 @@ struct TaskActiveView: View {
 
             // Task name
             Text(viewModel.currentTask?.displayName ?? "")
-                .font(.system(.largeTitle, weight: .black, design: .rounded))
+                .font(.system(.largeTitle, design: .rounded, weight: .black))
                 .foregroundStyle(tokens.textPrimary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
             Text("GO!")
-                .font(.system(.title, weight: .black, design: .rounded))
+                .font(.system(.title, design: .rounded, weight: .black))
                 .foregroundStyle(tokens.accent)
                 .tracking(4)
 

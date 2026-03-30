@@ -9,15 +9,15 @@ struct StreakBadgeView: View {
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: "flame.fill")
-                .font(.system(.body, weight: .bold, design: .rounded))
+                .font(.system(.body, design: .rounded, weight: .bold))
                 .foregroundStyle(isActive ? tokens.caution : tokens.textTertiary)
 
             Text("\(streak)")
-                .font(.system(.title3, weight: .black, design: .rounded))
+                .font(.system(.title3, design: .rounded, weight: .black))
                 .foregroundStyle(isActive ? tokens.textPrimary : tokens.textTertiary)
 
             Text("day streak")
-                .font(.system(.caption, weight: .bold, design: .rounded))
+                .font(.system(.caption, design: .rounded, weight: .bold))
                 .foregroundStyle(isActive ? tokens.textSecondary : tokens.textTertiary)
         }
         .padding(.horizontal, 14)

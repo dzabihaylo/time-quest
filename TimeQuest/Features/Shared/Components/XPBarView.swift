@@ -32,13 +32,13 @@ struct XPBarView: View {
 
             HStack {
                 Text("\(currentXP) XP")
-                    .font(.system(.caption, weight: .bold, design: .rounded))
+                    .font(.system(.caption, design: .rounded, weight: .bold))
                     .foregroundStyle(tokens.accent)
 
                 Spacer()
 
                 Text("\(xpForNextLevel) to level up")
-                    .font(.system(.caption2, weight: .medium, design: .rounded))
+                    .font(.system(.caption2, design: .rounded, weight: .medium))
                     .foregroundStyle(tokens.textTertiary)
             }
         }

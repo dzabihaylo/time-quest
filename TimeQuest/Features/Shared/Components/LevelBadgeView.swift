@@ -15,7 +15,7 @@ struct LevelBadgeView: View {
                     .shadow(color: tokens.accentSecondary.opacity(0.4), radius: 4, y: 0)
 
                 Text("\(max(level, 1))")
-                    .font(.system(.callout, weight: .black, design: .rounded))
+                    .font(.system(.callout, design: .rounded, weight: .black))
                     .foregroundStyle(.black)
             }
 
@@ -27,11 +27,11 @@ struct LevelBadgeView: View {
 
                 if level == 0 {
                     Text("New Player")
-                        .font(.system(.subheadline, weight: .bold, design: .rounded))
+                        .font(.system(.subheadline, design: .rounded, weight: .bold))
                         .foregroundStyle(tokens.textPrimary)
                 } else {
                     Text("Level \(level)")
-                        .font(.system(.subheadline, weight: .bold, design: .rounded))
+                        .font(.system(.subheadline, design: .rounded, weight: .bold))
                         .foregroundStyle(tokens.textPrimary)
                 }
             }

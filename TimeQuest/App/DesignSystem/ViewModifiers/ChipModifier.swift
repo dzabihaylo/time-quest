@@ -8,7 +8,7 @@ struct TQChipModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .font(.system(.caption, weight: .bold, design: .rounded))
+            .font(.system(.caption, design: .rounded, weight: .bold))
             .padding(.horizontal, tokens.spacingMD)
             .padding(.vertical, tokens.spacingSM - 1)
             .background(color.opacity(0.18))

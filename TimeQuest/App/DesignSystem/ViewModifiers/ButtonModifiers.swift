@@ -7,7 +7,7 @@ struct TQPrimaryButtonModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .font(.system(.headline, weight: .bold, design: .rounded))
+            .font(.system(.headline, design: .rounded, weight: .bold))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .foregroundStyle(.white)
@@ -33,7 +33,7 @@ struct TQSecondaryButtonModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .font(.system(.subheadline, weight: .bold, design: .rounded))
+            .font(.system(.subheadline, design: .rounded, weight: .bold))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .foregroundStyle(tokens.accent)
@@ -54,7 +54,7 @@ struct TQGoldButtonModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .font(.system(.headline, weight: .bold, design: .rounded))
+            .font(.system(.headline, design: .rounded, weight: .bold))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .foregroundStyle(.black)

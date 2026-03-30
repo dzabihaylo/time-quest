@@ -29,7 +29,7 @@ struct PlayerHomeView: View {
                         .shadow(color: tokens.accent.opacity(0.3), radius: 10, y: 0)
 
                     Text("TIMEQUEST")
-                        .font(.system(.largeTitle, weight: .black, design: .rounded))
+                        .font(.system(.largeTitle, design: .rounded, weight: .black))
                         .foregroundStyle(tokens.textPrimary)
                         .tracking(2)
                 }
