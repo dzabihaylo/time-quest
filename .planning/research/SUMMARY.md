@@ -365,7 +365,7 @@ Based on combined research, v3.0 should be structured as **4 independent phases 
 ## Sources
 
 ### Primary (HIGH confidence)
-- **TimeQuest v2.0 codebase** (66 Swift files, 6,211 LOC, analyzed directly from `/Users/davezabihaylo/Desktop/Claude Cowork/GSD/TimeQuest/`) -- existing architecture patterns, AppDependencies composition root, pure domain engines (InsightEngine, CalibrationTracker, XPEngine), EstimationSnapshot bridge, SchemaV1→V2→V3 migration history, SoundManager .ambient audio session config, GameSessionViewModel QuestPhase state machine, PROJECT.md player context and ADHD design principles
+- **TimeQuest v2.0 codebase** (66 Swift files, 6,211 LOC, analyzed directly from `/Users/davezabihaylo/Documents/Projects/time-quest/TimeQuest/`) -- existing architecture patterns, AppDependencies composition root, pure domain engines (InsightEngine, CalibrationTracker, XPEngine), EstimationSnapshot bridge, SchemaV1→V2→V3 migration history, SoundManager .ambient audio session config, GameSessionViewModel QuestPhase state machine, PROJECT.md player context and ADHD design principles
 - **Apple Developer Documentation** (training data through May 2025) -- EventKit framework (EKEventStore, authorization model, event queries, identifier portability), AVAudioSession (categories, interruption handling, .ambient mixing behavior), Security.framework Keychain API, SwiftUI environment-based theming (.environment(), EnvironmentKey pattern), ASWebAuthenticationSession OAuth flow, SwiftData lightweight migration constraints, CloudKit sync behavior with schema changes
 
 ### Secondary (MEDIUM confidence)

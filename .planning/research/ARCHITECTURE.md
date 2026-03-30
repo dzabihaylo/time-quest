@@ -1473,7 +1473,7 @@ Each new service has distinct failure modes:
 
 ## Sources
 
-- **Existing codebase analysis**: All 66 Swift files read and analyzed directly from `/Users/davezabihaylo/Desktop/Claude Cowork/GSD/TimeQuest/`
+- **Existing codebase analysis**: All 66 Swift files read and analyzed directly from `/Users/davezabihaylo/Documents/Projects/time-quest/TimeQuest/`
 - **Spotify iOS SDK**: Training data knowledge of SpotifyiOS SDK (SPTSessionManager, SPTAppRemote, SPTPlayerAPI). MEDIUM confidence -- SDK has been stable since 2019 but may have received updates post-May 2025. Verify current SDK version and API surface before implementation.
 - **EventKit**: Training data knowledge of EKEventStore, EKEvent, authorization model. HIGH confidence -- EventKit API has been stable since iOS 6. iOS 17 added `requestFullAccessToEvents()` (vs. legacy `requestAccess(to:)`) which is reflected above.
 - **SwiftUI Environment pattern**: Training data knowledge of `EnvironmentKey`, `EnvironmentValues` extension pattern. HIGH confidence -- this is core SwiftUI, unchanged since iOS 13.
