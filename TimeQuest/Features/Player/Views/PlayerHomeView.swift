@@ -18,8 +18,8 @@ struct PlayerHomeView: View {
 
     var body: some View {
         NavigationStack {
+            ScrollView {
             VStack(spacing: 24) {
-                Spacer()
 
                 // App logo area -- triple-tap triggers hidden access
                 VStack(spacing: 8) {
@@ -61,8 +61,6 @@ struct PlayerHomeView: View {
                     ActivityHeatmapView(dailyData: vm.heatmapData, weeksToShow: 6)
                         .padding(.horizontal, 24)
                 }
-
-                Spacer()
 
                 // Weekly reflection card (REQ-039)
                 if let reflection = reflectionVM?.currentReflection, showReflectionCard {
@@ -122,7 +120,8 @@ struct PlayerHomeView: View {
                     }
                 }
 
-                Spacer()
+            }
+            .padding(.top, 24)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationDestination(item: $selectedQuest) { routine in
