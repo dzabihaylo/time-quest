@@ -119,9 +119,9 @@ final class PlayerRoutineCreationViewModel {
     }
 
     var canSave: Bool {
-        let nameValid = !editState.displayName.trimmingCharacters(in: .whitespaces).isEmpty
+        let nameValid = editState.displayName.trimmingCharacters(in: .whitespaces).count >= 2
         let validTasks = editState.tasks.filter {
-            !$0.displayName.trimmingCharacters(in: .whitespaces).isEmpty
+            $0.displayName.trimmingCharacters(in: .whitespaces).count >= 2
         }
         let tasksValid = !validTasks.isEmpty && editState.tasks.count <= 10
         let daysValid = !editState.activeDays.isEmpty

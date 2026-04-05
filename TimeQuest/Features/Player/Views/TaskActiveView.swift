@@ -12,10 +12,24 @@ struct TaskActiveView: View {
     @State private var glowOpacity: Double = 0.2
 
     var body: some View {
-        VStack(spacing: 32) {
+        VStack(spacing: 24) {
             Spacer()
 
-            // Ambient breathing ring — game-UI style pulsing circle
+            // Context label + task name (so a number doesn't look like a countdown)
+            VStack(spacing: 8) {
+                Text("NOW DOING")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundStyle(tokens.accent)
+                    .tracking(2)
+
+                Text(viewModel.currentTask?.displayName ?? "")
+                    .font(.system(.largeTitle, design: .rounded, weight: .black))
+                    .foregroundStyle(tokens.textPrimary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+            }
+
+            // Ambient breathing ring
             ZStack {
                 Circle()
                     .fill(tokens.accent.opacity(glowOpacity))
@@ -34,13 +48,6 @@ struct TaskActiveView: View {
                 }
             }
 
-            // Task name
-            Text(viewModel.currentTask?.displayName ?? "")
-                .font(.system(.largeTitle, design: .rounded, weight: .black))
-                .foregroundStyle(tokens.textPrimary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-
             Text("GO!")
                 .font(.system(.title, design: .rounded, weight: .black))
                 .foregroundStyle(tokens.accent)
@@ -49,7 +56,7 @@ struct TaskActiveView: View {
             Spacer()
             Spacer()
 
-            // Done button — big chunky 3D green
+            // Done button
             Button {
                 viewModel.completeActiveTask()
             } label: {

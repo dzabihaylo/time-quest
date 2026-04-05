@@ -35,6 +35,13 @@ struct AccuracyRevealView: View {
                         .allowsHitTesting(false)
                 }
 
+                // Task name context
+                if let task = viewModel.currentTask {
+                    Text(task.displayName)
+                        .font(tokens.font(.headline))
+                        .foregroundStyle(tokens.textSecondary)
+                }
+
                 // Estimated time
                 if let result = viewModel.currentResult {
                     VStack(spacing: 4) {
@@ -90,15 +97,12 @@ struct AccuracyRevealView: View {
                 Button {
                     viewModel.advanceToNextTask()
                 } label: {
-                    Text(viewModel.currentTaskIndex + 1 < viewModel.totalTasks ? "Next Step" : "See Results")
-                        .font(tokens.font(.headline))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
+                    Text(viewModel.currentTaskIndex + 1 < viewModel.totalTasks ? "NEXT STEP" : "SEE RESULTS")
+                        .tqPrimaryButton()
                 }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
-                .padding(.horizontal, 32)
-                .padding(.bottom, 32)
+                .buttonStyle(.plain)
+                .padding(.horizontal, tokens.spacingXXL)
+                .padding(.bottom, tokens.spacingXXL)
             }
             .padding()
             .sensoryFeedback(.impact(weight: .medium, intensity: 0.8), trigger: hapticTrigger)

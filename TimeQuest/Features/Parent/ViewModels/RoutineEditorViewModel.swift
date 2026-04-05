@@ -67,10 +67,10 @@ final class RoutineEditorViewModel {
     var isNewRoutine: Bool { existingRoutine == nil }
 
     var canSave: Bool {
-        !editState.name.trimmingCharacters(in: .whitespaces).isEmpty
-        && !editState.displayName.trimmingCharacters(in: .whitespaces).isEmpty
-        && editState.tasks.contains { !$0.name.trimmingCharacters(in: .whitespaces).isEmpty
-            && !$0.displayName.trimmingCharacters(in: .whitespaces).isEmpty }
+        editState.name.trimmingCharacters(in: .whitespaces).count >= 2
+        && editState.displayName.trimmingCharacters(in: .whitespaces).count >= 2
+        && editState.tasks.contains { $0.name.trimmingCharacters(in: .whitespaces).count >= 2
+            && $0.displayName.trimmingCharacters(in: .whitespaces).count >= 2 }
     }
 
     init(routine: Routine?, repository: RoutineRepositoryProtocol, modelContext: ModelContext) {

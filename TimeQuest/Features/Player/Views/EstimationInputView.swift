@@ -40,11 +40,19 @@ struct EstimationInputView: View {
                 .clipShape(Capsule())
             }
 
-            // Task name
-            Text(viewModel.currentTask?.displayName ?? "")
-                .font(tokens.font(.title, weight: .bold))
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
+            // Task name with context label
+            VStack(spacing: 6) {
+                Text("UP NEXT")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundStyle(tokens.accent)
+                    .tracking(2)
+
+                Text(viewModel.currentTask?.displayName ?? "")
+                    .font(tokens.font(.title, weight: .bold))
+                    .foregroundStyle(tokens.textPrimary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+            }
 
             Text("How long will this take?")
                 .font(tokens.font(.title3))
